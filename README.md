@@ -1,3 +1,10 @@
+# Local development
+
+- `cp .env.example .env`
+- `docker compose up -d`
+- `docker compose -it exec fpm sh`
+
+# About Project
 "*" - if there’s enough time to complete it.
 1. Registration and Authorization:
 -	New user registration capability.
