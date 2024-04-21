@@ -1,0 +1,48 @@
+services:
+  nginx:
+    build:
+      context: .
+      target: nginx-dev
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/app/public:ro
+      - ./docker/nginx/conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro
+    networks:
+      - diploma-network
+    environment:
+      NGINX_CONTAINER_CLIENT_MAX_BODY_SIZE: '32M'
+      NGINX_CONTAINER_SWAGGER_ORIGIN: '*'
+      NGINX_CONTAINER_FPM_HOST: 'fpm'
+    depends_on:
+      - fpm
+
+  fpm:
+    build:
+      context: .
+      target: fpm-dev
+    volumes:
+      - ./:/app
+    networks:
+      - diploma-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Europe/Kiev
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    networks:
+      - diploma-network
+    env_file:
+      - ".env"
+networks:
+  diploma-network:
+
