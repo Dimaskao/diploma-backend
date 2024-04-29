@@ -23,6 +23,7 @@ return new class extends Migration
         });
 
         Schema::create('job_batches', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->string('id')->primary();
             $table->string('name');
             $table->integer('total_jobs');
@@ -36,6 +37,7 @@ return new class extends Migration
         });
 
         Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->string('uuid')->unique();
             $table->text('connection');
