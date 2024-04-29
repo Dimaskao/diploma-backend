@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->uuid('id')->primary();
             $table->text('text');
             $table->uuid('post_id');

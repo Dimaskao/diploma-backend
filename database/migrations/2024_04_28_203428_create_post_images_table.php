@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_images', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->uuid('id')->primary();
             $table->uuid('post_id');
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
