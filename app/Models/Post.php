@@ -15,9 +15,14 @@ class Post extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['title', 'content', 'user_id', 'company_id'];
 
-    public function postImage() : HasMany 
+    public function postImages() : HasMany 
     {
         return $this->hasMany(PostImage::class);
+    }
+
+    public function comments() : HasMany 
+    {
+        return $this->hasMany(Comment::class);
     }
 
     public function company(): BelongsTo
