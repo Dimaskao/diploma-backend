@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
+use App\Models\JobOffer;
 use Illuminate\Http\Request;
 
-class CompaniesController extends Controller
+class JobOffersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,9 +13,8 @@ class CompaniesController extends Controller
     public function index()
     {
         //
-        $companies = Company::all();
-
-        return $companies;
+        $jobOffers = JobOffer::all();
+        return $jobOffers;
     }
 
     /**
@@ -32,9 +31,8 @@ class CompaniesController extends Controller
     public function show(string $id)
     {
         //
-        $company = Company::where('id', $id)->get();
-
-        return $company;
+        $jobOffer = JobOffer::find($id);
+        return $jobOffer;
     }
 
     /**
