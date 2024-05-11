@@ -6,10 +6,7 @@ use App\Http\Controllers\SkillsController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
-// api/...
-Route::get('users', [UsersController::class, 'index']);
-Route::get('users/{id}', [UsersController::class, 'show']);
-Route::post('users/create', [UsersController::class, 'store']);
+Route::resource('users', UsersController::class);
 
 Route::get('skills', [SkillsController::class, 'index']);
 Route::get('skills/{id}', [SkillsController::class, 'show']);
