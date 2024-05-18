@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Helpers\DbHelper;
 use App\Http\Resources\UserResource;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use App\Helpers;
 
 class UsersController extends Controller
 {
@@ -26,20 +23,29 @@ class UsersController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        DbHelper::store($request, gettype(new User()), [
-            'first_name',
-            'last_name',
-            'email',
-            'password',
-            'avatar_url',
-            'skills_desc',
-            'experience'
-        ]);
+        try {
+            $user = DbHelper::store($request, gettype(new User()), [
+                'first_name',
+                'last_name',
+                'email',
+                'password',
+                'avatar_url',
+                'skills_desc',
+                'experience'
+            ]);
 
-        return response()->json([
-            'success'  => true,
-            'user_id' => $user->id
-        ], 201);
+            $userId = $user[gettype(new User())];
+
+            return response()->json([
+                'success' => true,
+                'user_id' => $userId
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => "Unexpected error occurred during processing the request. The transaction will be rolled back. Please, check your request: $request"
+            ], 500);
+        }
     }
 
     /**
@@ -49,8 +55,8 @@ class UsersController extends Controller
     {
         try {
             return new UserResource(DbHelper::findOrFail($id, gettype(new User())));
-        } catch (/Exception $e) {
-            response()->json(['error'  => 'The user with the following id does not exist'], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => "The user with the following with id $id does not exist"], 400);
         }
     }
 
@@ -60,9 +66,9 @@ class UsersController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $user = DbHelper::findOrFail($id. gettype(new User()));
-
-            $validatedData = $request->validate([
+            $modelType = gettype(new User());
+            $user = DbHelper::findOrFail($id . $modelType);
+            return DbHelper::update($request, [
                 'first_name' => 'string|max:255',
                 'last_name' => 'string|max:255',
                 'email' => [
@@ -75,13 +81,11 @@ class UsersController extends Controller
                 'avatar_url' => 'nullable|string',
                 'skills_desc' => 'nullable|string',
                 'experience' => 'nullable|string',
-            ]);
-
-            $user->update($validatedData);
-
-            return response()->json(['user' => $user], 200);
+            ], $modelType, $id);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'The user was not updated'], 500);
+            return response()->json([
+                'error' => 'The user was not updated'
+            ], 500);
         }
     }
 
@@ -90,12 +94,6 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $user = User::findOrFail($id, DbHelper::findOrFail($id, gettype(new User())));
-            $user->delete();
-            return response()->json(['message' => 'User project deleted successfully'], 200);
-        } catch(\Exception $e) {
-            return response()->json(['error' => 'Fail to delete a user'], 500);
-        }
+        DbHelper::destroy($id, gettype(new User()));
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DbHelper;
 use Illuminate\Http\Request;
 use App\Models\Skill;
-use App\Http\Resources;
+use App\Http\Resources\SkillsResource;
 
 class SkillsController extends Controller
 {
@@ -21,7 +22,7 @@ class SkillsController extends Controller
      */
     public function store(Request $request)
     {
-        DbHelper::store(gettype(new Skill()), ['name']);
+        DbHelper::store($request, gettype(new Skill()), ['name']);
     }
 
     /**
@@ -30,7 +31,7 @@ class SkillsController extends Controller
     public function show($id)
     {         
         try {
-            return new SkillsResource($request, DbHelper::findOrFail($id, gettype(new Skill())))
+            return new SkillsResource(DbHelper::findOrFail($id, gettype(new Skill())));
         } catch (\Exception $e) {
             return response()->json(['error'  => 'The skill with the following id does not exist'], 400);
         }
@@ -55,12 +56,6 @@ class SkillsController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $skill = UserEducation::findOrFail($id, gettype(new Skill()));
-            $skill->delete();
-            return response()->json(['message' => 'Skill was deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete the skill'], 500);
-        }
+        DbHelper::destroy($id, gettype(new Skill()));
     }
 }
