@@ -26,3 +26,15 @@ class UserProject extends Model
         return $this->belongsTo(User::class);
     }
 }
+   
+
+
+
+
+
+
+
+
+
+
+q   as
