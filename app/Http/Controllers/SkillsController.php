@@ -30,7 +30,7 @@ class SkillsController extends Controller
     public function show($id)
     {         
         try {
-            return new SkillsResource(DbHelper::findOrFail($id, gettype(new Skill())))
+            return new SkillsResource($request, DbHelper::findOrFail($id, gettype(new Skill())))
         } catch (\Exception $e) {
             return response()->json(['error'  => 'The skill with the following id does not exist'], 400);
         }

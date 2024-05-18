@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 class DbHelper
 {
-    public static function store($modelType, array $requestedObjectFields)
+    public static function store(Request $request, string $modelType, array $requestedObjectFields)
     {
         $data = $request->only($requestedObjectFields);
 
@@ -40,7 +40,7 @@ class DbHelper
     private static function createModelByItsType(string $ype, $data)
     {
         switch (strtolower($type)) {
-            case 'skills':
+            case 'skill':
                 return Skills::create($data);
         }
     }
