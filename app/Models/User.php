@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -60,10 +61,10 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
-    public function user_projects(): HasMany
-    {
-        return $this->hasMany(UserProject::class);
-    }
+    // public function user_projects(): HasMany
+    // {
+    //     return $this->hasMany(UserProject::class);
+    // }
 
     public function user_educations(): HasMany
     {
@@ -73,5 +74,10 @@ class User extends Authenticatable
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class);
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
     }
 }
