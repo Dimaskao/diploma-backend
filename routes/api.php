@@ -18,23 +18,23 @@
 // Route::get('job-offers/{id}', [JobOffersController::class, 'show']);
 
 
-use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // Register a new user or company
-Route::post('/register', [UserProfileController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // Log in user or company
-Route::post('/login', [UserProfileController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 
 // Log out user or company
-Route::post('/logout', [UserProfileController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
 // Display the specified user or company profile
-Route::get('/profile/{id}', [UserProfileController::class, 'show']);
+Route::get('/profile/{id}', [AuthController::class, 'show']);
 
 // Update the specified user or company profile
-Route::put('/profile/{id}', [UserProfileController::class, 'update']);
+Route::put('/profile/{id}', [AuthController::class, 'update']);
 
 // Add contact information to user or company profile
-Route::post('/profile/{id}/contact', [UserProfileController::class, 'addContactInfo']);
+Route::post('/profile/{id}/contact', [AuthController::class, 'addContactInfo']);

@@ -9,7 +9,7 @@ use App\Traits\AuthTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class UserProfileController extends Controller
+class AuthController extends Controller
 {
     use AuthTrait;
 
