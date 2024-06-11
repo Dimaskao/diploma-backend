@@ -10,50 +10,45 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasUuids, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    use HasFactory, Notifiable, HasApiTokens, HasUuids;
 
     protected $primaryKey = 'id';
-
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'company_id',
+        'user_id',
         'email',
         'password',
         'avatar_url',
-        'skills_desc',
-        'experience'
+        'role_id'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    public function regularUser(): BelongsTo
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(RegularUser::class, 'user_id');
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
     }
 
     public function posts(): HasMany
@@ -61,23 +56,8 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
-    // public function user_projects(): HasMany
-    // {
-    //     return $this->hasMany(UserProject::class);
-    // }
-
-    public function user_educations(): HasMany
+    public function contacts(): BelongsToMany
     {
-        return $this->hasMany(UserEducation::class);
-    }
-
-    public function skills(): BelongsToMany
-    {
-        return $this->belongsToMany(Skill::class);
-    }
-
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(User::class, 'contacts', 'user_id', 'contact_id');
     }
 }

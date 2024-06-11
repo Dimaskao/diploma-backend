@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('job_offers', function (Blueprint $table) {
-            $table->engine('InnoDB');
             $table->uuid('id')->primary();
-            $table->string('title');
             $table->uuid('company_id');
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->string('title');
             $table->string('position');
-            $table->text('desc');
-            $table->text('requirements');
-            $table->integer('requirement_experience')->unsigned();
+            $table->text('description')->nullable();
+            $table->text('requirements')->nullable();
+            $table->text('requirement_experience')->nullable();
             $table->timestamps();
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Company extends Model
 {
@@ -15,14 +16,16 @@ class Company extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'email',
-        'password',
-        'desc',
+        'description',
         'contact_email',
         'contact_phone',
-        'contact_url',
-        'avatar_url'
+        'contact_url'
     ];
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'company_id');
+    }
 
     public function posts(): HasMany
     {
@@ -32,10 +35,5 @@ class Company extends Model
     public function job_offers(): HasMany
     {
         return $this->hasMany(JobOffer::class);
-    }
-
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
     }
 }

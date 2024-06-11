@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_educations', function (Blueprint $table) {
-            $table->engine('InnoDB');
+        Schema::create('user_education', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('institution');
             $table->string('degree');
             $table->string('field_of_study');
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->string('contact_url')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('regular_users')->onDelete('cascade');
         });
     }
 

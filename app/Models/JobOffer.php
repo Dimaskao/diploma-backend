@@ -17,7 +17,7 @@ class JobOffer extends Model
         'title',
         'company_id',
         'position',
-        'desc',
+        'description',
         'requirements',
         'requirement_experience'
     ];

@@ -2,22 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
+    protected $primaryKey = 'id';
     protected $fillable = ['name'];
 
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class);
-    }
-
-    public function companies()
-    {
-        return $this->hasMany(Company::class);
     }
 }
