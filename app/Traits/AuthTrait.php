@@ -41,9 +41,11 @@ trait AuthTrait
         $data['role_id'] = $role->id;
 
         if ($data['role'] === 'company') {
-            return Company::create($data);
-        } else if ($data['role'] === 'user') {
-            return User::create($data);
+            $company = Company::create($data);
+            return $company;
+        } elseif ($data['role'] === 'user') {
+            $user = User::create($data);
+            return $user;
         }
 
         throw new \Exception('Failed to create user or company');

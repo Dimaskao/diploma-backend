@@ -23,7 +23,7 @@ class RegularUser extends Model
 
     public function user(): HasOne
     {
-        return $this->hasOne(User::class, 'id');
+        return $this->hasOne(User::class, 'user_id');
     }
 
     public function user_educations(): HasMany

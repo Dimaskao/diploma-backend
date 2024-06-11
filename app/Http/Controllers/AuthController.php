@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Company;
 use App\Traits\AuthTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,10 +25,9 @@ class AuthController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $data = $validator->validated();
-
         try {
-            $result = $this->registerUser($data); 
+            $data = $validator->validated();
+            $result = $this->registerUser($data);
             if ($data['role'] === 'company') {
                 return response()->json(['company' => $result], 201);
             } else if ($data['role'] === 'user') {
@@ -41,7 +41,7 @@ class AuthController extends Controller
     /**
      * Log in user or company.
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $validator = $this->validateLoginData($request->all());
 
@@ -63,7 +63,7 @@ class AuthController extends Controller
     /**
      * Log out user or company.
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         try {
             $this->userLogout($request->user());

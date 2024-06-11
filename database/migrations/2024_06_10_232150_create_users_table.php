@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('password');
             $table->text('avatar_url')->nullable();
             $table->uuid('role_id');
-            $table->text('skills_description')->nullable();
-            $table->text('experience')->nullable();
             $table->timestamps();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
