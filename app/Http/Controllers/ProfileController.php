@@ -21,7 +21,6 @@ use Illuminate\Validation\ValidationException;
 -	Search and view profiles of other users.
 
 5. Network of Enterprises and Companies:
--  Creation of company pages.
 -  Search and view information about companies, including vacancies, news, contact information.
 -  Ability to view user vacancies.
  * */
@@ -137,11 +136,11 @@ class ProfileController extends Controller
      */
     private function updateUserInformation($user, $request): JsonResponse
     {
-        if (isset($request['update_type'])) {
-            $updateType = $request['update_type'];
+        if (isset($request['updateType'])) {
+            $updateType = $request['updateType'];
 
-            if (isset($updateType['personal_information'])) {
-                $this->updateUserProfile($updateType['personal_information'], $user);
+            if (isset($updateType['personalInformation'])) {
+                $this->updateUserProfile($updateType['personalInformation'], $user);
             }
 
             if (isset($updateType['photos'])) {
@@ -152,8 +151,8 @@ class ProfileController extends Controller
                 $this->updateUserEducation($updateType['education'], $user);
             }
 
-            if (isset($updateType['work_experience'])) {
-                $this->updateWorkExperience($updateType['work_experience'], $user);
+            if (isset($updateType['workExperience'])) {
+                $this->updateWorkExperience($updateType['workExperience'], $user);
             }
 
             if (isset($updateType['skills'])) {
