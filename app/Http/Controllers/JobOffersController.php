@@ -23,6 +23,8 @@ class JobOffersController extends Controller
     public function store(Request $request)
     {
         //
+        $jobOffer = new JobOffer($request->all());
+        $jobOffer->save();
     }
 
     /**
