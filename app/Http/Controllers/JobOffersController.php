@@ -22,8 +22,24 @@ class JobOffersController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $jobOffer = new JobOffer($request->all());
+        $jobOffer = new JobOffer([
+            'title' => $request->get('title'),
+            'company_id' => $request->get('company_id'),
+            'position' => $request->get('position'),
+            'desc' => $request->get('desc'),
+            'requirements' => $request->get('requirements'),
+            'requirement_experience' => $request->get('requirement_experience')
+        ]);
+
+        // $jobOffer = new JobOffer();
+        // $jobOffer->title = $request->get('title');
+        // $jobOffer->company_id = $request->get('company_id');
+        // $jobOffer->position = $request->get('position');
+        // $jobOffer->desc = $request->get('desc');
+        // $jobOffer->requirements = $request->get('requirements');
+        // $jobOffer->requirement_experience = $request->get('requirement_experience');
+
+        //var_dump($jobOffer);
         $jobOffer->save();
     }
 
