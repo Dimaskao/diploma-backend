@@ -74,4 +74,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Skill::class);
     }
+
+    public function job_offers(): BelongsToMany
+    {
+        return $this->belongsToMany(JobOffer::class);
+    }
 }
