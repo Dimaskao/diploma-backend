@@ -50,4 +50,9 @@ class JobOffersController extends Controller
     {
         //
     }
+
+    public function job_offers_by_company(string $id) {
+        $jobOffers = JobOffer::where('company_id', $id)->orderBy('created_at')->get();
+        return $jobOffers;
+    }
 }
