@@ -24,6 +24,8 @@ class CompaniesController extends Controller
     public function store(Request $request)
     {
         //
+        $company = new Company($request->all());
+        $company->save();
     }
 
     /**
