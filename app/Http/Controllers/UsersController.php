@@ -45,7 +45,7 @@ class UsersController extends Controller
                 'message' => $dbError->getMessage(),
                 'code'    => 'db/error',
             ]);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             DB::rollBack();
 
             throw $error;
