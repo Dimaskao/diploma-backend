@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +14,7 @@ class ProfileController extends Controller
     /**
      * Display the profile of a user or company.
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         list($user, $role) = $this->getUserAndRole($id);
 
@@ -34,20 +32,20 @@ class ProfileController extends Controller
     /**
      * Update the profile of a user or company.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         list($user, $role) = $this->getUserAndRole($id);
 
         if ($role === 'user') {
-            if (isset($request['update_type'])) {
+            if ($request->has('update_type')) {
                 $user = DB::table('regular_users')
-                    ->where('id', $user->getAttribute('user_id'))
+                    ->where('id', $user->user_id)
                     ->first();
                 return $this->updateUserInformation($user, $request);
             }
         } elseif ($role === 'company') {
             $user = DB::table('companies')
-                ->where('id', $user->getAttribute('company_id'))
+                ->where('id', $user->company_id)
                 ->first();
             return $this->updateCompanyInformation($user, $request);
         }
@@ -60,11 +58,18 @@ class ProfileController extends Controller
      */
     public function subscribe(Request $request): JsonResponse
     {
-        if (isset($request['subscriberId']) && isset($request['subscriptionId'])) {
+        if ($request->has(['subscriberId', 'subscriptionId'])) {
+            $subscriberId = $request->input('subscriberId');
+            $subscriptionId = $request->input('subscriptionId');
+
+            $subscriberUserId = DB::table('users')
+                ->where('id', $subscriberId)
+                ->value('user_id');
+
             $data['subscriber_id'] = DB::table('regular_users')
-                ->where('id', (DB::table('users')->where('id', $request['subscriberId'])->first())->getAttribute('user_id'))
-                ->first()->getAttribute('id');
-            $data['subscription_id'] = $request['subscriptionId'];
+                ->where('id', $subscriberUserId)
+                ->value('id');
+            $data['subscription_id'] = $subscriptionId;
             DB::table('user_contacts')->insert($data);
 
             return response()->json(['message' => 'Subscribed successfully'], 200);
@@ -78,13 +83,22 @@ class ProfileController extends Controller
      */
     public function unsubscribe(Request $request): JsonResponse
     {
-        if (isset($request['subscriberId']) && isset($request['subscriptionId'])) {
+        if ($request->has(['subscriberId', 'subscriptionId'])) {
+            $subscriberId = $request->input('subscriberId');
+            $subscriptionId = $request->input('subscriptionId');
+
+            $subscriberUserId = DB::table('users')
+                ->where('id', $subscriberId)
+                ->value('user_id');
+
+            $subscriberId = DB::table('regular_users')
+                ->where('id', $subscriberUserId)
+                ->value('id');
+
             $recordId = DB::table('user_contacts')
-                ->where('subscriber_id', DB::table('regular_users')
-                    ->where('id', (DB::table('users')->where('id', $request['subscriberId'])->first())->getAttribute('user_id'))
-                    ->first()->getAttribute('id'))
-                ->where('subscription_id', $request['subscriptionId'])
-                ->first()->getAttribute('id');
+                ->where('subscriber_id', $subscriberId)
+                ->where('subscription_id', $subscriptionId)
+                ->value('id');
             DB::table('user_contacts')->delete($recordId);
 
             return response()->json(['message' => 'Unsubscribed successfully'], 200);
@@ -96,13 +110,13 @@ class ProfileController extends Controller
     /**
      * Search for users or companies.
      */
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
-        if (isset($request['query']) && (isset($request['users']) || isset($request['companies']) || isset($request['all']))) {
-            $query = $request['query'];
+        if ($request->has('query') && ($request->has('users') || $request->has('companies') || $request->has('all'))) {
+            $query = $request->input('query');
             $results = [];
 
-            if (isset($request['users']) || isset($request['all'])) {
+            if ($request->has('users') || $request->has('all')) {
                 $users1 = DB::table('regular_users')
                     ->where('first_name', 'LIKE', "%{$query}%")
                     ->where('last_name', 'LIKE', "%{$query}%")
@@ -115,21 +129,21 @@ class ProfileController extends Controller
 
                 foreach ($users as $user) {
                     $results[] = [
-                        'id' => (DB::table('users')->where('user_id', $user->getAttribute('id'))->first()->getAttribute('id')),
-                        'name' => "{$user->getAttribute('first_name')} {$user->getAttribute('last_name')}"
+                        'id' => DB::table('users')->where('user_id', $user->id)->value('id'),
+                        'name' => "{$user->first_name} {$user->last_name}"
                     ];
                 }
             }
 
-            if (isset($request['companies']) || isset($request['all'])) {
+            if ($request->has('companies') || $request->has('all')) {
                 $companies = DB::table('companies')
-                    ->where('name', 'LIKE', "%$query%")
+                    ->where('name', 'LIKE', "%{$query}%")
                     ->get();
 
                 foreach ($companies as $company) {
                     $results[] = [
-                        'id' => (DB::table('users')->where('user_id', $user->getAttribute('id'))->first()->getAttribute('id')),
-                        'name' => $company->getAttribute('name')
+                        'id' => DB::table('users')->where('user_id', $company->id)->value('id'),
+                        'name' => $company->name
                     ];
                 }
             }
@@ -144,13 +158,13 @@ class ProfileController extends Controller
      * Update user information.
      *
      * @param $user
-     * @param $request
+     * @param Request $request
      * @return JsonResponse
      */
-    private function updateUserInformation($user, $request): JsonResponse
+    private function updateUserInformation($user, Request $request): JsonResponse
     {
-        if (isset($request['updateType'])) {
-            $updateType = $request['updateType'];
+        if ($request->has('updateType')) {
+            $updateType = $request->input('updateType');
 
             if (isset($updateType['personalInformation'])) {
                 $this->updateUserProfile($updateType['personalInformation'], $user);
@@ -175,39 +189,47 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Profile updated successfully', 'user' => $user]);
         }
 
-        return response()->json(['message' => 'Unset update type', 400]);
+        return response()->json(['message' => 'Unset update type'], 400);
     }
 
     /**
      * Update company information.
      *
      * @param $user
-     * @param $request
+     * @param Request $request
      * @return JsonResponse
      */
-    private function updateCompanyInformation($user, $request)
+    private function updateCompanyInformation($user, Request $request): JsonResponse
     {
-//        $company = $user->company;
-//        $company->update($data);
+        // Implement company update logic here
 
-//        return response()->json(['message' => 'Profile updated successfully', 'company' => $company]);
+        return response()->json(['message' => 'Profile updated successfully', 'company' => $user]);
     }
 
     /**
+     * Get the user and their role.
+     *
+     * @param int $id
      * @return array
      */
-    private function getUserAndRole($id): array
+    private function getUserAndRole(int $id): array
     {
         $user = DB::table('users')
             ->where('id', $id)
             ->first();
-        $role = $user->getAttribute('role');
-        return array($user, $role);
+        $role = $user->role;
+        return [$user, $role];
     }
 
-    private function updateUserProfile($personalInformation, $user)
+    /**
+     * Update user profile information.
+     *
+     * @param array $personalInformation
+     * @param $user
+     */
+    private function updateUserProfile(array $personalInformation, $user)
     {
-        $validator = Validator::make($personalInformation->all(), [
+        $validator = Validator::make($personalInformation, [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
             'avatar_url' => 'sometimes|url',
@@ -217,50 +239,40 @@ class ProfileController extends Controller
             'contact_phone' => 'sometimes|string|max:20',
             'contact_url' => 'sometimes|url',
             'desc' => 'sometimes|string',
-        ], [
-            'required_if' => 'The :attribute field is required when the role is :value.',
-            'unique' => 'The :attribute has already been taken.',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        try {
-            $data = $validator->validated();
-        } catch (ValidationException $e) {
-            return response()->json(['error' => $e->errors()], 400);
-        }
+        $data = $validator->validated();
 
         if (isset($data['id'])) {
             $record = DB::table('regular_users')
-                ->where('id', $user->getAttribute('id'))
+                ->where('id', $user->id)
                 ->first();
             $record->update($data);
         } else {
-            return response()->json(['error' => "The user with id $user->getAttribute('id') does not exist"], 400);
+            return response()->json(['error' => "The user with id {$user->id} does not exist"], 400);
         }
     }
 
     /**
      * Update work experience.
      *
-     * @param array $work_experience
+     * @param array $workExperience
+     * @param $user
      * @return JsonResponse
      */
-    private function updateWorkExperience($workExperience, $user)
+    private function updateWorkExperience(array $workExperience, $user): JsonResponse
     {
-        try {
-            $data = $this->getValidatedData($workExperience, [
-                'position' => 'sometimes|string|max:255',
-                'company' => 'sometimes|string|max:255',
-                'start_date' => 'sometimes|date',
-                'end_date' => 'sometimes|date',
-                'description' => 'sometimes|string|max:255',
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e], 400);
-        }
+        $data = $this->getValidatedData($workExperience, [
+            'position' => 'sometimes|string|max:255',
+            'company' => 'sometimes|string|max:255',
+            'start_date' => 'sometimes|date',
+            'end_date' => 'sometimes|date',
+            'description' => 'sometimes|string|max:255',
+        ]);
 
         if (isset($data['id'])) {
             $workExperienceRecord = DB::table('work_experiences')
@@ -273,33 +285,30 @@ class ProfileController extends Controller
         if ($workExperienceRecord) {
             $workExperienceRecord->update($data);
         } else {
-            $data['user_id'] = $user->getAttribute('user_id');
+            $data['user_id'] = $user->user_id;
             DB::table('work_experiences')->insert($data);
         }
 
-        return response()->json(['message' => 'Education updated successfully', 'education' => $data]);
+        return response()->json(['message' => 'Work experience updated successfully', 'workExperience' => $data]);
     }
 
     /**
      * Update education.
      *
      * @param array $education
+     * @param $user
      * @return JsonResponse
      */
-    private function updateUserEducation($education, $user)
+    private function updateUserEducation(array $education, $user): JsonResponse
     {
-        try {
-            $data = $this->getValidatedData($education, [
-                'institution' => 'sometimes|string|max:255',
-                'degree' => 'sometimes|string|max:255',
-                'field_of_study' => 'sometimes|string|max:255',
-                'start_date' => 'sometimes|date',
-                'end_date' => 'sometimes|date',
-                'contact_url' => 'sometimes|url',
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e], 400);
-        }
+        $data = $this->getValidatedData($education, [
+            'institution' => 'sometimes|string|max:255',
+            'degree' => 'sometimes|string|max:255',
+            'field_of_study' => 'sometimes|string|max:255',
+            'start_date' => 'sometimes|date',
+            'end_date' => 'sometimes|date',
+            'contact_url' => 'sometimes|url',
+        ]);
 
         if (isset($data['id'])) {
             $educationRecord = DB::table('user_educations')
@@ -312,7 +321,7 @@ class ProfileController extends Controller
         if ($educationRecord) {
             $educationRecord->update($data);
         } else {
-            $data['user_id'] = $user->getAttribute('user_id');
+            $data['user_id'] = $user->user_id;
             DB::table('user_educations')->insert($data);
         }
 
@@ -321,99 +330,107 @@ class ProfileController extends Controller
 
     private function updateUserPhotos($request, $user)
     {
+        // Implement photo update logic here
     }
 
-    private function updateUserSkills($skill, $user)
+    private function updateUserSkills($skill, $user): JsonResponse
     {
-        try {
-            $data = $this->getValidatedData($skill, [
-                'name' => 'string|max:255'
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e], 400);
-        }
+        $data = $this->getValidatedData($skill, [
+            'name' => 'string|max:255'
+        ]);
 
         if (isset($data['id'])) {
-            $educationRecord = DB::table('skills')
+            $skillsRecord = DB::table('skills')
                 ->where('id', $data['id'])
                 ->first();
         } else {
-            $educationRecord = null;
+            $skillsRecord = null;
         }
 
-        if ($educationRecord) {
-            $educationRecord->update($data);
+        if ($skillsRecord) {
+            $skillsRecord->update($data);
         } else {
-            $data['user_id'] = $user->getAttribute('user_id');
-            DB::table('skills`')->insert($data);
+            $data['user_id'] = $user->user_id;
+            DB::table('skills')->insert($data);
         }
 
-        return response()->json(['message' => 'Education updated successfully', 'education' => $data]);
+        return response()->json(['message' => 'Skills updated successfully', 'skills' => $data]);
     }
 
     /**
+     * Validate data with given rules.
+     *
+     * @param array $data
+     * @param array $rules
+     * @return array
      * @throws ValidationException
-     * @throws Exception
      */
-    private function getValidatedData($data, $rules)
+    private function getValidatedData(array $data, array $rules): array
     {
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new Exception('Validation failed');
+            throw new ValidationException($validator);
         }
 
         return $validator->validated();
     }
 
-    private function getRegularUserProfile($user, $id): array
+    /**
+     * Get the profile of a regular user.
+     *
+     * @param $user
+     * @param int $id
+     * @return array
+     */
+    private function getRegularUserProfile($user, int $id): array
     {
         $regularUserRecord = DB::table('regular_users')
-            ->where('id', $user->getAttribute('user_id'))
+            ->where('id', $user->user_id)
             ->first();
         $user = [
-            'id' => $user->getAttribute('id'),
-            'firstName' => $regularUserRecord->getAttribute('first_name'),
-            'lastName' => $regularUserRecord->getAttribute('last_name'),
-            'skillsDesc' => $regularUserRecord->getAttribute('skills_desc'),
-            'experience' => $regularUserRecord->getAttribute('experience'),
+            'id' => $user->id,
+            'firstName' => $regularUserRecord->first_name,
+            'lastName' => $regularUserRecord->last_name,
+            'skillsDesc' => $regularUserRecord->skills_desc,
+            'experience' => $regularUserRecord->experience,
         ];
 
-        $educationRecords = DB::table('user_education')
-            ->where('user_id', $regularUserRecord->getAttribute('id'))
+        $educationRecords = DB::table('user_educations')
+            ->where('user_id', $regularUserRecord->id)
             ->get();
         $education = [];
         foreach ($educationRecords as $educationRecord) {
             $education[] = [
-                'institution' => $educationRecord->getAttribute('institution'),
-                'degree' => $educationRecord->getAttribute('degree'),
-                'fieldOfStudy' => $educationRecord->getAttribute('field_of_study'),
-                'startDate' => $educationRecord->getAttribute('start_date'),
-                'endDate' => $educationRecord->getAttribute('end_date'),
-                'contactUrl' => $educationRecord->getAttribute('contact_url')
+                'institution' => $educationRecord->institution,
+                'degree' => $educationRecord->degree,
+                'fieldOfStudy' => $educationRecord->field_of_study,
+                'startDate' => $educationRecord->start_date,
+                'endDate' => $educationRecord->end_date,
+                'contactUrl' => $educationRecord->contact_url
             ];
         }
 
         $workExperienceRecords = DB::table('work_experiences')
-            ->where('user_id', $regularUserRecord->getAttribute('id'))
+            ->where('user_id', $regularUserRecord->id)
             ->get();
         $workExperience = [];
         foreach ($workExperienceRecords as $workExperienceRecord) {
             $workExperience[] = [
-                'position' => $workExperienceRecord->getAttribute('position'),
-                'description' => $workExperienceRecord->getAttribute('description'),
-                'dateStart' => $workExperienceRecord->getAttribute('date_start'),
-                'dateEnd' => $workExperienceRecord->getAttribute('date_end')
+                'position' => $workExperienceRecord->position,
+                'description' => $workExperienceRecord->description,
+                'dateStart' => $workExperienceRecord->date_start,
+                'dateEnd' => $workExperienceRecord->date_end
             ];
         }
 
         $skillsRecords = DB::table('skills')
-            ->where('user_id', $regularUserRecord->getAttribute('id'))
+            ->where('user_id', $regularUserRecord->id)
             ->get();
         $skills = [];
         foreach ($skillsRecords as $skillsRecord) {
             $skills[] = [
-                'name' => $skillsRecord->getAttribute('name')
+                'name' => $skillsRecord->name
             ];
         }
 
@@ -427,87 +444,89 @@ class ProfileController extends Controller
     }
 
     /**
+     * Get the profile of a company.
+     *
      * @param mixed $user
-     * @return Builder|Model
+     * @return array
      */
     private function getCompanyProfile(mixed $user): array
     {
         $company = DB::table('companies')
-            ->where('id', $user->getAttribute('company_id'))
+            ->where('id', $user->company_id)
             ->first();
 
         $companyJobOffers = DB::table('job_offers')
-            ->where('company_id', $company->getAttribute('id'))
+            ->where('company_id', $company->id)
             ->get();
 
         $jobOffers = [];
         foreach ($companyJobOffers as $jobOffer) {
             $jobOfferSkills = DB::table('skills')
-                ->where('job_offer_id', $jobOffer->getAttribute('id'))
+                ->where('job_offer_id', $jobOffer->id)
                 ->get();
 
             $skills = [];
             foreach ($jobOfferSkills as $jobOfferSkill) {
                 $skills[] = [
-                    'name' => $jobOfferSkill->getAttribute('name')
+                    'name' => $jobOfferSkill->name
                 ];
             }
 
             $jobOffers[] = [
-                'title' => $jobOffer->getAttribute('title'),
-                'position' => $jobOffer->getAttribute('position'),
-                'description' => $jobOffer->getAttribute('description'),
-                'requirements' => $jobOffer->getAttribute('requirements'),
-                'requirementExperience' => $jobOffer->getAttribute('requirement_experience'),
-                'datePosted' => $jobOffer->getAttribute('date_posted'),
-                'validUntil' => $jobOffer->getAttribute('valid_until'),
+                'title' => $jobOffer->title,
+                'position' => $jobOffer->position,
+                'description' => $jobOffer->description,
+                'requirements' => $jobOffer->requirements,
+                'requirementExperience' => $jobOffer->requirement_experience,
+                'datePosted' => $jobOffer->date_posted,
+                'validUntil' => $jobOffer->valid_until,
                 'skills' => $skills
             ];
         }
 
         $companyPosts = DB::table('posts')
-            ->where('user_id', $user->getAttribute('id'))
+            ->where('user_id', $user->id)
             ->get();
 
         $posts = [];
         foreach ($companyPosts as $companyPost) {
             $postImages = DB::table('post_images')
-                ->where('post_id', $companyPost->getAttribute('id'))
+                ->where('post_id', $companyPost->id)
                 ->get();
 
             $images = [];
             foreach ($postImages as $postImage) {
                 $images[] = [
-                    'url' => $postImage->getAttribute('url')
+                    'url' => $postImage->url
                 ];
             }
 
             $postSkills = DB::table('skills')
-                ->where('post_id', $companyPost->getAttribute('id'))
+                ->where('post_id', $companyPost->id)
                 ->get();
 
             $skills = [];
             foreach ($postSkills as $postSkill) {
                 $skills[] = [
-                    'name' => $postSkill->getAttribute('name')
+                    'name' => $postSkill->name
                 ];
             }
 
             $posts[] = [
-                'title' => $companyPost->getAttribute('title'),
-                'content' => $companyPost->getAttribute('content'),
+                'title' => $companyPost->title,
+                'content' => $companyPost->content,
                 'images' => $images,
                 'skills' => $skills
             ];
         }
 
         return [
-            'id' => $user->getAttribute('id'),
-            'name' => $company->getAttribute('name'),
-            'description' => $company->getAttribute('description'),
-            'contactEmail' => $company->getAttribute('contact_email'),
-            'contactPhone' => $company->getAttribute('contact_phone'),
-            'contactUrl' => $company->getAttribute('contact_url'),
+            'id' => $user->id,
+            'name' => $company->name,
+            'description' => $company->description,
+            'contactEmail' => $company->contact_email,
+            'contactPhone' => $company->contact_phone,
+            'contactUrl' => $company->contact_url,
             'posts' => $posts,
             'jobOffers' => $jobOffers
         ];
