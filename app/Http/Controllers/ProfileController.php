@@ -20,8 +20,7 @@ use Illuminate\Validation\ValidationException;
 -	Search and view profiles of other users.
 
 5. Network of Enterprises and Companies:
--  Search and view information about companies, including vacancies, news, contact information.
--  Ability to view user vacancies.
+-  Search and,
  * */
 
 class ProfileController extends Controller
@@ -437,10 +436,85 @@ class ProfileController extends Controller
      * @param mixed $user
      * @return Builder|Model
      */
-    private function getCompanyProfile(mixed $user): Builder|Model
+    private function getCompanyProfile(mixed $user): array
     {
-        return Company::with(['posts', 'job_offers'])
+        $company = DB::table('companies')
             ->where('id', $user->getAttribute('company_id'))
-            ->firstOrFail();
+            ->first();
+
+        $companyJobOffers = DB::table('job_offers')
+            ->where('company_id', $company->getAttribute('id'))
+            ->get();
+
+        $jobOffers = [];
+        foreach ($companyJobOffers as $jobOffer) {
+            $jobOfferSkills = DB::table('skills')
+                ->where('job_offer_id', $jobOffer->getAttribute('id'))
+                ->get();
+
+            $skills = [];
+            foreach ($jobOfferSkills as $jobOfferSkill) {
+                $skills[] = [
+                    'name' => $jobOfferSkill->getAttribute('name')
+                ];
+            }
+
+            $jobOffers[] = [
+                'title' => $jobOffer->getAttribute('title'),
+                'position' => $jobOffer->getAttribute('position'),
+                'description' => $jobOffer->getAttribute('description'),
+                'requirements' => $jobOffer->getAttribute('requirements'),
+                'requirementExperience' => $jobOffer->getAttribute('requirement_experience'),
+                'datePosted' => $jobOffer->getAttribute('date_posted'),
+                'validUntil' => $jobOffer->getAttribute('valid_until'),
+                'skills' => $skills
+            ];
+        }
+
+        $companyPosts = DB::table('posts')
+            ->where('user_id', $user->getAttribute('id'))
+            ->get();
+
+        $posts = [];
+        foreach ($companyPosts as $companyPost) {
+            $postImages = DB::table('post_images')
+                ->where('post_id', $companyPost->getAttribute('id'))
+                ->get();
+
+            $images = [];
+            foreach ($postImages as $postImage) {
+                $images[] = [
+                    'url' => $postImage->getAttribute('url')
+                ];
+            }
+
+            $postSkills = DB::table('skills')
+                ->where('post_id', $companyPost->getAttribute('id'))
+                ->get();
+
+            $skills = [];
+            foreach ($postSkills as $postSkill) {
+                $skills[] = [
+                    'name' => $postSkill->getAttribute('name')
+                ];
+            }
+
+            $posts[] = [
+                'title' => $companyPost->getAttribute('title'),
+                'content' => $companyPost->getAttribute('content'),
+                'images' => $images,
+                'skills' => $skills
+            ];
+        }
+
+        return [
+            'id' => $user->getAttribute('id'),
+            'name' => $company->getAttribute('name'),
+            'description' => $company->getAttribute('description'),
+            'contactEmail' => $company->getAttribute('contact_email'),
+            'contactPhone' => $company->getAttribute('contact_phone'),
+            'contactUrl' => $company->getAttribute('contact_url'),
+            'posts' => $posts
+        ];
     }
 }

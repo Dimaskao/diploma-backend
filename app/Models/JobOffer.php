@@ -19,7 +19,9 @@ class JobOffer extends Model
         'position',
         'description',
         'requirements',
-        'requirement_experience'
+        'requirement_experience',
+        'date_posted',
+        'valid_until'
     ];
 
     public function company(): BelongsTo
