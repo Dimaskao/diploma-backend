@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RegularUser;
-use App\Models\User;
-use App\Models\Company;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,15 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-
-
-/*
-3. Network of Connections (Contacts):
--	Search and view profiles of other users.
-
-5. Network of Enterprises and Companies:
--  Search and,
- * */
 
 class ProfileController extends Controller
 {
@@ -110,38 +98,46 @@ class ProfileController extends Controller
      */
     public function search(Request $request)
     {
-        $name = '';
+        if (isset($request['query']) && (isset($request['users']) || isset($request['companies']) || isset($request['all']))) {
+            $query = $request['query'];
+            $results = [];
 
-        if (isset($request['firstName'])) {
-            $name = $request['firstName'];
+            if (isset($request['users']) || isset($request['all'])) {
+                $users1 = DB::table('regular_users')
+                    ->where('first_name', 'LIKE', "%{$query}%")
+                    ->where('last_name', 'LIKE', "%{$query}%")
+                    ->get();
+                $users2 = DB::table('regular_users')
+                    ->where('first_name', 'LIKE', "%{$query}%")
+                    ->orWhere('last_name', 'LIKE', "%{$query}%")
+                    ->get();
+                $users = $users1->merge($users2)->unique('id')->values();
+
+                foreach ($users as $user) {
+                    $results[] = [
+                        'id' => (DB::table('users')->where('user_id', $user->getAttribute('id'))->first()->getAttribute('id')),
+                        'name' => "{$user->getAttribute('first_name')} {$user->getAttribute('last_name')}"
+                    ];
+                }
+            }
+
+            if (isset($request['companies']) || isset($request['all'])) {
+                $companies = DB::table('companies')
+                    ->where('name', 'LIKE', "%$query%")
+                    ->get();
+
+                foreach ($companies as $company) {
+                    $results[] = [
+                        'id' => (DB::table('users')->where('user_id', $user->getAttribute('id'))->first()->getAttribute('id')),
+                        'name' => $company->getAttribute('name')
+                    ];
+                }
+            }
+
+            return response()->json(['results' => $results]);
         }
 
-        if (isset($request['lastName'])) {
-            $lastName = $request['lastName'];
-            $name = "$name $lastName";
-        }
-
-        if (isset($request['name'])) {
-
-        }
-
-//        $query = $request->input('query');
-//        list($user, $role) = $this->getUserAndRole();
-//
-//        if ($role === 'user') {
-//            $results = RegularUser::with('role')->where('first_name', 'LIKE', "%$query%")
-//                ->orWhere('last_name', 'LIKE', "%$query%")
-//                ->orWhere('email', 'LIKE', "%$query%")
-//                ->get();
-//        } elseif ($role === 'company') {
-//            $results = Company::with('role')->where('name', 'LIKE', "%$query%")
-//                ->orWhere('contact_email', 'LIKE', "%$query%")
-//                ->get();
-//        } else {
-//            return response()->json(['error' => 'Invalid role'], 400);
-//        }
-//
-//        return response()->json($results);
+        return response()->json(['message' => 'Bad request'], 400);
     }
 
     /**
@@ -250,7 +246,6 @@ class ProfileController extends Controller
      * Update work experience.
      *
      * @param array $work_experience
-     * @param User|null $user
      * @return JsonResponse
      */
     private function updateWorkExperience($workExperience, $user)
@@ -288,7 +283,6 @@ class ProfileController extends Controller
     /**
      * Update education.
      *
-     * @param User|null $user
      * @param array $education
      * @return JsonResponse
      */
@@ -372,7 +366,7 @@ class ProfileController extends Controller
         return $validator->validated();
     }
 
-    private function getRegularUserProfile(?RegularUser $user, $id): array
+    private function getRegularUserProfile($user, $id): array
     {
         $regularUserRecord = DB::table('regular_users')
             ->where('id', $user->getAttribute('user_id'))
@@ -514,7 +508,8 @@ class ProfileController extends Controller
             'contactEmail' => $company->getAttribute('contact_email'),
             'contactPhone' => $company->getAttribute('contact_phone'),
             'contactUrl' => $company->getAttribute('contact_url'),
-            'posts' => $posts
+            'posts' => $posts,
+            'jobOffers' => $jobOffers
         ];
     }
 }
