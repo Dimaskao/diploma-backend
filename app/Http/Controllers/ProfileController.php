@@ -17,7 +17,6 @@ use Illuminate\Validation\ValidationException;
 
 /*
 3. Network of Connections (Contacts):
--	Ability to add and delete contacts. ???
 -	Search and view profiles of other users.
 
 5. Network of Enterprises and Companies:
@@ -72,35 +71,39 @@ class ProfileController extends Controller
     /**
      * Add a new contact for a user.
      */
-    public function addContact(Request $request, $id): JsonResponse
+    public function subscribe(Request $request): JsonResponse
     {
-//        list($user, $role) = $this->getUserAndRole($id);
-//
-//        if ($role === 'user') {
-//            $contact = \App\Models\User::with('role')->findOrFail($id);
-//            $user->contacts()->attach($contact);
-//        } else {
-//            return response()->json(['error' => 'Companies cannot add contacts'], 400);
-//        }
-//
-        return response()->json(['message' => 'Contact added successfully']);
+        if (isset($request['subscriberId']) && isset($request['subscriptionId'])) {
+            $data['subscriber_id'] = DB::table('regular_users')
+                ->where('id', (DB::table('users')->where('id', $request['subscriberId'])->first())->getAttribute('user_id'))
+                ->first()->getAttribute('id');
+            $data['subscription_id'] = $request['subscriptionId'];
+            DB::table('user_contacts')->insert($data);
+
+            return response()->json(['message' => 'Subscribed successfully'], 200);
+        }
+
+        return response()->json(['message' => 'Bad request'], 400);
     }
 
     /**
      * Remove a contact for a user.
      */
-    public function removeContact(Request $request, $id): JsonResponse
+    public function unsubscribe(Request $request): JsonResponse
     {
-        list($user, $role) = $this->getUserAndRole($id);
+        if (isset($request['subscriberId']) && isset($request['subscriptionId'])) {
+            $recordId = DB::table('user_contacts')
+                ->where('subscriber_id', DB::table('regular_users')
+                    ->where('id', (DB::table('users')->where('id', $request['subscriberId'])->first())->getAttribute('user_id'))
+                    ->first()->getAttribute('id'))
+                ->where('subscription_id', $request['subscriptionId'])
+                ->first()->getAttribute('id');
+            DB::table('user_contacts')->delete($recordId);
 
-        if ($role === 'user') {
-            $contact = \App\Models\User::with('role')->findOrFail($id);
-            $user->contacts()->detach($contact);
-        } else {
-            return response()->json(['error' => 'Companies cannot remove contacts'], 400);
+            return response()->json(['message' => 'Unsubscribed successfully'], 200);
         }
 
-        return response()->json(['message' => 'Contact removed successfully']);
+        return response()->json(['message' => 'Bad request'], 400);
     }
 
     /**
@@ -108,6 +111,21 @@ class ProfileController extends Controller
      */
     public function search(Request $request)
     {
+        $name = '';
+
+        if (isset($request['firstName'])) {
+            $name = $request['firstName'];
+        }
+
+        if (isset($request['lastName'])) {
+            $lastName = $request['lastName'];
+            $name = "$name $lastName";
+        }
+
+        if (isset($request['name'])) {
+
+        }
+
 //        $query = $request->input('query');
 //        list($user, $role) = $this->getUserAndRole();
 //
