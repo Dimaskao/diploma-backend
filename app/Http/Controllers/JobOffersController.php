@@ -63,8 +63,11 @@ class JobOffersController extends Controller
     }
 
     public function respondOffer(string $jobOfferId, string $userId) {
-        $jobOffer = JobOffer::find($jobOfferId);
-        $jobOffer->users()->syncWithoutDetaching($userId);
+        if (JobOffer::all()->contains($jobOfferId)
+        && User::all()->contains($userId)) {
+            $jobOffer = JobOffer::all()->find($jobOfferId);
+            $jobOffer->users()->syncWithoutDetaching([$userId]);
+        }
     }
 
     /**
