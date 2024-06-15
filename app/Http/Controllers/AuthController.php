@@ -9,6 +9,7 @@ use App\Traits\AuthTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -28,11 +29,8 @@ class AuthController extends Controller
         try {
             $data = $validator->validated();
             $result = $this->registerUser($data);
-            if ($data['role'] === 'company') {
-                return response()->json(['company' => $result], 201);
-            } else if ($data['role'] === 'user') {
-                return response()->json(['user' => $result], 201);
-            }
+
+            return response()->json($result, 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to create user or company'], 500);
         }

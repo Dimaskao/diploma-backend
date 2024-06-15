@@ -2,22 +2,31 @@
 
 namespace App\Traits;
 
+use App\Models\RegularUser;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Role;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\ClientRepository;
 
 trait AuthTrait
 {
     public function userLogin(array $credentials, string $role)
     {
-        if ($role === 'user' && Auth::guard('web')->attempt($credentials)) {
-            $user = Auth::guard('web')->user();
-            return $user->createToken('AppName')->accessToken;
-        } elseif ($role === 'company' && Auth::guard('company')->attempt($credentials)) {
-            $company = Auth::guard('company')->user();
-            return $company->createToken('AppName')->accessToken;
+        $user = User::where('email', $credentials['email'])->first();
+
+        if ($user && ($role === 'user' || $role === 'company') && Hash::check($credentials['password'], $user->password)) {
+            $clientRepository = new ClientRepository();
+            $personalAccessClient = $clientRepository->personalAccessClient();
+
+            if (!$personalAccessClient) {
+                throw new \RuntimeException('Personal access client not found. Please create one.');
+            }
+
+            return $user->createToken('Personal Access Token', ['*'])->accessToken;
         }
 
         return false;
@@ -29,6 +38,9 @@ trait AuthTrait
         return true;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function registerUser(array $data)
     {
         $data['password'] = bcrypt($data['password']);
@@ -41,29 +53,49 @@ trait AuthTrait
         $data['role_id'] = $role->id;
 
         if ($data['role'] === 'company') {
-            $company = Company::create($data);
-            return $company;
+            $company = Company::create([
+                'name' => $data['name'],
+                'contact_email' => $data['email'],
+            ]);
+            $user = User::create([
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'role_id' => $data['role_id'],
+                'company_id' => $company->id,
+            ]);
+            return ['user' => $user, 'company' => $company];
         } elseif ($data['role'] === 'user') {
-            $user = User::create($data);
-            return $user;
+            $regularUser = RegularUser::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+            ]);
+            $user = User::create([
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'role_id' => $data['role_id'],
+                'user_id' => $regularUser->id,
+            ]);
+            return ['user' => $user, 'regular_user' => $regularUser];
         }
 
         throw new \Exception('Failed to create user or company');
     }
 
-    public function validateRegistrationData(array $data)
+    public function validateRegistrationData(array $data): \Illuminate\Validation\Validator
     {
-        return Validator::make($data, [
+        $validatedData = Validator::make($data, [
             'first_name' => 'required_if:role,user|string|max:255',
             'last_name' => 'required_if:role,user|string|max:255',
             'name' => 'required_if:role,company|string|max:255',
-            'email' => 'required|string|email|unique:users|unique:companies|max:255',
+            'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|in:user,company'
         ]);
+
+        return $validatedData;
     }
 
-    public function validateLoginData(array $data)
+    public function validateLoginData(array $data): \Illuminate\Validation\Validator
     {
         return Validator::make($data, [
             'email' => 'required|string|email|max:255',
