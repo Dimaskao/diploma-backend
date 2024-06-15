@@ -10,6 +10,7 @@ Route::resource('users', UsersController::class);
 Route::resource('job-offers', JobOffersController::class);
 
 Route::get('job-offers-by-coid/{id}', [JobOffersController::class, 'job_offers_by_company']);
+Route::post('respondOffer/{id}/{id}', [JobOffersController::class, 'respondOffer']);
 
 Route::get('skills', [SkillsController::class, 'index']);
 Route::get('skills/{id}', [SkillsController::class, 'show']);
