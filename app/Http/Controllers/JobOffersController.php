@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobOffer;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class JobOffersController extends Controller
@@ -59,6 +60,11 @@ class JobOffersController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    public function respondOffer(string $jobOfferId, string $userId) {
+        $jobOffer = JobOffer::find($jobOfferId);
+        $jobOffer->users()->syncWithoutDetaching($userId);
     }
 
     /**
