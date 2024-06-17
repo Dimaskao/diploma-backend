@@ -2,13 +2,12 @@
 
 namespace App\Traits;
 
+use App\Enums\UserRole;
 use App\Models\RegularUser;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Role;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\ClientRepository;
 
@@ -18,7 +17,7 @@ trait AuthTrait
     {
         $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && ($role === 'user' || $role === 'company') && Hash::check($credentials['password'], $user->password)) {
+        if ($user && ($role == UserRole::RegularUser || $role == UserRole::Company) && Hash::check($credentials['password'], $user->password)) {
             $clientRepository = new ClientRepository();
             $personalAccessClient = $clientRepository->personalAccessClient();
 
@@ -52,7 +51,7 @@ trait AuthTrait
 
         $data['role_id'] = $role->id;
 
-        if ($data['role'] === 'company') {
+        if ($data['role'] == UserRole::Company) {
             $company = Company::create([
                 'name' => $data['name'],
                 'contact_email' => $data['email'],
@@ -64,7 +63,7 @@ trait AuthTrait
                 'company_id' => $company->id,
             ]);
             return ['user' => $user, 'company' => $company];
-        } elseif ($data['role'] === 'user') {
+        } elseif ($data['role'] === UserRole::RegularUser) {
             $regularUser = RegularUser::create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],

@@ -7,14 +7,14 @@ use Illuminate\Http\Request;
 abstract class Controller
 {
     /**
-     * Display a listing of the skills.
+     * Display a listing of the data.
      */
     public function index()
     {
     }
 
     /**
-     * Store a newly created skill in storage.
+     * Store a newly created data in storage.
      */
     public function store(Request $request)
     {
@@ -28,14 +28,14 @@ abstract class Controller
     }
 
     /**
-     * Update the specified skill in storage.
+     * Update the specified data in storage.
      */
     public function update(Request $request, $id)
     {
     }
 
     /**
-     * Remove the specified skill from storage.
+     * Remove the specified data from storage.
      */
     public function destroy($id)
     {

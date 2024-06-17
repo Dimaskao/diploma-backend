@@ -13,19 +13,4 @@ class Skill extends Model
 
     protected $primaryKey = 'id';
     protected $fillable = ['name'];
-
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class);
-    }
-
-    public function job_offers(): BelongsToMany
-    {
-        return $this->belongsToMany(JobOffer::class);
-    }
-
-    public function posts(): BelongsToMany
-    {
-        return $this->belongsToMany(Post::class);
-    }
 }
