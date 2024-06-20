@@ -2,24 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserEducation extends Model
+class WorkExperience extends Model
 {
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+    protected $table = 'work_experience';
     protected $fillable = [
         'user_id',
-        'institution',
-        'degree',
-        'field_of_study',
-        'start_date',
-        'end_date',
-        'contact_url'
+        'position',
+        'company',
+        'date_start',
+        'date_end',
+        'description'
     ];
 
     public function user(): BelongsTo

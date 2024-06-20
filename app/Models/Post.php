@@ -13,21 +13,20 @@ class Post extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
-    protected $fillable = ['title', 'content', 'user_id', 'company_id'];
+    protected $fillable = [
+        'title',
+        'content',
+        'user_id'
+    ];
 
-    public function postImages() : HasMany 
+    public function postImages() : HasMany
     {
         return $this->hasMany(PostImage::class);
     }
 
-    public function comments() : HasMany 
+    public function comments() : HasMany
     {
         return $this->hasMany(Comment::class);
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
     }
 
     public function user(): BelongsTo

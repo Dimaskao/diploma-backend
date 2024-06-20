@@ -12,7 +12,10 @@ class PostImage extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
-    protected $fillable = ['post_id', 'url'];
+    protected $fillable = [
+        'post_id',
+        'url'
+    ];
 
     public function post(): BelongsTo
     {

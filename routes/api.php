@@ -1,23 +1,21 @@
 <?php
 
-use App\Http\Controllers\CompaniesController;
-use App\Http\Controllers\JobOffersController;
-use App\Http\Controllers\SkillsController;
-use App\Http\Controllers\UsersController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('users', UsersController::class);
-Route::resource('job-offers', JobOffersController::class);
+// Public Routes
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('job-offers-by-coid/{id}', [JobOffersController::class, 'job_offers_by_company']);
-Route::post('respondOffer/{id}/{id}', [JobOffersController::class, 'respondOffer']);
+// Protected Routes
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::get('skills', [SkillsController::class, 'index']);
-Route::get('skills/{id}', [SkillsController::class, 'show']);
+    Route::get('/profile/{id}', [ProfileController::class, 'show']);
+    Route::put('/profile/{id}', [ProfileController::class, 'update']);
+    Route::post('/profile/{id}/subscribe', [ProfileController::class, 'subscribe']);
+    Route::post('/profile/{id}/unsubscribe', [ProfileController::class, 'unsubscribe']);
 
-Route::get('companies', [CompaniesController::class, 'index']);
-Route::get('companies/{id}', [CompaniesController::class, 'show']);
-Route::post('companies', [CompaniesController::class, 'store']);
-
-// Route::get('job-offers', [JobOffersController::class, 'index']);
-// Route::get('job-offers/{id}', [JobOffersController::class, 'show']);
+    Route::get('/search', [ProfileController::class, 'search']);
+});

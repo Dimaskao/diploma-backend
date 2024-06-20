@@ -6,22 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Company extends Model
 {
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'name',
-        'email',
-        'password',
-        'desc',
+        'description',
         'contact_email',
         'contact_phone',
-        'contact_url',
-        'avatar_url'
+        'contact_url'
     ];
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'company_id');
+    }
 
     public function posts(): HasMany
     {

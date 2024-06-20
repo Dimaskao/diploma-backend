@@ -2,25 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserEducation extends Model
+class UserSkill extends Model
 {
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
     protected $fillable = [
         'user_id',
-        'institution',
-        'degree',
-        'field_of_study',
-        'start_date',
-        'end_date',
-        'contact_url'
+        'skill_id'
     ];
+
+    public function skill(): BelongsTo
+    {
+        return $this->belongsTo(Skill::class);
+    }
 
     public function user(): BelongsTo
     {

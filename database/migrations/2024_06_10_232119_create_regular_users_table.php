@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users_job_offers', function (Blueprint $table) {
-            $table->engine('InnoDB');
+        Schema::create('regular_users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->uuid('job_offer_id');
-            $table->foreign('job_offer_id')->references('id')->on('job_offers')->onDelete('cascade');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->text('skills_desc')->nullable();
+            $table->text('experience')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users_job_offers');
+        Schema::dropIfExists('regular_users');
     }
 };

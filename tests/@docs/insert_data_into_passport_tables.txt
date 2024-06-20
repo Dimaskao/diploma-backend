@@ -1,0 +1,8 @@
+SET @personal_access_secret = 'abcd123abdc432';
+SET @password_grant_secret = 'qwd12gsgy46';
+INSERT INTO oauth_clients (user_id, name, secret, provider, redirect, personal_access_client, password_client, revoked, created_at, updated_at)
+VALUES (NULL, 'Laravel Personal Access Client', @personal_access_secret, NULL, 'http://localhost', 1, 0, 0, NOW(), NOW());
+INSERT INTO oauth_clients (user_id, name, secret, provider, redirect, personal_access_client, password_client, revoked, created_at, updated_at)
+VALUES (NULL, 'Laravel Password Grant Client', @password_grant_secret, 'users', 'http://localhost', 0, 1, 0, NOW(), NOW());
+INSERT INTO oauth_personal_access_clients (client_id, created_at, updated_at)
+VALUES ((SELECT id FROM oauth_clients WHERE personal_access_client = 1 LIMIT 1), NOW(), NOW());

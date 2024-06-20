@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users_skills', function (Blueprint $table) {
-            $table->engine('InnoDB');
+        Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->uuid('skill_id');
-            $table->foreign('skill_id')->references('id')->on('skills')->onDelete('cascade');
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('contact_email')->nullable();
+            $table->string('contact_phone')->nullable();
+            $table->string('contact_url')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users_skills');
+        Schema::dropIfExists('companies');
     }
 };

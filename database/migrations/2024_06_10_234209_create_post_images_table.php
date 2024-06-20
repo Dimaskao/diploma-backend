@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_projects', function (Blueprint $table) {
-            $table->engine('InnoDB');
+        Schema::create('post_images', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->text('desc');
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->uuid('post_id');
             $table->string('url');
             $table->timestamps();
+
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
         });
+
+        Schema::dropIfExists('post_images');
     }
 
     /**
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_projects');
+        Schema::dropIfExists('post_images');
     }
 };

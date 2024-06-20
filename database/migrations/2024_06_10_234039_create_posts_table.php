@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('job_offers', function (Blueprint $table) {
-            $table->engine('InnoDB');
+        Schema::create('posts', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
-            $table->uuid('company_id');
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
-            $table->string('position');
-            $table->text('desc');
-            $table->text('requirements');
-            $table->integer('requirement_experience')->unsigned();
+            $table->text('content');
+            $table->uuid('user_id')->nullable();
+            $table->uuid('company_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('job_offers');
+        Schema::dropIfExists('posts');
     }
 };

@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\RegularUser;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -11,38 +14,17 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function definition()
     {
         return [
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-            'avatar_url' => fake()->url(),
-            'skills_desc' => fake()->words(),
-            'experience' => fake()->numberBetween(0, 20)
+            'role_id' => Role::inRandomOrder()->first()->id, // Assuming roles are already created
+            'email' => $this->faker->unique()->safeEmail,
+            'password' => bcrypt('password'), // or Hash::make('password')
+            'avatar_url' => $this->faker->imageUrl(),
+            'user_id' => RegularUser::factory(), // Create a related RegularUser
+            'company_id' => null, // You can set this to null or a valid UUID if needed
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }
