@@ -2,6 +2,9 @@
 
 namespace Tests\Unit;
 
+use App\Models\Company;
+use App\Models\RegularUser;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -13,410 +16,264 @@ class ProfileControllerTest extends TestCase
 {
 //    use RefreshDatabase;
 
-//    protected function setUp(): void
-//    {
-//        parent::setUp();
-//
-//        // Run the database migrations
-////        $this->artisan('migrate');
-////
-////        // Log to confirm migrations
-////        Log::info('Database migrated');
-////
-////        // Seed the database
-////        $this->seed();
-////
-////        // Log to confirm seeding
-////        Log::info('Database seeded');
-//    }
-
-    /**
-     * Test the show method for a user.
-     */
-//    public function testShowMethodForUser()
-//    {
-//        // Ensure the roles table is not empty
-//        if (DB::table('roles')->count() == 0) {
-//            DB::table('roles')->insert([
-//                'id' => '9c4b6516-b557-4c9c-8b6b-b3d9f56050c9',
-//                'name' => 'user'
-//            ]);
-//        }
-//
-//        // Ensure the regular_users table is not empty
-//        if (DB::table('regular_users')->count() == 0) {
-//            DB::table('regular_users')->insert([
-//                'id' => '9c4b6517-467a-4152-8c0b-00bf1dca0c78',
-//                'first_name' => 'John',
-//                'last_name' => 'Doe',
-//                'skills_desc' => 'Programming',
-//                'experience' => '5 years'
-//            ]);
-//        }
-//
-//        $userId = DB::table('regular_users')->where('first_name', 'John')->first()->id;
-//        $roleId = DB::table('roles')->where('name', 'user')->first()->id;
-//
-//        // Create an authenticated user with a unique email using Eloquent
-//        $uniqueEmail = 'user1_' . uniqid() . '@example.com';
-//        $user = User::create([
-//            'role_id' => $roleId,
-//            'email' => $uniqueEmail,
-//            'password' => bcrypt('password'),
-//            'user_id' => $userId
-//        ]);
-//
-//        // Authenticate the user
-//        $this->actingAs($user, 'api');
-//
-//        // Log the user being requested
-//        Log::info('Requesting profile for user ID: ' . $user->id);
-//
-//        // Perform the request
-//        $response = $this->get("/api/profile/{$user->id}");
-//
-//        // Log the response content
-//        Log::info('Profile show response', ['content' => $response->getContent()]);
-//
-//        // Assert the response
-//        $response->assertStatus(200)
-//            ->assertJson([
-//                'user' => [
-//                    'firstName' => 'John',
-//                    'lastName' => 'Doe',
-//                    'skillsDesc' => null,
-//                    'experience' => null
-//                ],
-//                'education' => [],
-//                'workExperience' => [],
-//                'skills' => []
-//            ]);
-//    }
-
-
-    /**
-     * Test the show method for a company.
-     */
-//    public function testShowMethodForCompany()
-//    {
-//        // Ensure the roles table is not empty
-//        if (DB::table('roles')->where('name', 'company')->count() == 0) {
-//            DB::table('roles')->insert([
-//                'name' => 'company'
-//            ]);
-//        }
-//
-//        // Create a company in the database
-//        if (DB::table('companies')->count() == 0) {
-//            DB::table('companies')->insert([
-//                'name' => 'Acme Corp',
-//                'description' => 'A leading company',
-//                'contact_email' => 'contact@acme.com',
-//                'contact_phone' => '1234567890',
-//                'contact_url' => 'http://acme.com'
-//            ]);
-//        }
-//
-//        $companyId = DB::table('companies')->where('name', 'Acme Corp')->first()->id;
-//        $roleId = DB::table('roles')->where('name', 'company')->first()->id;
-//
-//        // Create an authenticated user with a unique email using Eloquent
-//        $uniqueEmail = 'company_' . uniqid() . '@example.com';
-//        $user = User::create([
-//            'role_id' => $roleId,
-//            'email' => $uniqueEmail,
-//            'password' => bcrypt('password'),
-//            'company_id' => $companyId
-//        ]);
-//
-//        // Authenticate the user
-//        $this->actingAs($user, 'api');
-//
-//        // Log the user being requested
-//        Log::info('Requesting profile for company ID: ' . $user->id);
-//
-//        // Perform the request
-//        $response = $this->get("/api/profile/{$user->id}");
-//
-//        // Log the response content
-//        Log::info('Profile show response', ['content' => $response->getContent()]);
-//
-//        // Assert the response
-//        $response->assertStatus(200)
-//            ->assertJson([
-//                'id' => $user->id,
-//                'name' => 'Acme Corp',
-//                'description' => 'A leading company',
-//                'contactEmail' => 'contact@acme.com',
-//                'contactPhone' => '1234567890',
-//                'contactUrl' => 'http://acme.com',
-//                'posts' => [],
-//                'jobOffers' => []
-//            ]);
-//    }
-
-    /**
-     * Test the update method for a user.
-     */
-    public function testUpdateMethodForUser()
+    protected function setUp(): void
     {
-//        // Ensure the roles table is not empty
-//        if (DB::table('roles')->where('name', 'user')->count() == 0) {
-//            DB::table('roles')->insert([
-//                'id' => '9c4b6516-b557-4c9c-8b6b-b3d9f56050c9',
-//                'name' => 'user'
-//            ]);
-//        }
-//
-//        // Create a user in the database
-//        if (DB::table('users')->where('email', 'user@example.com')->count() == 0) {
-//            DB::table('users')->insert([
-//                'id' => '9c4b773e-37a6-4792-b375-a40c9030f21a',
-//                'role_id' => '9c4b6516-b557-4c9c-8b6b-b3d9f56050c9',
-//                'email' => 'user@example.com',
-//                'password' => bcrypt('password')
-//            ]);
-//        }
-//
-//        // Create a regular user in the database
-//        if (DB::table('regular_users')->where('id', '9c4b773e-37a6-4792-b375-a40c9030f21a')->count() == 0) {
-//            DB::table('regular_users')->insert([
-//                'id' => '9c4b773e-37a6-4792-b375-a40c9030f21a',
-//                'user_id' => '9c4b773e-37a6-4792-b375-a40c9030f21a',
-//                'first_name' => 'John',
-//                'last_name' => 'Doe',
-//                'skills_desc' => 'Programming',
-//                'experience' => '5 years'
-//            ]);
-//        }
+        parent::setUp();
 
-        // Authenticate the user
-        $user = User::find('9c4b6518-02dc-42d6-8b9a-b7f7481e9aa0');
-        $this->actingAs($user, 'api');
+        // Increase memory limit
+        ini_set('memory_limit', '-1');
 
-        // Perform the update request
-//        $response = $this->put("/api/profile/{$user->id}", [
+        // Ensure roles are created for testing
+        if (DB::table('roles')->where('name', 'user')->count() == 0) {
+            Role::create(['name' => 'user']);
+        }
+        if (DB::table('roles')->where('name', 'company')->count() == 0) {
+            Role::create(['name' => 'company']);
+        }
+    }
+
+//    public function testShowRegularUserProfile(): void
+//    {
+//        $regularUser = RegularUser::factory()->create();
+//        $userRole = Role::where('name', 'user')->first();
+//        $user = User::factory()->create(['user_id' => $regularUser->id, 'role_id' => $userRole->id]);
+////        Log::info('regular user object: ' . var_export($regularUser, 1));
+////        Log::info('$userRole: ' . var_export($userRole, 1));
+////        Log::info('$user: ' . var_export($user, 1));
+//
+//        $response = $this->actingAs($user, 'api')->getJson("/api/profile/{$user->id}");
+////        Log::info('$response: ' . var_export($response, 1));
+//
+//        $response->assertStatus(200);
+//        $response->assertJsonStructure([
+//            'profile' => [
+//                'user' => [
+//                    'id',
+//                    'firstName',
+//                    'lastName',
+//                    'skillsDesc',
+//                    'experience',
+//                ],
+//                'education',
+//                'workExperience',
+//                'skills',
+//            ]
+//        ]);
+//    }
+
+//    public function testShowCompanyProfile(): void
+//    {
+//        $company = Company::factory()->create();
+//        $userRole = Role::where('name', 'company')->first();
+//        $user = User::factory()->create(['company_id' => $company->id, 'role_id' => $userRole->id]);
+//        $response = $this->actingAs($user, 'api')->getJson("/api/profile/{$user->id}");
+//
+//        $response->assertStatus(200);
+//        $response->assertJsonStructure([
+//            'profile' => [
+//                'id',
+//                'name',
+//                'description',
+//                'contactEmail',
+//                'contactPhone',
+//                'contactUrl',
+//                'posts',
+//                'jobOffers',
+//            ]
+//        ]);
+//    }
+
+//    public function testUpdateUserInformation(): void
+//    {
+//        $regularUser = RegularUser::factory()->create();
+//        $userRole = Role::where('name', 'user')->first();
+//        $user = User::factory()->create(['user_id' => $regularUser->id, 'role_id' => $userRole->id]);
+//
+//        $startDate = now()->subYears(4)->timestamp;
+//        $endDate = now()->subYears(2)->timestamp;
+//
+//        $requestData = [
 //            'updateType' => [
-//                'personalInformation' => [
-//                    'first_name' => 'Jane',
-//                    'last_name' => 'Doe',
-//                    'skills_desc' => 'Design',
-//                    'experience' => '3 years'
+////                'personalInformation' => [
+////                    'first_name' => 'Updated First Name',
+//////                    'last_name' => 'Updated Last Name',
+//////                    'skills_desc' => 'Updated Skills Description',
+////                    'experience' => 'Updated Experience',
+//////                    'email' => 'test1234@test.com',
+//////                    'password' => 'check1234'
+////                ],
+////                'education' => [
+////                    [
+////                        'id' => 'ffd9875a-4988-4210-94dc-710d74e9d5d6',
+////                        'institution' => 'Updated University1234',
+////                        'degree' => 'Updated Degree1234',
+////                        'field_of_study' => 'Updated Field of Study1234',
+//////                        'start_date' => $startDate,
+//////                        'end_date' => $endDate,
+////                        'contact_url' => 'https://updated-university.example.com',
+////                    ],
+////                ],
+////                'workExperience' => [
+////                    [
+////                        'id' => 'ff7aae08-e1f7-460b-bb68-0c9c572650a5',
+////                        'position' => 'Test Position123',
+////                        'description' => 'Test Description123',
+////                        'date_start' => $startDate,
+////                        'date_end' => $endDate,
+////                    ]
+////                ],
+//                'skills' => [
+//                    [
+//                        'id' => '2ab07475-2e7c-11ef-a23e-0242ac130002',
+//                        'editInfo' => 'add'
+//                    ],
+//                    [
+//                        'id' => '2e0112d7-2e7c-11ef-a23e-0242ac130002',
+//                        'editInfo' => 'add'
+//                    ],
+//                    [
+//                        'id' => '2ab07475-2e7c-11ef-a23e-0242ac130002',
+//                        'editInfo' => 'remove'
+//                    ],
+//                ]
+//            ]
+//        ];
+//
+//        Log::info('$requestData: ' . var_export($requestData, 1));
+////
+////        Log::info('start_date: ' . var_export(date('Y-m-d H:i:s', $startDate), 1));
+////        Log::info('$endDate: ' . var_export(date('Y-m-d H:i:s', $endDate), 1));
+//
+//        $response = $this->actingAs($user, 'api')->putJson("/api/profile/{$user->id}", $requestData);
+//        Log::error('response: ' . var_export($response, 1));
+//
+//        $response->assertStatus(200);
+//        $response->assertJson([
+//            'message' => 'User information was updated successfully',
+//            'updatedInformation' => [
+////                'personalInformation' => [
+////                    'first_name' => 'Updated First Name',
+////                    'experience' => 'Updated Experience',
+////                ],
+////                'education' => [
+////                    [
+////                        'id' => 'ffd9875a-4988-4210-94dc-710d74e9d5d6',
+////                        'institution' => 'Updated University1234',
+////                        'degree' => 'Updated Degree1234',
+////                        'field_of_study' => 'Updated Field of Study1234',
+//////                        'start_date' => date('Y-m-d H:i:s', $startDate),
+//////                        'end_date' => date('Y-m-d H:i:s', $endDate),
+////                        'contact_url' => 'https://updated-university.example.com',
+////                    ],
+////                ],
+////                'workExperience' => [
+////                    [
+////                        'id' => 'ff7aae08-e1f7-460b-bb68-0c9c572650a5',
+////                        'position' => 'Test Position123',
+////                        'description' => 'Test Description123',
+////                        'date_start' => date('Y-m-d H:i:s', $startDate),
+////                        'date_end' => date('Y-m-d H:i:s', $endDate),
+////                    ]
+////                ],
+//                'skills' => [
+//                    [
+//                        'editInfo' => 'add',
+//                        'result' => 'success'
+//                    ],
+//                    [
+//                        'editInfo' => 'add',
+//                        'result' => 'success'
+//                    ],
+//                    [
+//                        'editInfo' => 'remove',
+//                        'result' => 'success'
+//                    ]
 //                ]
 //            ]
 //        ]);
+//    }
+
+//    public function testUpdateCompanyInformation(): void
+//    {
+//        $company = Company::factory()->create();
+//        $user = User::factory()->create(['company_id' => $company->id]);
+//        $requestData = ['updateType' => ['someUpdateType' => 'someData']]; // Replace with actual update data for company
 //
-//        // Assert the response
-//        $response->assertStatus(200)
-//            ->assertJson([
-//                'message' => 'Profile updated successfully',
-//                'user' => [
-//                    'first_name' => 'Jane',
-//                    'last_name' => 'Doe',
-//                    'skills_desc' => 'Design',
-//                    'experience' => '3 years'
-//                ]
-//            ]);
+//        $response = $this->putJson(route('profiles.update', ['id' => $user->id]), $requestData);
 //
-//        Log::info('regular_users_result: ' . var_export([
-//                'id' => $user->user_id,
-//                'first_name' => 'Jane',
-//                'last_name' => 'Doe',
-//                'skills_desc' => 'Design',
-//                'experience' => '3 years'
-//            ], 1 ));
-//        // Ensure the database has been updated correctly
-//        $this->assertDatabaseHas('regular_users', [
-//            'id' => $user->user_id,
-//            'first_name' => 'Jane',
-//            'last_name' => 'Doe',
-//            'skills_desc' => 'Design',
-//            'experience' => '3 years'
-//        ]);
+//        $response->assertStatus(200);
+//        $response->assertJson(['message' => 'Profile updated successfully']);
+//    }
 
-        $response = $this->put("/api/profile/{$user->id}", [
-            'updateType' => [
-                'workExperience' => [
-                    'position' => 'Software developer',
-                    'company' => 'Independent contractor',
-                    'description' => 'Worked as a freelancer'
-                ]
-            ]
-        ]);
+//    public function testSubscribeToUserContacts(): void
+//    {
+//        $subscriber = RegularUser::factory()->create();
+//        $subscription = Company::factory()->create();
+//
+//        $userRole = Role::where('name', 'user')->first();
+//        $companyRole = Role::where('name', 'company')->first();
+//
+//        $subscriberUser = User::factory()->create(['user_id' => $subscriber->id, 'role_id' => $userRole->id]);
+//        $subscriptionUser = User::factory()->create(['company_id' => $subscription->id, 'role_id' => $companyRole->id]);
+//
+//        $requestData = [
+//            'subscriberId' => $subscriber->id,
+//            'subscriptionId' => $subscriptionUser->id
+//        ];
+//
+//        Log::debug('$requestData: ' . var_export($requestData, 1));
+//
+//        $response = $this->actingAs($subscriberUser, 'api')->postJson("/api/profile/{$subscriberUser->id}/subscribe", $requestData);
+//
+//        Log::debug('$response: ' . var_export($response, 1));
+//
+//        $response->assertStatus(200);
+//        $response->assertJson(['message' => 'Subscribed successfully']);
+//    }
 
-        // Assert the response
-        $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Profile updated successfully',
-                'user' => [
-                    'first_name' => 'Jane',
-                    'last_name' => 'Doe',
-                    'skills_desc' => 'Design',
-                    'experience' => '3 years'
-                ]
-            ]);
+//    public function testUnsubscribeFromUserContacts(): void
+//    {
+//        $subscriber = RegularUser::factory()->create();
+//        $subscription = Company::factory()->create();
+//
+//        $userRole = Role::where('name', 'user')->first();
+//        $companyRole = Role::where('name', 'company')->first();
+//
+//        $subscriberUser = User::factory()->create(['user_id' => $subscriber->id, 'role_id' => $userRole->id]);
+//        $subscriptionUser = User::factory()->create(['company_id' => $subscription->id, 'role_id' => $companyRole->id]);
+//
+//        $requestData = [
+//            'subscriberId' => $subscriber->id,
+//            'subscriptionId' => $subscriptionUser->id
+//        ];
+//
+//        $response = $this->actingAs($subscriberUser, 'api')->postJson("/api/profile/{$subscriberUser->id}/subscribe", $requestData);
+//
+//        $response->assertStatus(200);
+//        $response->assertJson(['message' => 'Subscribed successfully']);
+//
+////        $requestData = [
+////          'recordId' => '855aefaf-0773-41ea-a088-1ee11ab7bba8'
+////        ];
+//
+//        Log::debug('$requestData: ' . var_export($requestData, 1));;
+//        $response = $this->actingAs($subscriberUser, 'api')->postJson("/api/profile/{$subscriberUser->id}/unsubscribe", $requestData);
+//        Log::debug('$response: ' . var_export($response, 1));
+//
+//        $response->assertStatus(200);
+//        $response->assertJson(['message' => 'Unsubscribed successfully']);
+//    }
 
-        Log::info('regular_users_result: ' . var_export([
-                'id' => $user->user_id,
-                'first_name' => 'Jane',
-                'last_name' => 'Doe',
-                'skills_desc' => 'Design',
-                'experience' => '3 years'
-            ], 1 ));
-        // Ensure the database has been updated correctly
-        $this->assertDatabaseHas('regular_users', [
-            'id' => $user->user_id,
-            'first_name' => 'Jane',
-            'last_name' => 'Doe',
-            'skills_desc' => 'Design',
-            'experience' => '3 years'
-        ]);
+    public function testSearchRegularUsersAndCompanies(): void
+    {
+        $subscriber = RegularUser::factory()->create();
+        $userRole = Role::where('name', 'user')->first();
+        $subscriberUser = User::factory()->create(['user_id' => $subscriber->id, 'role_id' => $userRole->id]);
+
+        $response = $this->actingAs($subscriberUser, 'api')->getJson("/api/search?first_name=Holly&for=all&last_name=Bartoletti&name=Toy-Walsh");
+
+        Log::error('Response: ' . var_export($response, 1));
+
+        $response->assertStatus(200);
     }
-
-//    /**
-//     * Test the subscribe method.
-//     */
-//    public function testSubscribeMethod()
-//    {
-//        // Create a subscriber and a subscription in the database
-//        DB::table('roles')->insert([
-//            'id' => 1,
-//            'name' => 'user'
-//        ]);
-//
-//        DB::table('users')->insert([
-//            'id' => 1,
-//            'role_id' => 1,
-//            'email' => 'user1@example.com',
-//            'password' => bcrypt('password')
-//        ]);
-//
-//        DB::table('users')->insert([
-//            'id' => 2,
-//            'role_id' => 1,
-//            'email' => 'user2@example.com',
-//            'password' => bcrypt('password')
-//        ]);
-//
-//        DB::table('regular_users')->insert([
-//            'id' => 1,
-//            'user_id' => 1,
-//        ]);
-//
-//        DB::table('regular_users')->insert([
-//            'id' => 2,
-//            'user_id' => 2,
-//        ]);
-//
-//        $response = $this->post("/subscribe", [
-//            'subscriberId' => 1,
-//            'subscriptionId' => 2
-//        ]);
-//
-//        $response->assertStatus(200)
-//            ->assertJson(['message' => 'Subscribed successfully']);
-//    }
-//
-//    /**
-//     * Test the unsubscribe method.
-//     */
-//    public function testUnsubscribeMethod()
-//    {
-//        // Create a subscriber and a subscription in the database
-//        DB::table('roles')->insert([
-//            'id' => 1,
-//            'name' => 'user'
-//        ]);
-//
-//        DB::table('users')->insert([
-//            'id' => 1,
-//            'role_id' => 1,
-//            'email' => 'user1@example.com',
-//            'password' => bcrypt('password')
-//        ]);
-//
-//        DB::table('users')->insert([
-//            'id' => 2,
-//            'role_id' => 1,
-//            'email' => 'user2@example.com',
-//            'password' => bcrypt('password')
-//        ]);
-//
-//        DB::table('regular_users')->insert([
-//            'id' => 1,
-//            'user_id' => 1,
-//        ]);
-//
-//        DB::table('regular_users')->insert([
-//            'id' => 2,
-//            'user_id' => 2,
-//        ]);
-//
-//        DB::table('user_contacts')->insert([
-//            'subscriber_id' => 1,
-//            'subscription_id' => 2,
-//        ]);
-//
-//        $response = $this->delete("/unsubscribe", [
-//            'subscriberId' => 1,
-//            'subscriptionId' => 2
-//        ]);
-//
-//        $response->assertStatus(200)
-//            ->assertJson(['message' => 'Unsubscribed successfully']);
-//    }
-//
-//    /**
-//     * Test the search method.
-//     */
-//    public function testSearchMethod()
-//    {
-//        // Create users and companies in the database
-//        DB::table('roles')->insert([
-//            ['id' => 1, 'name' => 'user'],
-//            ['id' => 2, 'name' => 'company']
-//        ]);
-//
-//        DB::table('users')->insert([
-//            ['id' => 1, 'role_id' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')],
-//            ['id' => 2, 'role_id' => 2, 'email' => 'company@example.com', 'password' => bcrypt('password')]
-//        ]);
-//
-//        DB::table('regular_users')->insert([
-//            'id' => 1,
-//            'user_id' => 1,
-//            'first_name' => 'John',
-//            'last_name' => 'Doe'
-//        ]);
-//
-//        DB::table('companies')->insert([
-//            'id' => 2,
-//            'company_id' => 2,
-//            'name' => 'Acme Corp'
-//        ]);
-//
-//        $response = $this->get('/search?query=John&users=true');
-//
-//        $response->assertStatus(200)
-//            ->assertJson([
-//                'results' => [
-//                    [
-//                        'id' => 1,
-//                        'name' => 'John Doe'
-//                    ]
-//                ]
-//            ]);
-//
-//        $response = $this->get('/search?query=Acme&companies=true');
-//
-//        $response->assertStatus(200)
-//            ->assertJson([
-//                'results' => [
-//                    [
-//                        'id' => 2,
-//                        'name' => 'Acme Corp'
-//                    ]
-//                ]
-//            ]);
-//    }
 }

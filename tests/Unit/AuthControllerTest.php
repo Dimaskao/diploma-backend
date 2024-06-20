@@ -17,24 +17,24 @@ class AuthControllerTest extends TestCase
 {
 //    use RefreshDatabase;
 
-//    protected function setUp(): void
-//    {
-//        parent::setUp();
-//
-//        // increase memory limit
-//        ini_set('memory_limit', '-1');
-//
-////        if (DB::table('roles')->where('name', 'user')->get()->count() == 0) {
-////            Role::create([
-////                'name' => 'user'
-////            ]);
-////        }
-////        if (DB::table('roles')->where('name', 'company')->get()->count() == 0) {
-////            Role::create([
-////                'name' => 'company'
-////            ]);
-////        }
-//    }
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // increase memory limit
+        ini_set('memory_limit', '-1');
+
+//        if (DB::table('roles')->where('name', 'user')->get()->count() == 0) {
+//            Role::create([
+//                'name' => 'user'
+//            ]);
+//        }
+//        if (DB::table('roles')->where('name', 'company')->get()->count() == 0) {
+//            Role::create([
+//                'name' => 'company'
+//            ]);
+//        }
+    }
 
 //    public function testRegisterUser()
 //    {

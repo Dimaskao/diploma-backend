@@ -16,5 +16,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/profile/{id}', [ProfileController::class, 'update']);
     Route::post('/profile/{id}/subscribe', [ProfileController::class, 'subscribe']);
     Route::post('/profile/{id}/unsubscribe', [ProfileController::class, 'unsubscribe']);
+
     Route::get('/search', [ProfileController::class, 'search']);
 });

@@ -17,9 +17,8 @@ trait AuthTrait
     {
         $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && ($role == UserRole::RegularUser || $role == UserRole::Company) && Hash::check($credentials['password'], $user->password)) {
-            $clientRepository = new ClientRepository();
-            $personalAccessClient = $clientRepository->personalAccessClient();
+        if ($user && ($role == UserRole::RegularUser->value || $role == UserRole::Company->value) && Hash::check($credentials['password'], $user->password)) {
+            $personalAccessClient = (new ClientRepository())->personalAccessClient();
 
             if (!$personalAccessClient) {
                 throw new \RuntimeException('Personal access client not found. Please create one.');
@@ -51,7 +50,7 @@ trait AuthTrait
 
         $data['role_id'] = $role->id;
 
-        if ($data['role'] == UserRole::Company) {
+        if ($data['role'] == UserRole::Company->value) {
             $company = Company::create([
                 'name' => $data['name'],
                 'contact_email' => $data['email'],
@@ -63,7 +62,7 @@ trait AuthTrait
                 'company_id' => $company->id,
             ]);
             return ['user' => $user, 'company' => $company];
-        } elseif ($data['role'] === UserRole::RegularUser) {
+        } elseif ($data['role'] === UserRole::RegularUser->value) {
             $regularUser = RegularUser::create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],

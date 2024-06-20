@@ -2,10 +2,10 @@
 
 namespace App\Enums;
 
-enum UserRole : string
+enum EditInfoType : string
 {
-    case RegularUser = 'user';
-    case Company = 'company';
+    case Add = 'add';
+    case Remove = 'remove';
 
     public static function values(): array
     {

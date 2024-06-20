@@ -2,50 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ForSearchType;
 use App\Enums\UserRole;
-use App\Models\Company;
-use App\Models\RegularUser;
-use App\Models\User;
 use App\Models\UserContact;
 use App\Traits\CompanyProfileTrait;
 use App\Traits\ProfileTrait;
 use App\Traits\RegularUserProfileTrait;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
-    use ProfileTrait;
-    use CompanyProfileTrait;
-    use RegularUserProfileTrait;
+    use ProfileTrait, CompanyProfileTrait, RegularUserProfileTrait;
 
     public function show($id): JsonResponse
     {
         list($user, $role) = $this->getUserAndRole($id);
-
-        if ($role == UserRole::RegularUser) {
-            $profile = $this->getRegularUserProfile($user);
-        } elseif ($role == UserRole::Company) {
-            $profile = $this->getCompanyProfile($user);
-        } else {
-            return response()->json(['error' => 'Invalid role'], 400);
+        if ($user && $role) {
+            return match ($role) {
+                UserRole::RegularUser->value => $this->getRegularUserProfile($user),
+                UserRole::Company->value => $this->getCompanyProfile($user),
+                default => response()->json(['message' => 'Unexpected error occurred during processing profile data'], 500),
+            };
         }
-
-        return response()->json($profile);
+        return response()->json(['message' => "User or role with id '$id' does not exist"], 404);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         list($user, $role) = $this->getUserAndRole($id);
 
-        if ($role == UserRole::RegularUser) {
-            return $this->updateUserInformation(RegularUser::where('id', $user->user_id)->first(), $request);
-        } elseif ($role == UserRole::Company) {
-            return $this->updateCompanyInformation(Company::where('id', $user->company_id)->first(), $request);
+        if ($user && $role) {
+            return match ($role) {
+                UserRole::RegularUser->value => $this->updateUserInformation($user, $request),
+                UserRole::Company->value  => $this->updateCompanyInformation($user, $request),
+                default => response()->json(['message' => 'Unexpected error occurred during updating profile data'], 500),
+            };
         }
-
-        return response()->json(['error' => 'Invalid request data'], 400);
+        return response()->json(['message' => "User or role with id '$id' does not exist"], 404);
     }
 
     /**
@@ -53,15 +50,21 @@ class ProfileController extends Controller
      */
     public function subscribe(Request $request): JsonResponse
     {
-        if ($request->has(['subscriberId', 'subscriptionId'])) {
-            $data['subscriber_id'] = User::where('id', $request->input('subscriberId'))->user_id;
-            $data['subscription_id'] = $request->input('subscriptionId');
-            UserContact::insert($data);
+        try {
+            if ($request->has(['subscriptionId', 'subscriberId'])) {
+                UserContact::insert([
+                    'id' => (string)Str::uuid(),
+                    'subscriber_id' => $request->input('subscriberId'),
+                    'subscription_id' => $request->input('subscriptionId')
+                ]);
 
-            return response()->json(['message' => 'Subscribed successfully'], 200);
+                return response()->json(['message' => 'Subscribed successfully'], 200);
+            }
+
+            return response()->json(['message' => 'Bad request'], 400);
+        } catch (Exception $e) {
+            return response()->json(['message' => "Error during subscription user with id {$request->input('subscriberId')} to user with id {$request->input('subscriptionId')}; Error: $e"], 500);
         }
-
-        return response()->json(['message' => 'Bad request'], 400);
     }
 
     /**
@@ -69,21 +72,40 @@ class ProfileController extends Controller
      */
     public function unsubscribe(Request $request): JsonResponse
     {
-        if ($request->has(['subscriberId', 'subscriptionId'])) {
-            DB::table('user_contacts')->delete(UserContact::where('subscriber_id', $request->input('subscriberId'))->where('subscription_id', $request->input('subscriptionId'))->id);
+        try {
+            if ($request->has(['subscriberId', 'subscriptionId'])) {
+                $subscriberId = $request->input('subscriberId');
+                $subscriptionId = $request->input('subscriptionId');
 
+                $userContactRecord = UserContact::where('subscriber_id', $subscriberId)->where('subscription_id', $subscriptionId)->first();
+                $userContactRecord->delete();
+            } elseif($request->has('recordId')) {
+                UserContact::find($request->input('recordId'))->delete();
+            } else {
+                return response()->json(['message' => 'Bad request'], 400);
+            }
             return response()->json(['message' => 'Unsubscribed successfully'], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => "Error during unsubscription user with id {$request->input('subscriberId')} to user with id {$request->input('subscriptionId')}; Error: $e"], 500);
         }
-
-        return response()->json(['message' => 'Bad request'], 400);
     }
 
     public function search(Request $request): JsonResponse
     {
-        if ($request->has('query') && ($request->has('users') || $request->has('companies') || $request->has('all'))) {
-            $query = $request->input('query');
-            $results[] = $this->getRegularUsersSearchResults($request, $query, []);
-            $results[] = $this->getCompaniesSearchResults($request, $query, $results);
+        if ($request->has('for')) {
+            $for = $request->input('for');
+            $results = [];
+
+            if ($for == ForSearchType::Users->value || $for == ForSearchType::All->value) {
+                $results[] = $this->getRegularUsersSearchResults($request, []);
+            }
+
+            if ($for == ForSearchType::Companies->value || $for == ForSearchType::All->value) {
+                $results[] = $this->getCompaniesSearchResults($request, $results);
+            }
+
+            Log::info('search resluts: ' . var_export($results, 1));
+
             return response()->json(['results' => $results]);
         }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('skill_id');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('job_offers')->onDelete('cascade');
+            $table->foreign('job_offer_id')->references('id')->on('job_offers')->onDelete('cascade');
             $table->foreign('skill_id')->references('id')->on('skills')->onDelete('cascade');
         });
     }

@@ -13,6 +13,7 @@ class UserContact extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+    protected $table = 'user_contacts';
     protected $fillable = [
         'subscriber_id',
         'subscription_id'

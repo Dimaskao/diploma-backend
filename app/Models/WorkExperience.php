@@ -12,12 +12,13 @@ class WorkExperience extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+    protected $table = 'work_experience';
     protected $fillable = [
         'user_id',
         'position',
         'company',
-        'start_date',
-        'end_date',
+        'date_start',
+        'date_end',
         'description'
     ];
 

@@ -2,10 +2,11 @@
 
 namespace App\Enums;
 
-enum UserRole : string
+enum ForSearchType : string
 {
-    case RegularUser = 'user';
-    case Company = 'company';
+    case Users = 'users';
+    case Companies = 'companies';
+    case All = 'all';
 
     public static function values(): array
     {
