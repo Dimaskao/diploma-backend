@@ -7,10 +7,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @OA\Schema(
+ *    @OA\Property(property="id", type="string", description="Post title"),
+ *    @OA\Property(property="title", type="string", description="Post title"),
+ *    @OA\Property(property="content", type="string", description="Post content"),
+ *    @OA\Property(property="user_id", type="string", description="Post user_id"),
+ * )
+ */
 class Post extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $primaryKey = 'id';
     protected $fillable = [
