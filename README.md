@@ -2,7 +2,9 @@
 
 - `cp .env.example .env`
 - `docker compose up -d`
-- `docker compose -it exec fpm sh`
+- `docker compose exec fpm sh`
+- `> composer install`
+- `> php artisan serve`
 
 # About Project
 "*" - if there’s enough time to complete it.
