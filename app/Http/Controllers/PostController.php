@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -25,6 +25,10 @@ class PostController extends Controller
                 'content' => $postData['content'],
                 'user_id' => $postData['user_id']
             ]);
+
+            $post->addMultipleMediaFromRequest(['images'])->each(function ($fileAdder) {
+                $fileAdder->toMediaCollection('postsImages');
+            });
         } catch (\Exception $e) {
             throw new HttpResponseException(response()->json([
                 'message'      => $e->getMessage()
@@ -45,14 +49,24 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $postData = $request->only(['titll', 'content']);
+        $postData = $request->only(['title', 'content']);
 
         $post = Post::findOrFail($id);
         $post->update($postData);
 
-        return response()->json(new PostResource($post));
+        if ($request->has('images')) {
+            $post->addMultipleMediaFromRequest(['images'])->each(function ($fileAdder) {
+                $fileAdder->toMediaCollection('postsImages');
+            });
+        }
+
+        collect($request->get('images_to_remove'))->each(function ($mediaId) use ($post) {
+            $post->deleteMedia($mediaId);
+        });
+
+        return response()->json(new PostResource($post->refresh()));
     }
 
     /**

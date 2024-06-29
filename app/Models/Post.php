@@ -8,18 +8,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-/**
- * @OA\Schema(
- *    @OA\Property(property="id", type="string", description="Post title"),
- *    @OA\Property(property="title", type="string", description="Post title"),
- *    @OA\Property(property="content", type="string", description="Post content"),
- *    @OA\Property(property="user_id", type="string", description="Post user_id"),
- * )
- */
-class Post extends Model
+class Post extends Model implements HasMedia
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, InteractsWithMedia;
 
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -27,11 +21,6 @@ class Post extends Model
         'content',
         'user_id'
     ];
-
-    public function postImages() : HasMany
-    {
-        return $this->hasMany(PostImage::class);
-    }
 
     public function comments() : HasMany
     {

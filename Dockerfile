@@ -54,7 +54,7 @@ FROM php:8.3-fpm-alpine3.19 as fpm-base
 ENV CONTAINER_TYPE=base
 WORKDIR /app
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions pdo pdo_mysql
+RUN install-php-extensions pdo pdo_mysql exif
 RUN install-php-extensions pcntl
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY docker/fpm/fpm.ini $PHP_INI_DIR/conf.d/fpm.ini
