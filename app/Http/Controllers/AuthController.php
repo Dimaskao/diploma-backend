@@ -44,7 +44,7 @@ class AuthController extends Controller
         $validator = $this->validateLoginData($request->all());
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['errors' => $validator->errors()], 400);
         }
 
         $credentials = $request->only('email', 'password');

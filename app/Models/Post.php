@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Post extends Model
+class Post extends Model implements HasMedia
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes, InteractsWithMedia;
 
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -18,11 +21,6 @@ class Post extends Model
         'content',
         'user_id'
     ];
-
-    public function postImages() : HasMany
-    {
-        return $this->hasMany(PostImage::class);
-    }
 
     public function comments() : HasMany
     {
