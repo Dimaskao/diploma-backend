@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return PostResource::collection(Post::paginate(15));
+        return PostResource::collection(Post::paginate($request->get('limit') ?? 15));
     }
 
     public function store(StorePostRequest $request)
@@ -26,9 +26,11 @@ class PostController extends Controller
                 'user_id' => $postData['user_id']
             ]);
 
-            $post->addMultipleMediaFromRequest(['images'])->each(function ($fileAdder) {
-                $fileAdder->toMediaCollection('postsImages');
-            });
+            if ($request->has('images')) {
+                $post->addMultipleMediaFromRequest(['images'])->each(function ($fileAdder) {
+                    $fileAdder->toMediaCollection('postsImages');
+                });
+            }
         } catch (\Exception $e) {
             throw new HttpResponseException(response()->json([
                 'message'      => $e->getMessage()

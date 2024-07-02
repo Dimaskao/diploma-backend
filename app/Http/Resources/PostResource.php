@@ -20,7 +20,7 @@ class PostResource extends JsonResource
             'content' => $this->content,
             'user_id' => $this->user_id,
             'images' => $this->getMedia('postsImages')->mapWithKeys(function ($image) {
-                return [$image->id => $image->getUrl()];
+                return [$image->id => $image->getFullUrl()];
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
