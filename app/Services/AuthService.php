@@ -2,18 +2,18 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Factories\UserFactory;
-use App\Interfaces\Authenticator;
-use App\Traits\AuthTrait;
+use App\Models\User;
 use Exception;
 use App\Interfaces\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Passport\ClientRepository;
 
 class AuthService
 {
-    use AuthTrait;
-
     protected Factory $factory;
     protected ValidationService $validationService;
 
@@ -92,5 +92,28 @@ class AuthService
             'password' => 'required|string|min:8',
             'role' => 'required|string|in:user,company'
         ];
+    }
+
+    private function userLogin(array $credentials, string $role)
+    {
+        $user = User::where('email', $credentials['email'])->first();
+
+        if ($user && ($role == UserRole::REGULAR_USER || $role == UserRole::COMPANY) && Hash::check($credentials['password'], $user->password)) {
+            $personalAccessClient = (new ClientRepository())->personalAccessClient();
+
+            if (!$personalAccessClient) {
+                throw new \RuntimeException('Personal access client not found. Please create one.');
+            }
+
+            return $user->createToken('Personal Access Token', ['*'])->accessToken;
+        }
+
+        return false;
+    }
+
+    private function userLogout($user)
+    {
+        $user->token()->revoke();
+        return true;
     }
 }

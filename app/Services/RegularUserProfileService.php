@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
 use App\Enums\EditInfoType;
+use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\RegularUser;
+use App\Models\User;
+use App\Models\UserContact;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
-use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,14 +18,69 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-trait RegularUserProfileTrait
+class RegularUserProfileService
 {
+    public function getRegularUserProfile($user): JsonResponse
+    {
+        $regularUserRecord = $user->regularUser;
+
+        return response()->json([
+            'profile' => [
+                'user' => [
+                    'id' => $user->id,
+                    'firstName' => $regularUserRecord->first_name,
+                    'lastName' => $regularUserRecord->last_name,
+                    'skillsDesc' => $regularUserRecord->skills_desc,
+                    'experience' => $regularUserRecord->experience,
+                ],
+                'education' => $this->getRegularUserEducation($regularUserRecord),
+                'workExperience' => $this->getRegularUserWorkExperience($regularUserRecord),
+                'skills' => $this->getRegularUserSkills($regularUserRecord)
+            ]
+        ], 200);
+    }
+
+    public function updateUserInformation($user, Request $request): JsonResponse
+    {
+        if ($request->has('updateType')) {
+            try {
+                return response()->json([
+                    'message' => 'User information was updated successfully',
+                    'updatedInformation' => $this->updateRegularUserByUpdateType($request->input('updateType'), RegularUser::find($user->user_id), $user, [])
+                ], 200);
+            } catch (Exception $e) {
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Unset update type'], 400);
+    }
+
+    public function deleteRegularUserProfile($id): JsonResponse
+    {
+        $baseUser = User::find($id);
+        $regularUser = $baseUser->regularUser;
+
+        UserEducation::where('user_id', $regularUser->id)->delete();
+        UserSkill::where('user_id', $regularUser->id)->delete();
+        WorkExperience::where('user_id', $regularUser->id)->delete();
+        UserContact::where('subscriber_id', $regularUser->id)->delete();
+        Post::where('user_id', $baseUser->id)->get()->map(function ($post) {
+            PostImage::where('post_id', $post->id)->delete();
+        })->delete;
+
+        $regularUser->delete();
+        $baseUser->delete();
+
+        return response()->json(['message' => "Regular user profile was deleted"], 200);
+    }
+
     /**
      * @param array $data
      * @param array $dataToUpdate
      * @return array
      */
-    public function getUserEducationDataToProceed(array $data, array $dataToUpdate): array
+    private function getUserEducationDataToProceed(array $data, array $dataToUpdate): array
     {
         if (isset($data['start_date'])) {
             $dataToUpdate['start_date'] = $data['start_date'];
@@ -43,10 +101,8 @@ trait RegularUserProfileTrait
      * @param array $newData
      * @return array
      */
-    public function getWorkExperienceDataToProceed(array $data, array $newData): array
+    private function getWorkExperienceDataToProceed(array $data, array $newData): array
     {
-        Log::debug('data to insert: ' . var_export($data, 1));
-
         if (isset($data['description'])) {
             $newData['description'] = $data['description'];
         }
@@ -66,7 +122,7 @@ trait RegularUserProfileTrait
      * @param array $data
      * @return mixed
      */
-    public function insertWorkExperienceRecord($user, array $data): mixed
+    private function insertWorkExperienceRecord($user, array $data): mixed
     {
         $dataToInsert = [
             'position' => $data['position']
@@ -85,7 +141,7 @@ trait RegularUserProfileTrait
      * @param $workExperienceRecord
      * @param array $data
      */
-    public function updateWorkExperienceRecord($workExperienceRecord, array $data)
+    private function updateWorkExperienceRecord($workExperienceRecord, array $data)
     {
         $dataToUpdate = [];
 
@@ -105,7 +161,7 @@ trait RegularUserProfileTrait
      * @param $educationRecord
      * @return array
      */
-    public function updateEducationRecord(array $data, $educationRecord)
+    private function updateEducationRecord(array $data, $educationRecord)
     {
         $dataToUpdate = [];
 
@@ -132,7 +188,7 @@ trait RegularUserProfileTrait
      * @param $user
      * @return array
      */
-    public function insertEducationRecord(array $data, $user)
+    private function insertEducationRecord(array $data, $user)
     {
         $dataToInsert = [
             'institution' => $data['institution'],
@@ -195,42 +251,6 @@ trait RegularUserProfileTrait
                 'contactUrl' => $educationRecord->contact_url
             ];
         })->toArray();
-    }
-
-    private function getRegularUserProfile($user): JsonResponse
-    {
-        $regularUserRecord = $user->regularUser;
-
-        return response()->json([
-            'profile' => [
-                'user' => [
-                    'id' => $user->id,
-                    'firstName' => $regularUserRecord->first_name,
-                    'lastName' => $regularUserRecord->last_name,
-                    'skillsDesc' => $regularUserRecord->skills_desc,
-                    'experience' => $regularUserRecord->experience,
-                ],
-                'education' => $this->getRegularUserEducation($regularUserRecord),
-                'workExperience' => $this->getRegularUserWorkExperience($regularUserRecord),
-                'skills' => $this->getRegularUserSkills($regularUserRecord)
-            ]
-        ], 200);
-    }
-
-    private function updateUserInformation($user, Request $request): JsonResponse
-    {
-        if ($request->has('updateType')) {
-            try {
-                return response()->json([
-                    'message' => 'User information was updated successfully',
-                    'updatedInformation' => $this->updateRegularUserByUpdateType($request->input('updateType'), RegularUser::find($user->user_id), $user, [])
-                ], 200);
-            } catch (Exception $e) {
-                return response()->json(['message' => $e->getMessage()], 500);
-            }
-        }
-
-        return response()->json(['message' => 'Unset update type'], 400);
     }
 
     /**
@@ -405,7 +425,7 @@ trait RegularUserProfileTrait
                 $skillId = $skill['id'];
                 $editInfo = $skill['editInfo'];
 
-                $result[] = match($editInfo) {
+                $result[] = match ($editInfo) {
                     EditInfoType::ADD => $this->addSkill($skillId, $user),
                     EditInfoType::REMOVE => $this->removeSkill($skillId, $user),
                     default => throw new Exception('Update type does not exist')
@@ -422,9 +442,9 @@ trait RegularUserProfileTrait
     {
         $userSkillRecordId = (string)Str::uuid();
         UserSkill::insert([
-            'id' => $userSkillRecordId,
-            'user_id' => $user->id,
-            'skill_id' => $skillId
+                'id' => $userSkillRecordId,
+                'user_id' => $user->id,
+                'skill_id' => $skillId
             ]
         );
         return [

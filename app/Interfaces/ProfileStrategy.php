@@ -11,5 +11,5 @@ interface ProfileStrategy
 
     public function update(Request $request, $id): JsonResponse;
 
-    public function deleteProfile(): JsonResponse;
+    public function deleteProfile($id): JsonResponse;
 }

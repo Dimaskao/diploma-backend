@@ -34,4 +34,9 @@ class ProfileController extends Controller
     {
         return $this->profileService->unsubscribe($request);
     }
+
+    public function destroy($id) : JsonResponse
+    {
+        return $this->profileService->deleteProfile($id);
+    }
 }

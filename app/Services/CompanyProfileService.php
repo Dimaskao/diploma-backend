@@ -1,21 +1,39 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Models\JobOfferSkill;
 use App\Models\Post;
 use App\Models\PostImage;
-use App\Services\ValidationService;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-trait CompanyProfileTrait
+class CompanyProfileService
 {
-    private function updateCompanyInformation($user, Request $request): JsonResponse
+    public function getCompanyProfile(mixed $user): JsonResponse
+    {
+        $company = $user->company;
+
+        return response()->json([
+            'profile' => [
+                'id' => $user->id,
+                'name' => $company->name,
+                'description' => $company->description,
+                'contactEmail' => $company->contact_email,
+                'contactPhone' => $company->contact_phone,
+                'contactUrl' => $company->contact_url,
+                'posts' => $this->getUserPosts($user),
+                'jobOffers' => $this->getCompanyJobOffers($company)
+            ]
+        ], 200);
+    }
+
+    public function updateCompanyInformation($user, Request $request): JsonResponse
     {
         if ($request->has('updateType')) {
             try {
@@ -31,26 +49,23 @@ trait CompanyProfileTrait
         return response()->json(['message' => 'Unset update type'], 400);
     }
 
-    /**
-     * @throws Exception
-     */
-    private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
+    public function deleteCompanyProfile($id): JsonResponse
     {
-        if (isset($updateType['personalInformation'])) {
-            $this->updateCompanyProfile($updateType['personalInformation'], $user, $baseUser);
-            $updatedResults['personalInformation'] = [
-                'id' => $baseUser->id,
-                'description' => $user->description,
-                'name' => $user->name,
-                'contact_email' => $user->contact_email,
-                'contact_phone' => $user->contact_phone,
-                'contact_url' => $user->contact_url,
-                'avatar_url' => $baseUser->avatar_url,
-                'email' => $baseUser->email,
-            ];
-        }
+        $baseUser = User::find($id);
+        $company = $baseUser->company;
 
-        return $updatedResults;
+        JobOffer::where('company_id', $company->id)->get()->map(function ($jobOffer) {
+            JobOfferSkill::where('job_offer_id', $jobOffer->id)->delete();
+        })->delete();
+
+        Post::where('user_id', $baseUser->id)->get()->map(function ($post) {
+            PostImage::where('post_id', $post->id)->delete();
+        })->delete;
+
+        $company->delete();
+        $baseUser->delete();
+
+        return response()->json(['message' => "Regular user profile was deleted"], 200);
     }
 
     /**
@@ -82,6 +97,28 @@ trait CompanyProfileTrait
         } else {
             throw new Exception('Error while updating user profile');
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
+    {
+        if (isset($updateType['personalInformation'])) {
+            $this->updateCompanyProfile($updateType['personalInformation'], $user, $baseUser);
+            $updatedResults['personalInformation'] = [
+                'id' => $baseUser->id,
+                'description' => $user->description,
+                'name' => $user->name,
+                'contact_email' => $user->contact_email,
+                'contact_phone' => $user->contact_phone,
+                'contact_url' => $user->contact_url,
+                'avatar_url' => $baseUser->avatar_url,
+                'email' => $baseUser->email,
+            ];
+        }
+
+        return $updatedResults;
     }
 
     private function getUserUpdateData(array $data): array
@@ -127,24 +164,6 @@ trait CompanyProfileTrait
         }
 
         return $userUpdateData;
-    }
-
-    private function getCompanyProfile(mixed $user): JsonResponse
-    {
-        $company = $user->company;
-
-        return response()->json([
-            'profile' => [
-                'id' => $user->id,
-                'name' => $company->name,
-                'description' => $company->description,
-                'contactEmail' => $company->contact_email,
-                'contactPhone' => $company->contact_phone,
-                'contactUrl' => $company->contact_url,
-                'posts' => $this->getUserPosts($user),
-                'jobOffers' => $this->getCompanyJobOffers($company)
-            ]
-        ], 200);
     }
 
     public function getCompanyJobOffers($company): array

@@ -2,19 +2,16 @@
 
 namespace App\Services;
 
-use App\Enums\SubscriptionAction;
+use App\Enums\UserRole;
 use App\Factories\ProfileStrategyFactory;
 use App\Interfaces\Factory;
-use App\Traits\CompanyProfileTrait;
-use App\Traits\RegularUserProfileTrait;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProfileService
 {
-    use CompanyProfileTrait, RegularUserProfileTrait;
-
     protected Factory $factory;
     protected SubscriptionService $subscriptionService;
 
@@ -36,7 +33,7 @@ class ProfileService
     public function update(Request $request, $id): JsonResponse
     {
         try {
-            return $this->subscriptionService->unsubscribe($request);
+            return $this->factory->create(['id' => $id])->update($request, $id);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);
         }
@@ -54,9 +51,18 @@ class ProfileService
     public function unsubscribe(Request $request): JsonResponse
     {
         try {
-            return Functions::manageSubscription($request, SubscriptionAction::UNSUBSCRIBE);
+            return $this->subscriptionService->unsubscribe($request);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);
+        }
+    }
+
+    public function deleteProfile($id): JsonResponse
+    {
+        try {
+            return $this->factory->create(['id' => $id])->deleteProfile($id);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

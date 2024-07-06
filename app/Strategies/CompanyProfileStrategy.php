@@ -2,28 +2,37 @@
 
 namespace App\Strategies;
 
-use App\Enums\UserRole;
 use App\Interfaces\ProfileStrategy;
-use App\Traits\ProfileTrait;
+use App\Models\User;
+use App\Services\CompanyProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CompanyProfileStrategy implements ProfileStrategy
 {
-    use ProfileTrait;
+    protected CompanyProfileService $service;
+
+    public function __construct(CompanyProfileService $service)
+    {
+        $this->service = $service;
+    }
 
     public function show($id): JsonResponse
     {
-        return $this->getUserProfile($id, UserRole::COMPANY);
+        $user = User::findOrFail($id);
+        $profile = $this->service->getCompanyProfile($user);
+        return response()->json($profile, 200);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
-        return $this->updateUserProfile($request, $id, UserRole::COMPANY);
+        $user = User::findOrFail($id);
+        $updatedProfile = $this->service->updateCompanyInformation($user, $request);
+        return response()->json($updatedProfile, 200);
     }
 
-    public function deleteProfile(): JsonResponse
+    public function deleteProfile($id): JsonResponse
     {
-        // TODO: Implement deleteAccount() method.
+        return $this->service->deleteCompanyProfile($id);
     }
 }
