@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostStatus;
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -12,18 +14,22 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        return PostResource::collection(Post::paginate($request->get('limit') ?? 15));
+        return PostResource::collection(
+            Post::where('status', PostStatus::Published->value)
+                ->paginate($request->get('limit') ?? 15)
+        );
     }
 
     public function store(StorePostRequest $request)
     {
-        $postData = $request->only(['title', 'content', 'user_id']);
+        $postData = $request->only(['title', 'content', 'user_id', 'status']);
 
         try {
             $post = Post::create([
-                'title' => $postData['title'],
+                'title'   => $postData['title'],
                 'content' => $postData['content'],
-                'user_id' => $postData['user_id']
+                'user_id' => $postData['user_id'],
+                'status'  => $postData['status'],
             ]);
 
             if ($request->has('images')) {
@@ -33,11 +39,11 @@ class PostController extends Controller
             }
         } catch (\Exception $e) {
             throw new HttpResponseException(response()->json([
-                'message'      => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400));
         }
 
-        return response()->json(new PostResource($post),201);
+        return response()->json(new PostResource($post), 201);
     }
 
     /**
@@ -51,9 +57,9 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePostRequest $request, $id)
     {
-        $postData = $request->only(['title', 'content']);
+        $postData = $request->only(['title', 'content', 'status']);
 
         $post = Post::findOrFail($id);
         $post->update($postData);
