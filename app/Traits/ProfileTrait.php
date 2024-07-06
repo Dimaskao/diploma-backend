@@ -2,95 +2,53 @@
 
 namespace App\Traits;
 
-use App\Models\Company;
-use App\Models\RegularUser;
+use App\Enums\SubscriptionAction;
+use App\Enums\UserRole;
 use App\Models\User;
+use App\Models\UserContact;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 trait ProfileTrait
 {
-    private function getUserAndRole($id)
+    use CompanyProfileTrait, RegularUserProfileTrait;
+
+    protected function getUserProfile($id, $role): JsonResponse
     {
-        $user = User::find($id);
-        if (!$user) {
-            return null;
+        $user = $this->getUser($id);
+
+        if ($user && $role) {
+            return match ($role) {
+                UserRole::REGULAR_USER => $this->getRegularUserProfile($user),
+                UserRole::COMPANY => $this->getCompanyProfile($user),
+                default => response()->json(['message' => 'Unexpected error occurred during processing profile data'], 500),
+            };
         }
-        return [$user, $user->role->name ?? null];
+        return response()->json(['message' => "User or role with id '$id' does not exist"], 404);
+    }
+
+    protected function updateUserProfile(Request $request, $id, $role): JsonResponse
+    {
+        $user = $this->getUser($id);
+
+        if ($user && $role) {
+            return match ($role) {
+                UserRole::REGULAR_USER => $this->updateUserInformation($user, $request),
+                UserRole::COMPANY => $this->updateCompanyInformation($user, $request),
+                default => response()->json(['message' => 'Unexpected error occurred during updating profile data'], 500),
+            };
+        }
+        return response()->json(['message' => "User or role with id '$id' does not exist"], 404);
     }
 
     /**
-     * @param Request $request
-     * @param array $results
-     * @return array
+     * @param $id
+     * @return User
      */
-    public function getRegularUsersSearchResults(Request $request, array $results): array
+    private function getUser($id): User
     {
-        $users = collect();
-
-        if ($request->has('first_name') && !$request->has('last_name')) {
-            $firstName = $request->input('first_name');
-            $users = RegularUser::where('first_name', 'LIKE', "%$firstName")->get();
-        }
-
-        if ($request->has('last_name') && !$request->has('first_name')) {
-            $lastName = $request->input('last_name');
-            $users = $users->merge(RegularUser::where('first_name', 'LIKE', "%$lastName")->get());
-        }
-
-        if ($request->has('first_name') && $request->has('last_name')) {
-            $firstName = $request->input('first_name');
-            $lastName = $request->input('last_name');
-            $users = $users->merge(RegularUser::where('first_name', 'LIKE', "%$firstName%")->where('last_name', 'LIKE', "%$lastName%")->get());
-        }
-
-        Log::error('Users: ' . var_export($users, 1));
-
-        foreach ($users as $user) {
-            Log::debug('$user: ' . var_export($user, 1));
-
-            $userModel = User::where('user_id', $user->id)->first();
-            if ($userModel) {
-                $results[] = [
-                    'id' => $userModel->id,
-                    'name' => "{$user->first_name} {$user->last_name}"
-                ];
-            } else {
-                Log::error("User model not found for RegularUser ID: {$user->id}");
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param Request $request
-     * @param array $results
-     * @return array
-     */
-    public function getCompaniesSearchResults(Request $request, array $results): array
-    {
-        $companies = [];
-
-        if ($request->has('name')) {
-            $name = $request->input('name');
-            $companies = Company::where('name', 'LIKE', "%$name%")->get();
-        }
-
-        foreach ($companies as $company) {
-            Log::debug('$company: ' . var_export($company, 1));
-
-            $userModel = User::where('company_id', $company->id)->first();
-            if ($userModel) {
-                $results[] = [
-                    'id' => $userModel->id,
-                    'name' => $company->name
-                ];
-            } else {
-                Log::error("User model not found for Company ID: {$company->id}");
-            }
-        }
-
-        return $results;
+        return User::find($id);
     }
 }

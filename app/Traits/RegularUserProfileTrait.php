@@ -4,15 +4,14 @@ namespace App\Traits;
 
 use App\Enums\EditInfoType;
 use App\Models\RegularUser;
-use App\Models\User;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
+use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -65,8 +64,9 @@ trait RegularUserProfileTrait
     /**
      * @param $user
      * @param array $data
+     * @return mixed
      */
-    public function insertWorkExperienceRecord($user, array $data)
+    public function insertWorkExperienceRecord($user, array $data): mixed
     {
         $dataToInsert = [
             'position' => $data['position']
@@ -223,7 +223,7 @@ trait RegularUserProfileTrait
             try {
                 return response()->json([
                     'message' => 'User information was updated successfully',
-                    'updatedInformation' => $this->updateByUpdateType($request->input('updateType'), RegularUser::find($user->user_id), $user, [])
+                    'updatedInformation' => $this->updateRegularUserByUpdateType($request->input('updateType'), RegularUser::find($user->user_id), $user, [])
                 ], 200);
             } catch (Exception $e) {
                 return response()->json(['message' => $e->getMessage()], 500);
@@ -236,10 +236,10 @@ trait RegularUserProfileTrait
     /**
      * @throws Exception
      */
-    private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
+    private function updateRegularUserByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
     {
         if (isset($updateType['personalInformation'])) {
-            $this->updateUserProfile($updateType['personalInformation'], $user, $baseUser);
+            $this->updateRegularUserProfile($updateType['personalInformation'], $user, $baseUser);
             $updatedResults['personalInformation'] = [
                 'id' => $baseUser->id,
                 'first_name' => $user->first_name,
@@ -270,9 +270,9 @@ trait RegularUserProfileTrait
      * @throws ValidationException
      * @throws Exception
      */
-    private function updateUserProfile(array $personalInformation, $user, $baseUser)
+    private function updateRegularUserProfile(array $personalInformation, $user, $baseUser)
     {
-        $data = $this->getValidatedData($personalInformation, [
+        $data = (new ValidationService())->validate($personalInformation, [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
             'skills_desc' => 'sometimes|string',
@@ -284,7 +284,7 @@ trait RegularUserProfileTrait
 
         if ($user && $baseUser) {
             $userUpdateData = $this->getRegularUserUpdateData($data);
-            $baseUserUpdateData = $this->getUserUpdateData($data);
+            $baseUserUpdateData = $this->getBaseUserUpdateData($data);
 
             if (!empty($userUpdateData)) {
                 $user->update($userUpdateData);
@@ -311,7 +311,7 @@ trait RegularUserProfileTrait
                 $e['end_date'] = date('Y-m-d H:i:s', $e['end_date']);
             }
 
-            $data = $this->getValidatedData($e, [
+            $data = (new ValidationService)->validate($e, [
                 'institution' => 'sometimes|string|max:255',
                 'degree' => 'sometimes|string|max:255',
                 'field_of_study' => 'sometimes|string|max:255',
@@ -361,7 +361,7 @@ trait RegularUserProfileTrait
                 $experience['date_end'] = date('Y-m-d H:i:s', $experience['date_end']);
             }
 
-            $data = $this->getValidatedData($experience, [
+            $data = (new ValidationService())->validate($experience, [
                 'position' => 'sometimes|string|max:255',
                 'company' => 'sometimes|string|max:255',
                 'date_start' => 'sometimes|date',
@@ -405,33 +405,17 @@ trait RegularUserProfileTrait
                 $skillId = $skill['id'];
                 $editInfo = $skill['editInfo'];
 
-                if ($editInfo == EditInfoType::Add->value) {
-                    $result[] = $this->addSkill($skillId, $user);
-                } elseif ($editInfo == EditInfoType::Remove->value) {
-                    $result[] = $this->removeSkill($skillId, $user);
-                } else {
-                    throw new Exception('Update type does not exist');
-                }
+                $result[] = match($editInfo) {
+                    EditInfoType::ADD => $this->addSkill($skillId, $user),
+                    EditInfoType::REMOVE => $this->removeSkill($skillId, $user),
+                    default => throw new Exception('Update type does not exist')
+                };
+
             } else {
                 throw new Exception('Skill id was not set');
             }
         }
         return $result;
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    private function getValidatedData(array $data, array $rules): array
-    {
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            Log::error('Validation failed: ' . var_export($validator->errors()->all(), true));
-            throw new ValidationException($validator);
-        }
-
-        return $validator->validated();
     }
 
     private function addSkill($skillId, $user)
@@ -445,7 +429,7 @@ trait RegularUserProfileTrait
         );
         return [
             'id' => $userSkillRecordId,
-            'editInfo' => EditInfoType::Add->value,
+            'editInfo' => EditInfoType::ADD,
             'result' => 'success'
         ];
     }
@@ -456,13 +440,13 @@ trait RegularUserProfileTrait
         if ($record) {
             $record->delete();
             return [
-                'editInfo' => EditInfoType::Remove->value,
+                'editInfo' => EditInfoType::REMOVE,
                 'result' => 'success'
             ];
         }
         return [
             'id' => $record->id,
-            'editInfo' => EditInfoType::Remove->value,
+            'editInfo' => EditInfoType::REMOVE,
             'result' => 'error'
         ];
     }
@@ -471,7 +455,7 @@ trait RegularUserProfileTrait
      * @param array $data
      * @return array
      */
-    private function getUserUpdateData(array $data): array
+    private function getBaseUserUpdateData(array $data): array
     {
         $baseUserUpdateData = [];
 

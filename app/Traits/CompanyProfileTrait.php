@@ -7,16 +7,126 @@ use App\Models\JobOffer;
 use App\Models\JobOfferSkill;
 use App\Models\Post;
 use App\Models\PostImage;
+use App\Services\ValidationService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 trait CompanyProfileTrait
 {
     private function updateCompanyInformation($user, Request $request): JsonResponse
     {
-        // Implement company update logic here
+        if ($request->has('updateType')) {
+            try {
+                return response()->json([
+                    'message' => 'Company information was updated successfully',
+                    'updatedInformation' => $this->updateByUpdateType($request->input('updateType'), Company::find($user->user_id), $user, [])
+                ], 200);
+            } catch (Exception $e) {
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        }
 
-        return response()->json(['message' => 'Profile updated successfully', 'company' => $user]);
+        return response()->json(['message' => 'Unset update type'], 400);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
+    {
+        if (isset($updateType['personalInformation'])) {
+            $this->updateCompanyProfile($updateType['personalInformation'], $user, $baseUser);
+            $updatedResults['personalInformation'] = [
+                'id' => $baseUser->id,
+                'description' => $user->description,
+                'name' => $user->name,
+                'contact_email' => $user->contact_email,
+                'contact_phone' => $user->contact_phone,
+                'contact_url' => $user->contact_url,
+                'avatar_url' => $baseUser->avatar_url,
+                'email' => $baseUser->email,
+            ];
+        }
+
+        return $updatedResults;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function updateCompanyProfile(array $personalInformation, $user, $baseUser)
+    {
+        $data = (new ValidationService())->validate($personalInformation, [
+            'description' => 'sometimes|string|max:255',
+            'name' => 'sometimes|string',
+            'contact_email' => 'sometimes|string',
+            'contact_phone' => 'sometimes|string',
+            'password' => 'sometimes|string|min:8',
+            'contact_url' => 'sometimes|url',
+            'avatar_url' => 'sometimes|url'
+        ]);
+
+        if ($user && $baseUser) {
+            $userUpdateData = $this->getCompanyUpdateData($data);
+            $baseUserUpdateData = $this->getUserUpdateData($data);
+
+            if (!empty($userUpdateData)) {
+                $user->update($userUpdateData);
+            }
+
+            if (!empty($baseUserUpdateData)) {
+                $baseUser->update($baseUserUpdateData);
+            }
+        } else {
+            throw new Exception('Error while updating user profile');
+        }
+    }
+
+    private function getUserUpdateData(array $data): array
+    {
+        $baseUserUpdateData = [];
+
+        if (isset($data['password'])) {
+            $baseUserUpdateData['password'] = bcrypt($data['password']);
+        }
+
+        if (isset($data['avatar_url'])) {
+            $baseUserUpdateData['avatar_url'] = $data['avatar_url'];
+        }
+        return $baseUserUpdateData;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    private function getCompanyUpdateData(array $data): array
+    {
+        $userUpdateData = [];
+
+        if (isset($data['description'])) {
+            $userUpdateData['description'] = $data['description'];
+        }
+
+        if (isset($data['name'])) {
+            $userUpdateData['name'] = $data['name'];
+        }
+
+        if (isset($data['contact_email'])) {
+            $userUpdateData['contact_email'] = $data['contact_email'];
+        }
+
+        if (isset($data['contact_phone'])) {
+            $userUpdateData['contact_phone'] = $data['contact_phone'];
+        }
+
+        if (isset($data['contact_url'])) {
+            $userUpdateData['contact_url'] = $data['contact_url'];
+        }
+
+        return $userUpdateData;
     }
 
     private function getCompanyProfile(mixed $user): JsonResponse

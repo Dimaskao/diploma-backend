@@ -3,23 +3,24 @@
 namespace App\Services;
 
 use App\Factories\UserFactory;
-use App\Interfaces\Authentication;
+use App\Interfaces\Authenticator;
 use App\Traits\AuthTrait;
 use Exception;
+use App\Interfaces\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class AuthService implements Authentication
+class AuthService
 {
     use AuthTrait;
 
-    protected UserFactory $userFactory;
+    protected Factory $factory;
     protected ValidationService $validationService;
 
-    public function __construct(ValidationService $validationService, UserFactory $userFactory)
+    public function __construct(ValidationService $validationService, UserFactory $factory)
     {
         $this->validationService = $validationService;
-        $this->userFactory = $userFactory;
+        $this->factory = $factory;
     }
 
     /**
@@ -30,7 +31,7 @@ class AuthService implements Authentication
         $data = $this->validationService->validate($request->all(), $this->registrationRules());
 
         try {
-            $result = $this->userFactory->createUser($data);
+            $result = $this->factory->create($data);
             return response()->json($result, 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to create user or company'], 500);
