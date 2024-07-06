@@ -2,72 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Company;
-use App\Traits\AuthTrait;
+use App\Interfaces\Authentication;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    use AuthTrait;
+    protected Authentication $authentication;
 
-    /**
-     * Register a new user or company.
-     */
-    public function register(Request $request)
+    public function __construct(Authentication $authentication)
     {
-        $validator = $this->validateRegistrationData($request->all());
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
-        }
-
-        try {
-            $data = $validator->validated();
-            $result = $this->registerUser($data);
-
-            return response()->json($result, 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create user or company'], 500);
-        }
+        $this->authentication = $authentication;
     }
 
-    /**
-     * Log in user or company.
-     */
-    public function login(Request $request): JsonResponse
+    public function register(Request $request) : JsonResponse
     {
-        $validator = $this->validateLoginData($request->all());
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        $credentials = $request->only('email', 'password');
-        $role = $request->input('role');
-
-        $token = $this->userLogin($credentials, $role);
-        if ($token) {
-            return response()->json(['token' => $token], 200);
-        }
-
-        return response()->json(['error' => 'Unauthenticated'], 401);
+        return $this->authentication->register($request);
     }
 
-    /**
-     * Log out user or company.
-     */
-    public function logout(Request $request): JsonResponse
+    public function login(Request $request) : JsonResponse
     {
-        try {
-            $this->userLogout($request->user());
-            return response()->json(['message' => 'Successfully logged out'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to log out user'], 500);
-        }
+        return $this->authentication->login($request);
+    }
+
+    public function logout(Request $request) : JsonResponse
+    {
+        return $this->authentication->logout($request);
     }
 }
