@@ -8,6 +8,7 @@ use App\Services\AuthService;
 use App\Services\CompanyProfileService;
 use App\Services\ProfileService;
 use App\Services\RegularUserProfileService;
+use App\Services\SocialNetworksService;
 use App\Services\SubscriptionService;
 use App\Services\ValidationService;
 use App\Strategies\CompanyProfileStrategy;
@@ -45,6 +46,12 @@ class AppServiceProvider extends ServiceProvider
             return new CompanyProfileService();
         });
 
+        $this->app->singleton(SocialNetworksService::class, function ($app) {
+            return new SocialNetworksService(
+                $app->make(SubscriptionService::class)
+            );
+        });
+
         $this->app->bind(CompanyProfileStrategy::class, function ($app) {
             return new CompanyProfileStrategy(
                 $app->make(CompanyProfileService::class)
@@ -67,7 +74,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ProfileService::class, function ($app) {
             return new ProfileService(
                 $app->make(ProfileStrategyFactory::class),
-                $app->make(SubscriptionService::class)
             );
         });
 

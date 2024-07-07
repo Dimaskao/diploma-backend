@@ -8,35 +8,25 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    protected ProfileService $profileService;
+    protected ProfileService $service;
 
     public function __construct(ProfileService $profileService)
     {
-        $this->profileService = $profileService;
+        $this->service = $profileService;
     }
 
     public function show($id): JsonResponse
     {
-        return $this->profileService->show($id);
+        return $this->service->show($id);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
-        return $this->profileService->update($request, $id);
-    }
-
-    public function subscribe(Request $request): JsonResponse
-    {
-        return $this->profileService->subscribe($request);
-    }
-
-    public function unsubscribe(Request $request): JsonResponse
-    {
-        return $this->profileService->unsubscribe($request);
+        return $this->service->update($request, $id);
     }
 
     public function destroy($id) : JsonResponse
     {
-        return $this->profileService->deleteProfile($id);
+        return $this->service->deleteProfile($id);
     }
 }

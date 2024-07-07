@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-class ForSearchType extends BaseEnum
+class SearchType extends BaseEnum
 {
     const USERS = 'users';
     const COMPANIES = 'companies';
