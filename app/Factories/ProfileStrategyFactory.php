@@ -5,6 +5,8 @@ namespace App\Factories;
 use App\Enums\UserRole;
 use App\Interfaces\Factory;
 use App\Interfaces\ProfileStrategy;
+use App\Services\CompanyProfileService;
+use App\Services\RegularUserProfileService;
 use App\Strategies\CompanyProfileStrategy;
 use App\Strategies\RegularUserProfileStrategy;
 use App\Models\User;
@@ -25,8 +27,8 @@ class ProfileStrategyFactory implements Factory
             }
 
             return match ($user->role->name) {
-                UserRole::REGULAR_USER => new RegularUserProfileStrategy(),
-                UserRole::COMPANY => new CompanyProfileStrategy(),
+                UserRole::REGULAR_USER => new RegularUserProfileStrategy(new RegularUserProfileService()),
+                UserRole::COMPANY => new CompanyProfileStrategy(new CompanyProfileService()),
                 default => throw new Exception('Invalid user role'),
             };
         }
