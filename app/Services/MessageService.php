@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Message;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use App\Events\MessageSent;
+
+class MessageService
+{
+    public function sendMessage(array $data): JsonResponse
+    {
+        $message = Message::create([
+            'chat_id' => $data['chat_id'],
+            'user_id' => Auth::id(),
+            'content' => $data['content']
+        ]);
+
+        broadcast(new MessageSent($message))->toOthers();
+
+        return response()->json($message, 201);
+    }
+
+    public function getMessages(int $chatId): JsonResponse
+    {
+        $messages = Message::where('chat_id', $chatId)->get();
+        return response()->json($messages);
+    }
+}

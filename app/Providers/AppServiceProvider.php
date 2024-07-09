@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Factories\ProfileStrategyFactory;
 use App\Factories\UserFactory;
 use App\Services\AuthService;
+use App\Services\ChatService;
 use App\Services\CompanyProfileService;
+use App\Services\MessageService;
 use App\Services\ProfileService;
 use App\Services\RegularUserProfileService;
-use App\Services\SocialNetworksService;
+use App\Services\SocialNetworkService;
 use App\Services\SubscriptionService;
 use App\Services\ValidationService;
 use App\Strategies\CompanyProfileStrategy;
@@ -46,9 +48,19 @@ class AppServiceProvider extends ServiceProvider
             return new CompanyProfileService();
         });
 
-        $this->app->singleton(SocialNetworksService::class, function ($app) {
-            return new SocialNetworksService(
-                $app->make(SubscriptionService::class)
+        $this->app->singleton(ChatService::class, function ($app) {
+            return new ChatService();
+        });
+
+        $this->app->singleton(MessageService::class, function ($app) {
+            return new MessageService();
+        });
+
+        $this->app->singleton(SocialNetworkService::class, function ($app) {
+            return new SocialNetworkService(
+                $app->make(SubscriptionService::class),
+                $app->make(ChatService::class),
+                $app->make(MessageService::class),
             );
         });
 

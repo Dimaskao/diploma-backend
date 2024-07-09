@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\SearchType;
-use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\RegularUser;
 use App\Models\User;
@@ -11,13 +10,17 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class SocialNetworksService
+class SocialNetworkService
 {
     protected SubscriptionService $subscriptionService;
+    protected ChatService $chatService;
+    protected MessageService $messageService;
 
-    public function __construct(SubscriptionService $subscriptionService)
+    public function __construct(SubscriptionService $subscriptionService, ChatService $chatService, MessageService $messageService)
     {
         $this->subscriptionService = $subscriptionService;
+        $this->chatService = $chatService;
+        $this->messageService = $messageService;
     }
 
     public function search(Request $request): JsonResponse
@@ -56,6 +59,26 @@ class SocialNetworksService
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);
         }
+    }
+
+    public function createChat(Request $request): JsonResponse
+    {
+        return $this->chatService->createChat($request->all());
+    }
+
+    public function addUserToChat(Request $request, int $chatId): JsonResponse
+    {
+        return $this->chatService->addUserToChat($chatId, $request->user_id);
+    }
+
+    public function sendMessage(Request $request): JsonResponse
+    {
+        return $this->messageService->sendMessage($request->all());
+    }
+
+    public function getMessages(int $chatId): JsonResponse
+    {
+        return $this->messageService->getMessages($chatId);
     }
 
     /**
