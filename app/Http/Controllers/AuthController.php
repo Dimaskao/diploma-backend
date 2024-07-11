@@ -32,7 +32,7 @@ class AuthController extends Controller
 
             return response()->json($result, 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create user or company'], 500);
+            return response()->json(['error' => 'Failed to create user or company', 'message' => $e->getMessage()], 500);
         }
     }
 

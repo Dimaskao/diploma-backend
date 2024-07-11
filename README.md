@@ -5,6 +5,7 @@
 - `docker compose exec fpm sh`
 - `> composer install`
 - `> php artisan serve`
+- `> php artisan passport:keys --force`
 
 # About Project
 "*" - if there’s enough time to complete it.
