@@ -10,6 +10,7 @@ use App\Interfaces\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Passport\ClientRepository;
 
 class AuthService
@@ -45,10 +46,8 @@ class AuthService
     {
         try {
             $this->validationService->validate($request->all(), $this->loginRules());
-
             $credentials = $request->only('email', 'password');
             $role = $request->input('role');
-
             $token = $this->userLogin($credentials, $role);
             if ($token) {
                 return response()->json(['token' => $token], 200);
@@ -98,7 +97,7 @@ class AuthService
     {
         $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && ($role == UserRole::REGULAR_USER || $role == UserRole::COMPANY) && Hash::check($credentials['password'], $user->password)) {
+        if ($user && in_array($role, UserRole::values()) && Hash::check($credentials['password'], $user->password)) {
             $personalAccessClient = (new ClientRepository())->personalAccessClient();
 
             if (!$personalAccessClient) {
@@ -113,7 +112,10 @@ class AuthService
 
     private function userLogout($user)
     {
-        $user->token()->revoke();
+        $tokens = $user->tokens;
+        foreach ($tokens as $token) {
+            $token->revoke();
+        }
         return true;
     }
 }

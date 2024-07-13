@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+use Illuminate\Support\Facades\Log;
 use ReflectionClass;
 
 abstract class BaseEnum
@@ -9,7 +10,7 @@ abstract class BaseEnum
     public static function values(): array
     {
         $class = new ReflectionClass(static::class);
-        return array_column($class->getConstants(), 'value');
+        return array_values($class->getConstants());
     }
 
     public static function toArray(): array
