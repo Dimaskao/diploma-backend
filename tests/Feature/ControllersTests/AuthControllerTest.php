@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace Tests\Feature\ControllersTests;
 
 use Database\Seeders\DatabaseSeeder;
-use Tests\Feature\TestsHelpers\AuthHelper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\TestsHelpers\AuthHelper;
 use Tests\TestCase;
 
-class AuthServiceTest extends TestCase
+class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
     use AuthHelper;
@@ -15,7 +15,7 @@ class AuthServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setUpAuthService();
+        $this->setUpAuthController();
         $this->seed(DatabaseSeeder::class);
     }
 }
