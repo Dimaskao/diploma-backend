@@ -20,15 +20,13 @@ class RegularUserProfileStrategy implements ProfileStrategy
     public function show($id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $profile = $this->service->getRegularUserProfile($user);
-        return response()->json($profile, 200);
+        return $this->service->getRegularUserProfile($user);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $updatedProfile = $this->service->updateUserInformation($user, $request);
-        return response()->json($updatedProfile, 200);
+        return $this->service->updateUserInformation($user, $request);
     }
 
     public function deleteProfile($id): JsonResponse

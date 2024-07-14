@@ -17,8 +17,6 @@ class RegularUserProfileServiceTest extends TestCase
     use RefreshDatabase;
     use UserProfileHelper;
 
-    protected RegularUserProfileService $profileService;
-
     protected function setUp(): void
     {
         parent::setUp();

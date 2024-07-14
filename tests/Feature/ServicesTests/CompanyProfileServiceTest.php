@@ -17,8 +17,6 @@ class CompanyProfileServiceTest extends TestCase
     use RefreshDatabase;
     use UserProfileHelper;
 
-    protected CompanyProfileService $profileService;
-
     protected function setUp(): void
     {
         parent::setUp();
