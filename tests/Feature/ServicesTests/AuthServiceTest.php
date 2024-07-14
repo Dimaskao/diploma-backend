@@ -3,8 +3,8 @@
 namespace Tests\Feature\ServicesTests;
 
 use Database\Seeders\DatabaseSeeder;
-use Tests\Feature\TestsHelpers\AuthHelper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\TestsHelpers\AuthHelper;
 use Tests\TestCase;
 
 class AuthServiceTest extends TestCase

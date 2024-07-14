@@ -20,6 +20,13 @@ use Illuminate\Validation\ValidationException;
 
 class RegularUserProfileService
 {
+    protected ValidationService $validator;
+
+    public function __construct()
+    {
+        $this->validator = new ValidationService();
+    }
+
     public function getRegularUserProfile($user): JsonResponse
     {
         $regularUserRecord = $user->regularUser;
@@ -59,20 +66,27 @@ class RegularUserProfileService
     public function deleteRegularUserProfile($id): JsonResponse
     {
         $baseUser = User::find($id);
-        $regularUser = $baseUser->regularUser;
+        if ($baseUser) {
+            $regularUser = $baseUser->regularUser;
 
-        UserEducation::where('user_id', $regularUser->id)->delete();
-        UserSkill::where('user_id', $regularUser->id)->delete();
-        WorkExperience::where('user_id', $regularUser->id)->delete();
-        UserContact::where('subscriber_id', $regularUser->id)->delete();
-        Post::where('user_id', $baseUser->id)->get()->map(function ($post) {
-            PostImage::where('post_id', $post->id)->delete();
-        })->delete;
+            UserEducation::where('user_id', $regularUser->id)->delete();
+            UserSkill::where('user_id', $regularUser->id)->delete();
+            WorkExperience::where('user_id', $regularUser->id)->delete();
+            UserContact::where('subscriber_id', $regularUser->id)->delete();
 
-        $regularUser->delete();
-        $baseUser->delete();
+            $posts = Post::where('user_id', $baseUser->id)->get();
+            foreach ($posts as $post) {
+                PostImage::where('post_id', $post->id)->delete();
+                $post->delete();
+            }
 
-        return response()->json(['message' => "Regular user profile was deleted"], 200);
+            $regularUser->delete();
+            $baseUser->delete();
+
+            return response()->json(['message' => "Regular user profile was deleted"], 200);
+        } else {
+            return response()->json(['message' => "User not found"], 404);
+        }
     }
 
     /**
@@ -129,7 +143,6 @@ class RegularUserProfileService
         ];
 
         $dataToInsert = $this->getWorkExperienceDataToProceed($data, $dataToInsert);
-
         $dataToInsert['user_id'] = $user->id;
         $dataToInsert['id'] = (string)Str::uuid();
 
@@ -150,7 +163,6 @@ class RegularUserProfileService
         }
 
         $dataToUpdate = $this->getWorkExperienceDataToProceed($data, $dataToUpdate);
-        Log::info('Updating WE record , $dataToUpdate: ' . var_export($dataToUpdate, 1));
 
         $workExperienceRecord->update($dataToUpdate);
         return $workExperienceRecord;
@@ -292,7 +304,7 @@ class RegularUserProfileService
      */
     private function updateRegularUserProfile(array $personalInformation, $user, $baseUser)
     {
-        $data = (new ValidationService())->validate($personalInformation, [
+        $data = $this->validator->validate($personalInformation, [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
             'skills_desc' => 'sometimes|string',
@@ -331,7 +343,7 @@ class RegularUserProfileService
                 $e['end_date'] = date('Y-m-d H:i:s', $e['end_date']);
             }
 
-            $data = (new ValidationService)->validate($e, [
+            $data = $this->validator->validate($e, [
                 'institution' => 'sometimes|string|max:255',
                 'degree' => 'sometimes|string|max:255',
                 'field_of_study' => 'sometimes|string|max:255',
@@ -372,16 +384,17 @@ class RegularUserProfileService
     private function updateWorkExperience($workExperience, $user)
     {
         $result = [];
+
         foreach ($workExperience as $experience) {
             if (isset($experience['date_start'])) {
-                $experience['date_start'] = date('Y-m-d H:i:s', $experience['date_start']);
+                $experience['date_start'] = $this->convertToDateTimeString($experience['date_start']);
             }
 
             if (isset($experience['date_end'])) {
-                $experience['date_end'] = date('Y-m-d H:i:s', $experience['date_end']);
+                $experience['date_end'] = $this->convertToDateTimeString($experience['date_end']);
             }
 
-            $data = (new ValidationService())->validate($experience, [
+            $data = $this->validator->validate($experience, [
                 'position' => 'sometimes|string|max:255',
                 'company' => 'sometimes|string|max:255',
                 'date_start' => 'sometimes|date',
@@ -419,6 +432,8 @@ class RegularUserProfileService
      */
     private function updateUserSkills($skills, $user)
     {
+        Log::error('$skills: ' . var_export($skills, 1));
+
         $result = [];
         foreach ($skills as $skill) {
             if (isset($skill['id']) && isset($skill['editInfo'])) {
@@ -517,5 +532,21 @@ class RegularUserProfileService
             $userUpdateData['experience'] = $data['experience'];
         }
         return $userUpdateData;
+    }
+
+    /**
+     * Convert a date string to a datetime string
+     *
+     * @param string $date
+     * @return string|null
+     */
+    private function convertToDateTimeString($date): ?string
+    {
+        try {
+            $timestamp = strtotime($date);
+            return date('Y-m-d H:i:s', $timestamp);
+        } catch (Exception $e) {
+            return null;
+        }
     }
 }

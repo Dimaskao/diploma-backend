@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ChatService;
-use App\Services\MessageService;
 use App\Services\SocialNetworkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

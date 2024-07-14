@@ -14,19 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 trait AuthHelper
 {
+    /** AuthService or AuthController entity */
     protected $registry;
+
     protected ValidationService $validationService;
     protected Factory $userFactory;
     protected AuthService $authService;
     protected AuthController $authController;
 
-    protected function setUpAuthService() : void
+    protected function setUpAuthService(): void
     {
         $this->setUpAuthServiceEntity();
         $this->registry = $this->authService;
     }
 
-    protected function setUpAuthController() : void
+    protected function setUpAuthController(): void
     {
         $this->setUpAuthServiceEntity();
         $this->authController = new AuthController($this->authService);
@@ -46,9 +48,9 @@ trait AuthHelper
     /**
      * @return JsonResponse
      */
-    public function registerUser(): JsonResponse
+    public function registerRegularUser(): JsonResponse
     {
-        $request = Request::create('/register', 'POST', $this->getUserRegistrationCredentials());
+        $request = Request::create('/register', 'POST', $this->getRegularUserRegistrationCredentials());
         return $this->registry->register($request);
     }
 
@@ -61,7 +63,7 @@ trait AuthHelper
         return $this->authService->register($request);
     }
 
-    public function getUserRegistrationCredentials(): array
+    public function getRegularUserRegistrationCredentials(): array
     {
         return [
             'first_name' => 'John',
@@ -84,10 +86,25 @@ trait AuthHelper
         ];
     }
 
-    public function testRegisterUserSuccess()
+    /**
+     * @param array $credentials
+     * @return mixed
+     */
+    public function login(array $credentials)
     {
-        $this->assertEquals(201, $this->registerUser()->getStatusCode());
-        $this->assertDatabaseHas('users', ['email' => $this->getUserRegistrationCredentials()['email']]);
+        $request = Request::create('/login', 'POST', [
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+            'role' => $credentials['role'],
+        ]);
+
+        return $this->registry->login($request);
+    }
+
+    public function testRegisterRegularUserSuccess()
+    {
+        $this->assertEquals(201, $this->registerRegularUser()->getStatusCode());
+        $this->assertDatabaseHas('users', ['email' => $this->getRegularUserRegistrationCredentials()['email']]);
     }
 
     public function testRegisterCompanySuccess()
@@ -110,10 +127,10 @@ trait AuthHelper
         $this->assertArrayHasKey('error', $response->getData(true));
     }
 
-    public function testLoginUserSuccess()
+    public function testLoginRegularUserSuccess()
     {
-        $this->registerUser();
-        $this->testLoginSuccess($this->getUserRegistrationCredentials());
+        $this->registerRegularUser();
+        $this->testLoginSuccess($this->getRegularUserRegistrationCredentials());
     }
 
     public function testLoginCompanySuccess()
@@ -122,22 +139,22 @@ trait AuthHelper
         $this->testLoginSuccess($this->getCompanyRegistrationCredentials());
     }
 
-    public function testLoginUserFails()
+    public function testLoginRegularUserFails()
     {
-        $this->registerUser();
-        $this->testLoginFails($this->getUserRegistrationCredentials());
+        $this->registerRegularUser();
+        $this->testLoginFails($this->getRegularUserRegistrationCredentials());
     }
 
     public function testLoginCompanyFails()
     {
-        $this->registerUser();
+        $this->registerRegularUser();
         $this->testLoginFails($this->getCompanyRegistrationCredentials());
     }
 
-    public function testLogoutUserSuccess()
+    public function testLogoutRegularUserSuccess()
     {
-        $this->registerUser();
-        $credentials = $this->getUserRegistrationCredentials();
+        $this->registerRegularUser();
+        $credentials = $this->getRegularUserRegistrationCredentials();
         $this->testLogoutSuccess($credentials['email']);
     }
 
@@ -160,33 +177,27 @@ trait AuthHelper
     }
 
     /**
-     * @param array $registrationCredentials
+     * @param array $credentials
      * @return void
      */
-    private function testLoginSuccess(array $registrationCredentials): void
+    private function testLoginSuccess(array $credentials): void
     {
-        $request = Request::create('/login', 'POST', [
-            'email' => $registrationCredentials['email'],
-            'password' => $registrationCredentials['password'],
-            'role' => $registrationCredentials['role'],
-        ]);
-
-        $response = $this->registry->login($request);
+        $response = $this->login($credentials);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('token', $response->getData(true));
     }
 
     /**
-     * @param array $registrationCredentials
+     * @param array $credentials
      * @return void
      */
-    private function testLoginFails(array $registrationCredentials): void
+    private function testLoginFails(array $credentials): void
     {
         $request = Request::create('/login', 'POST', [
-            'email' => $registrationCredentials['email'],
+            'email' => $credentials['email'],
             'password' => 'wrongpassword',
-            'role' => $registrationCredentials['role'],
+            'role' => $credentials['role'],
         ]);
 
         $response = $this->registry->login($request);
