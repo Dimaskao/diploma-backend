@@ -2,11 +2,32 @@
 
 namespace Tests\Feature\TestsHelpers;
 
+use App\Interfaces\ProfileStrategy;
 use App\Models\User;
+use App\Services\CompanyProfileService;
+use App\Services\RegularUserProfileService;
+use App\Strategies\CompanyProfileStrategy;
+use App\Strategies\RegularUserProfileStrategy;
 
 trait UserProfileHelper
 {
     use AuthHelper;
+
+    protected $profileService;
+    protected ProfileStrategy $strategy;
+
+
+    protected function setUpRegularUserProfileStrategy()
+    {
+        $this->profileService = new RegularUserProfileService();
+        $this->strategy = new RegularUserProfileStrategy($this->profileService);
+    }
+
+    protected function setUpCompanyProfileStrategy()
+    {
+        $this->profileService = new CompanyProfileService();
+        $this->strategy = new CompanyProfileStrategy($this->profileService);
+    }
 
     private function authRegularUser()
     {
