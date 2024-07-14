@@ -15,6 +15,13 @@ use Illuminate\Validation\ValidationException;
 
 class CompanyProfileService
 {
+    protected ValidationService $validator;
+
+    public function __construct()
+    {
+        $this->validator = new ValidationService();
+    }
+
     public function getCompanyProfile(mixed $user): JsonResponse
     {
         $company = $user->company;
@@ -39,7 +46,7 @@ class CompanyProfileService
             try {
                 return response()->json([
                     'message' => 'Company information was updated successfully',
-                    'updatedInformation' => $this->updateByUpdateType($request->input('updateType'), Company::find($user->user_id), $user, [])
+                    'updatedInformation' => $this->updateByUpdateType($request->input('updateType'), Company::find($user->company_id), $user, [])
                 ], 200);
             } catch (Exception $e) {
                 return response()->json(['message' => $e->getMessage()], 500);
@@ -52,28 +59,37 @@ class CompanyProfileService
     public function deleteCompanyProfile($id): JsonResponse
     {
         $baseUser = User::find($id);
-        $company = $baseUser->company;
+        if ($baseUser) {
+            $company = $baseUser->company;
 
-        JobOffer::where('company_id', $company->id)->get()->map(function ($jobOffer) {
-            JobOfferSkill::where('job_offer_id', $jobOffer->id)->delete();
-        })->delete();
+            $jobOffers = JobOffer::where('company_id', $company->id)->get();
+            foreach ($jobOffers as $jobOffer) {
+                JobOfferSkill::where('job_offer_id', $jobOffer->id)->delete();
+                $jobOffer->delete();
+            }
 
-        Post::where('user_id', $baseUser->id)->get()->map(function ($post) {
-            PostImage::where('post_id', $post->id)->delete();
-        })->delete;
+            $posts = Post::where('user_id', $baseUser->id)->get();
+            foreach ($posts as $post) {
+                PostImage::where('post_id', $post->id)->delete();
+                $post->delete();
+            }
 
-        $company->delete();
-        $baseUser->delete();
+            $company->delete();
+            $baseUser->delete();
 
-        return response()->json(['message' => "Regular user profile was deleted"], 200);
+            return response()->json(['message' => "Company profile was deleted"], 200);
+        } else {
+            return response()->json(['message' => "User not found"], 404);
+        }
     }
 
     /**
      * @throws ValidationException
+     * @throws Exception
      */
     private function updateCompanyProfile(array $personalInformation, $user, $baseUser)
     {
-        $data = (new ValidationService())->validate($personalInformation, [
+        $data = $this->validator->validate($personalInformation, [
             'description' => 'sometimes|string|max:255',
             'name' => 'sometimes|string',
             'contact_email' => 'sometimes|string',

@@ -14,20 +14,21 @@ trait UserProfileHelper
         $this->login($this->getRegularUserRegistrationCredentials());
     }
 
-    private function getRegularTestUser() : User
+    private function getRegularTestUser(): User
     {
         $this->authRegularUser();
         return User::where('email', $this->getRegularUserRegistrationCredentials()['email'])->first();
     }
 
-//    private function getRegularTestUserParams() : array
-//    {
-//        return [
-//            'first_name' =>  'regular_user_first_name',
-//            'last_name' => 'regular_user_last_name',
-//            'password' => '12345678',
-//            'email' => 'regular_user_test@test.com',
-//            'role' => 'user'
-//        ];
-//    }
+    private function authCompany()
+    {
+        $this->registerCompany();
+        $this->login($this->getCompanyRegistrationCredentials());
+    }
+
+    private function getCompanyTestUser(): User
+    {
+        $this->authCompany();
+        return User::where('email', $this->getCompanyRegistrationCredentials()['email'])->first();
+    }
 }
