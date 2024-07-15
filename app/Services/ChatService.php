@@ -6,12 +6,14 @@ use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class ChatService
 {
     public function createChat(array $data): JsonResponse
     {
         $chat = Chat::create([
+            'id' => (string)Str::uuid(),
             'name' => $data['name'],
             'is_group' => $data['is_group'],
         ]);
