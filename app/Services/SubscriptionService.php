@@ -3,14 +3,23 @@
 namespace App\Services;
 
 use App\Enums\SubscriptionAction;
+use App\Models\RegularUser;
+use App\Models\User;
 use App\Models\UserContact;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SubscriptionService
 {
+    /**
+        $request = [
+            'subscriberId' => User->id
+            'subscriptionId' => User->id
+        ]
+     */
     public function subscribe(Request $request): JsonResponse
     {
         try {
@@ -33,10 +42,11 @@ class SubscriptionService
     {
         try {
             if ($request->has(['subscriptionId', 'subscriberId'])) {
+                $subscriber = User::find($request->input('subscriberId'));
                 $subscriptionId = $request->input('subscriptionId');
-                $subscriberId = $request->input('subscriberId');
+                $subscriberId = RegularUser::where('id', $subscriber->user_id)->first()->id;
 
-                return match($action) {
+                return match ($action) {
                     SubscriptionAction::SUBSCRIBE => $this->subscribeUser($subscriberId, $subscriptionId),
                     SubscriptionAction::UNSUBSCRIBE => $this->unsubscribeUser($subscriberId, $subscriptionId),
                     default => response()->json(['message' => 'No subscription action found'], 400)
@@ -45,6 +55,7 @@ class SubscriptionService
 
             return response()->json(['message' => 'Bad request'], 400);
         } catch (Exception $e) {
+            Log::debug('Error: ' . var_export(['message' => "Error during {$action}: " . $e->getMessage()], 1));
             return response()->json(['message' => "Error during {$action}: " . $e->getMessage()], 500);
         }
     }
@@ -64,7 +75,7 @@ class SubscriptionService
         return response()->json(['message' => 'Subscribed successfully'], 200);
     }
 
-    private function unsubscribeUser($subscriberId, $subscriptionId) : JsonResponse
+    private function unsubscribeUser($subscriberId, $subscriptionId): JsonResponse
     {
         $userContact = UserContact::where('subscriber_id', $subscriberId)
             ->where('subscription_id', $subscriptionId)
