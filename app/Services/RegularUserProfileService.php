@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\EditInfoType;
+use App\Enums\Period;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\RegularUser;
@@ -391,7 +392,11 @@ class RegularUserProfileService
             }
 
             if (isset($experience['date_end'])) {
-                $experience['date_end'] = $this->convertToDateTimeString($experience['date_end']);
+                if ($experience['date_end'] == Period::PRESENT) {
+                    unset($experience['date_end']);
+                } else {
+                    $experience['date_end'] = $this->convertToDateTimeString($experience['date_end']);
+                }
             }
 
             $data = $this->validator->validate($experience, [

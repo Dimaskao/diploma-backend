@@ -3,6 +3,7 @@
 namespace Tests\Feature\ServicesTests;
 
 use App\Enums\EditInfoType;
+use App\Enums\Period;
 use App\Models\RegularUser;
 use App\Services\RegularUserProfileService;
 use Database\Seeders\DatabaseSeeder;
@@ -60,6 +61,7 @@ class RegularUserProfileServiceTest extends TestCase
                         "position" => "Senior Developer",
                         "company" => "Tech Company",
                         "date_start" => "2022-01-01",
+                        "date_end" => Period::PRESENT,
                         "description" => "Leading development teams"
                     ]
                 ],
