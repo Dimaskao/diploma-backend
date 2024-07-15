@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\ServicesTests;
 
-use App\Models\Chat;
-use App\Models\User;
 use App\Services\ChatService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -94,8 +92,6 @@ class ChatServiceTest extends TestCase
         ];
 
         $response = $this->chatService->createChat($data);
-
-        $responseData = $response->getData(true);
 
         $this->assertEquals(400, $response->status());
     }
