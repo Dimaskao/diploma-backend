@@ -144,11 +144,15 @@ return [
 
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        // Custom Service Providers
+        /*
+        |--------------------------------------------------------------------------
+        | Custom Service Providers...
+        |--------------------------------------------------------------------------
+        */
+
         App\Providers\ProfileStrategyFactoryServiceProvider::class,
         App\Providers\UserFactoryServiceProvider::class,
         App\Providers\SubscriptionServiceProvider::class,
