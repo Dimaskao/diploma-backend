@@ -14,20 +14,20 @@ trait ChatHelper
     {
         $chat = $this->getTestChat();
         $user = $this->getRegularTestUser();
-        Message::create([
+        return Message::create([
+            'id' => (string)Str::uuid(),
             'chat_id' => $chat->id,
             'user_id' => $user->id,
             'content' => 'Test content for test message'
         ]);
-        return Message::where('chat_id', $chat->id)->first();
     }
 
     protected function getTestChat(): Chat
     {
-        Chat::create([
+        return Chat::create([
+            'id' => (string)Str::uuid(),
             'name' => 'TestChat123',
             'is_group' => false
         ]);
-        return Chat::where('name', 'TestChat123')->first();
     }
 }
