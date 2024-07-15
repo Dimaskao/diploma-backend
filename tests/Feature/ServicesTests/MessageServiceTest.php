@@ -3,14 +3,10 @@
 namespace Tests\Feature\ServicesTests;
 
 use App\Events\MessageSent;
-use App\Models\Chat;
-use App\Models\Message;
-use App\Models\User;
 use App\Services\MessageService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Str;
 use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
 
@@ -34,8 +30,6 @@ class MessageServiceTest extends TestCase
 
         $user = $this->getRegularTestUser();
         $chat = $this->getTestChat();
-
-        $this->authRegularUser();
 
         $data = [
             'user_id' => $user->id,
