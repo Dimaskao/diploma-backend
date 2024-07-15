@@ -55,7 +55,6 @@ class SubscriptionService
 
             return response()->json(['message' => 'Bad request'], 400);
         } catch (Exception $e) {
-            Log::debug('Error: ' . var_export(['message' => "Error during {$action}: " . $e->getMessage()], 1));
             return response()->json(['message' => "Error during {$action}: " . $e->getMessage()], 500);
         }
     }
