@@ -9,7 +9,6 @@ use App\Models\UserContact;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SubscriptionService
