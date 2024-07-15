@@ -24,7 +24,10 @@ class MessageSentTest extends TestCase
     {
         Event::fake();
 
-        $message = $this->getTestMessage();
+        $chat = $this->getTestChat();
+        $user = $this->getRegularTestUser();
+
+        $message = $this->getTestMessage($user, $chat, $this->getStandardTestContent());
         event(new MessageSent($message));
 
         Event::assertDispatched(MessageSent::class, function ($event) use ($message) {

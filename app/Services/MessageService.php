@@ -24,7 +24,7 @@ class MessageService
         return response()->json($message, 201);
     }
 
-    public function getMessages(int $chatId): JsonResponse
+    public function getMessages($chatId): JsonResponse
     {
         $messages = Message::where('chat_id', $chatId)->get();
         return response()->json($messages);

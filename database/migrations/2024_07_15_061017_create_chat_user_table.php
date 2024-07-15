@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('chat_user', function (Blueprint $table) {
-            $table->primary(['chat_id', 'user_id']);
             $table->uuid('chat_id');
             $table->uuid('user_id');
             $table->timestamps();
 
             // to guarantee unique record for the chat (the chat between 2 users can be only one)
+            $table->primary(['chat_id', 'user_id']);
             $table->foreign('chat_id')->references('id')->on('chats')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

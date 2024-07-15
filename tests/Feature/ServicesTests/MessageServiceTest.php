@@ -39,11 +39,12 @@ class MessageServiceTest extends TestCase
 
         $response = $this->messageService->sendMessage($data);
 
-        $response->assertStatus(201);
-        $responseData = $response->json();
+        $responseData = $response->getData(true);
+
+        $this->assertEquals(201, $response->status());
+        $this->assertArrayHasKey('id', $responseData);
 
         $this->assertDatabaseHas('messages', [
-            'id' => $responseData['id'],
             'chat_id' => $chat->id,
             'user_id' => $user->id,
             'content' => 'Test message content'
@@ -54,31 +55,24 @@ class MessageServiceTest extends TestCase
         });
     }
 
-//    public function testGetMessages()
-//    {
-//        $user = User::factory()->create();
-//        $chat = Chat::create([
-//            'id' => (string)Str::uuid(),
-//            'name' => 'TestChat123',
-//            'is_group' => false
-//        ]);
-//
-//        $messages = Message::factory()->count(5)->create([
-//            'chat_id' => $chat->id,
-//            'user_id' => $user->id,
-//            'content' => 'Test message content'
-//        ]);
-//
-//        $response = $this->messageService->getMessages($chat->id);
-//
-//        $response->assertStatus(200);
-//        $responseData = $response->json();
-//
-//        $this->assertCount(5, $responseData);
-//        foreach ($responseData as $message) {
-//            $this->assertEquals('Test message content', $message['content']);
-//            $this->assertEquals($chat->id, $message['chat_id']);
-//            $this->assertEquals($user->id, $message['user_id']);
-//        }
-//    }
+    public function testGetMessages()
+    {
+        $user = $this->getRegularTestUser();
+        $chat = $this->getTestChat();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->getTestMessage($user, $chat, "{$this->getStandardTestContent()} $i");
+        }
+
+        $response = $this->messageService->getMessages($chat->id);
+
+        $responseData = $response->getData(true);
+
+        $this->assertEquals(200, $response->status());
+        $this->assertCount(5, $responseData);
+        foreach ($responseData as $message) {
+            $this->assertEquals($chat->id, $message['chat_id']);
+            $this->assertEquals($user->id, $message['user_id']);
+        }
+    }
 }
