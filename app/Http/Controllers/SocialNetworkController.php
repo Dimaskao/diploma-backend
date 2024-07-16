@@ -35,9 +35,9 @@ class SocialNetworkController
         return $this->socialNetworkService->createChat($request);
     }
 
-    public function addUserToChat(Request $request, $chatId): JsonResponse
+    public function addUserToChat(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->addUserToChat($chatId, $request->user_id);
+        return $this->socialNetworkService->addUserToChat($request);
     }
 
     public function sendMessage(Request $request): JsonResponse

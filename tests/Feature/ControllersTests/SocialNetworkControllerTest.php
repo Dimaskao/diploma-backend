@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace Tests\Feature\ControllersTests;
 
 use App\Enums\SearchType;
+use App\Http\Controllers\SocialNetworkController;
 use App\Models\RegularUser;
 use App\Services\ChatService;
 use App\Services\MessageService;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
 
-class SocialNetworkServiceTest extends TestCase
+class SocialNetworkControllerTest extends TestCase
 {
     use RefreshDatabase, ChatHelper;
 
@@ -25,6 +26,7 @@ class SocialNetworkServiceTest extends TestCase
     protected SubscriptionService $subService;
     protected MessageService $msgService;
     protected SearchService $searchService;
+    protected SocialNetworkController $controller;
 
     protected function setUp(): void
     {
@@ -36,6 +38,7 @@ class SocialNetworkServiceTest extends TestCase
         $this->msgService = new MessageService();
         $this->searchService = new SearchService();
         $this->snService = new SocialNetworkService($this->subService, $this->chatService, $this->msgService, $this->searchService);
+        $this->controller = new SocialNetworkController($this->snService);
     }
 
     public function testSearchUsers()
@@ -43,7 +46,7 @@ class SocialNetworkServiceTest extends TestCase
         $this->getRegularTestUser();
         $request = new Request(['query' => 'John', 'searchType' => SearchType::USERS]);
 
-        $response = $this->snService->search($request);
+        $response = $this->controller->search($request);
 
         $responseData = $response->getData(true);
 
@@ -58,7 +61,7 @@ class SocialNetworkServiceTest extends TestCase
         $this->getCompanyTestUser();
         $request = new Request(['query' => 'Test Company', 'searchType' => SearchType::COMPANIES]);
 
-        $response = $this->snService->search($request);
+        $response = $this->controller->search($request);
 
         $responseData = $response->getData(true);
 
@@ -68,7 +71,7 @@ class SocialNetworkServiceTest extends TestCase
 
     public function testSubscribeUserSuccess()
     {
-        list($subscriber, $subscription, $response) = $this->subscribe($this->snService);
+        list($subscriber, $subscription, $response) = $this->subscribe($this->controller);
 
         $this->validateJsonResponse($response, 200, ['message' => 'Subscribed successfully']);
         $this->assertDatabaseHas('user_contacts', [
@@ -81,14 +84,14 @@ class SocialNetworkServiceTest extends TestCase
     {
         $data = []; // Empty data to simulate bad request
         $request = new Request($data);
-        $response = $this->snService->subscribe($request);
+        $response = $this->controller->subscribe($request);
 
         $this->validateJsonResponse($response, 400, ['message' => 'Bad request']);
     }
 
     public function testUnsubscribeUserSuccess()
     {
-        list($subscriber, $subscription, $response) = $this->subscribe($this->snService);
+        list($subscriber, $subscription, $response) = $this->subscribe($this->controller);
 
         $data = [
             'subscriberId' => $subscriber->id,
@@ -96,7 +99,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->unsubscribe($request);
+        $response = $this->controller->unsubscribe($request);
 
         $this->validateJsonResponse($response, 200, ['message' => 'Unsubscribed successfully']);
     }
@@ -112,7 +115,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->unsubscribe($request);
+        $response = $this->controller->unsubscribe($request);
 
         $this->validateJsonResponse($response, 404, ['message' => 'Subscription not found']);
     }
@@ -128,7 +131,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->createChat($request);
+        $response = $this->controller->createChat($request);
 
         $responseData = $response->getData(true);
 
@@ -160,7 +163,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->createChat($request);
+        $response = $this->controller->createChat($request);
 
         $responseData = $response->getData(true);
 
@@ -189,7 +192,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->createChat($request);
+        $response = $this->controller->createChat($request);
 
         $this->assertEquals(400, $response->status());
     }
@@ -209,7 +212,7 @@ class SocialNetworkServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->snService->addUserToChat($request);
+        $response = $this->controller->addUserToChat($request);
         $responseData = $response->getData(true);
 
         $this->assertEquals(200, $response->status());

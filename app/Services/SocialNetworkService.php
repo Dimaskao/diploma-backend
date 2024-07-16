@@ -49,9 +49,14 @@ class SocialNetworkService
         return $this->chatService->createChat($request->all());
     }
 
-    public function addUserToChat(Request $request, int $chatId): JsonResponse
+    public function addUserToChat(Request $request): JsonResponse
     {
-        return $this->chatService->addUserToChat($chatId, $request->user_id);
+        if ($request->has('chat_id') && $request->has('user_id')) {
+            $chatId = $request->get('chat_id');
+            $userId = $request->get('user_id');
+            return $this->chatService->addUserToChat($chatId, $userId);
+        }
+        return response()->json(['message' => 'User was not added to chat'], 500);
     }
 
     public function sendMessage(Request $request): JsonResponse

@@ -8,6 +8,8 @@ use App\Services\CompanyProfileService;
 use App\Services\RegularUserProfileService;
 use App\Strategies\CompanyProfileStrategy;
 use App\Strategies\RegularUserProfileStrategy;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 trait UserProfileHelper
 {
@@ -51,5 +53,33 @@ trait UserProfileHelper
     {
         $this->authCompany();
         return User::where('email', $this->getCompanyRegistrationCredentials()['email'])->first();
+    }
+
+    public function subscribe($service): array
+    {
+        $subscriber = $this->getRegularTestUser();
+        $subscription = $this->getCompanyTestUser();
+
+        $data = [
+            'subscriberId' => $subscriber->id,
+            'subscriptionId' => $subscription->id,
+        ];
+
+        $request = new Request($data);
+        $response = $service->subscribe($request);
+        return array($subscriber, $subscription, $response);
+    }
+
+    protected function validateJsonResponse(JsonResponse $response, int $statusCode, array $expectedData = [])
+    {
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals($statusCode, $response->getStatusCode());
+
+        if (!empty($expectedData)) {
+            foreach ($expectedData as $key => $value) {
+                $this->assertArrayHasKey($key, $response->getData(true));
+                $this->assertEquals($value, $response->getData(true)[$key]);
+            }
+        }
     }
 }

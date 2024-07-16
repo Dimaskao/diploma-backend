@@ -20,20 +20,6 @@ class SubscriptionServiceTest extends TestCase
     /**
      * @return array
      */
-    public function subscribe(): array
-    {
-        $subscriber = $this->getRegularTestUser();
-        $subscription = $this->getCompanyTestUser();
-
-        $data = [
-            'subscriberId' => $subscriber->id,
-            'subscriptionId' => $subscription->id,
-        ];
-
-        $request = new Request($data);
-        $response = $this->subscriptionService->subscribe($request);
-        return array($subscriber, $subscription, $response);
-    }
 
     protected function setUp(): void
     {
@@ -45,7 +31,7 @@ class SubscriptionServiceTest extends TestCase
 
     public function testSubscribeUserSuccess()
     {
-        list($subscriber, $subscription, $response) = $this->subscribe();
+        list($subscriber, $subscription, $response) = $this->subscribe($this->subscriptionService);
 
         $this->validateJsonResponse($response, 200, ['message' => 'Subscribed successfully']);
         $this->assertDatabaseHas('user_contacts', [
@@ -65,7 +51,7 @@ class SubscriptionServiceTest extends TestCase
 
     public function testUnsubscribeUserSuccess()
     {
-        list($subscriber, $subscription, $response) = $this->subscribe();
+        list($subscriber, $subscription, $response) = $this->subscribe($this->subscriptionService);
 
         $data = [
             'subscriberId' => $subscriber->id,
@@ -92,18 +78,5 @@ class SubscriptionServiceTest extends TestCase
         $response = $this->subscriptionService->unsubscribe($request);
 
         $this->validateJsonResponse($response, 404, ['message' => 'Subscription not found']);
-    }
-
-    protected function validateJsonResponse(JsonResponse $response, int $statusCode, array $expectedData = [])
-    {
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals($statusCode, $response->getStatusCode());
-
-        if (!empty($expectedData)) {
-            foreach ($expectedData as $key => $value) {
-                $this->assertArrayHasKey($key, $response->getData(true));
-                $this->assertEquals($value, $response->getData(true)[$key]);
-            }
-        }
     }
 }
