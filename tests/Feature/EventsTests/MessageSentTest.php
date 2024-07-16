@@ -37,7 +37,10 @@ class MessageSentTest extends TestCase
 
     public function testBroadcastingChannel()
     {
-        $message = $this->getTestMessage();
+        $chat = $this->getTestChat();
+        $user = $this->getRegularTestUser();
+
+        $message = $this->getTestMessage($user, $chat, $this->getStandardTestContent());
         $event = new MessageSent($message);
 
         $this->assertEquals('private-chat.' . $message->chat_id, $event->broadcastOn()->name);
