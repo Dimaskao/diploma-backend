@@ -6,7 +6,7 @@ use App\Factories\UserFactory;
 use App\Http\Controllers\AuthController;
 use App\Interfaces\Factory;
 use App\Models\User;
-use App\Services\AuthService;
+use App\Services\Auth\AuthService;
 use App\Services\ValidationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

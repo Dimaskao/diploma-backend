@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ServicesTests;
 
-use App\Services\ChatService;
+use App\Services\SocialNetwork\ChatService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\TestsHelpers\ChatHelper;

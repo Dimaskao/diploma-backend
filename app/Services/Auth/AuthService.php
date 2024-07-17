@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Auth;
 
+use App\Enums\ResponseKeys;
 use App\Enums\UserRole;
 use App\Factories\UserFactory;
-use App\Models\User;
-use Exception;
 use App\Interfaces\Factory;
+use App\Models\User;
+use App\Services\ValidationService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,7 +36,7 @@ class AuthService
             $result = $this->factory->create($data);
             return response()->json($result, 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create user or company'], 500);
+            return response()->json([ResponseKeys::ERROR => 'Failed to create user or company'], 500);
         }
     }
 
@@ -49,13 +51,13 @@ class AuthService
             $role = $request->input('role');
             $token = $this->userLogin($credentials, $role);
             if ($token) {
-                return response()->json(['token' => $token], 200);
+                return response()->json([ResponseKeys::TOKEN => $token], 200);
             }
         } catch (Exception $e) {
-            return response()->json(['error' => "Unauthenticated, {$e->getMessage()}"], 401);
+            return response()->json([ResponseKeys::ERROR => "Unauthenticated, {$e->getMessage()}"], 401);
         }
 
-        return response()->json(['error' => 'Unauthenticated'], 401);
+        return response()->json([ResponseKeys::ERROR => 'Unauthenticated'], 401);
     }
 
     /**
@@ -65,9 +67,9 @@ class AuthService
     {
         try {
             $this->userLogout($request->user());
-            return response()->json(['message' => 'Successfully logged out'], 200);
+            return response()->json([ResponseKeys::MESSAGE => 'Successfully logged out'], 200);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Failed to log out user'], 500);
+            return response()->json([ResponseKeys::ERROR => 'Failed to log out user'], 500);
         }
     }
 

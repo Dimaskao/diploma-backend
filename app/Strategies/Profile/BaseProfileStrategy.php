@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Strategies;
+namespace App\Strategies\Profile;
 
 use App\Interfaces\ProfileStrategy;
+use App\Interfaces\SpecificProfileService;
 use App\Models\User;
-use App\Services\CompanyProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class CompanyProfileStrategy implements ProfileStrategy
+abstract class BaseProfileStrategy implements ProfileStrategy
 {
-    protected CompanyProfileService $service;
+    protected SpecificProfileService $service;
 
-    public function __construct(CompanyProfileService $service)
+    public function __construct(SpecificProfileService $service)
     {
         $this->service = $service;
     }
@@ -20,17 +20,17 @@ class CompanyProfileStrategy implements ProfileStrategy
     public function show($id): JsonResponse
     {
         $user = User::findOrFail($id);
-        return $this->service->getCompanyProfile($user);
+        return $this->service->getProfile($user);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        return $this->service->updateCompanyInformation($user, $request);
+        return $this->service->updateProfile($user, $request);
     }
 
     public function deleteProfile($id): JsonResponse
     {
-        return $this->service->deleteCompanyProfile($id);
+        return $this->service->deleteProfile($id);
     }
 }

@@ -10,8 +10,8 @@ use App\Interfaces\Factory;
 use App\Models\Company;
 use App\Models\RegularUser;
 use App\Models\User;
-use App\Services\CompanyProfileService;
-use App\Services\ProfileService;
+use App\Services\Profile\CompanyProfileService;
+use App\Services\Profile\UserProfileService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +24,7 @@ class ProfileControllerTest extends TestCase
     use RefreshDatabase;
     use UserProfileHelper;
 
-    protected ProfileService $service;
+    protected UserProfileService $service;
     protected Factory $factory;
     protected Controller $profileController;
 
@@ -34,7 +34,7 @@ class ProfileControllerTest extends TestCase
         $this->setUpAuthService();
         $this->profileService = new CompanyProfileService();
         $this->factory = new ProfileStrategyFactory();
-        $this->service = new ProfileService($this->factory);
+        $this->service = new UserProfileService($this->factory);
         $this->profileController = new ProfileController($this->service);
         $this->seed(DatabaseSeeder::class);
     }

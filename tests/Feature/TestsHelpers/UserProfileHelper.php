@@ -4,10 +4,10 @@ namespace Tests\Feature\TestsHelpers;
 
 use App\Interfaces\ProfileStrategy;
 use App\Models\User;
-use App\Services\CompanyProfileService;
-use App\Services\RegularUserProfileService;
-use App\Strategies\CompanyProfileStrategy;
-use App\Strategies\RegularUserProfileStrategy;
+use App\Services\Profile\CompanyProfileService;
+use App\Services\Profile\RegularUserProfileService;
+use App\Strategies\Profile\CompanyProfileStrategy;
+use App\Strategies\Profile\RegularUserProfileStrategy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

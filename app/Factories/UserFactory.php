@@ -4,6 +4,7 @@ namespace App\Factories;
 
 use App\Enums\UserRole;
 use App\Interfaces\Factory;
+use App\Models\Admin;
 use App\Models\Company;
 use App\Models\RegularUser;
 use App\Models\Role;
@@ -27,6 +28,7 @@ class UserFactory implements Factory
             return match ($params['role']) {
                 UserRole::REGULAR_USER => $this->createRegularUser($params),
                 UserRole::COMPANY => $this->createCompanyUser($params),
+                UserRole::ADMIN => $this->createAdminUser($params),
                 default => throw new Exception('Invalid role'),
             };
         }
@@ -44,7 +46,8 @@ class UserFactory implements Factory
             'email' => $data['email'],
             'password' => $data['password'],
             'role_id' => $data['role_id'],
-            'user_id' => $regularUser->id,
+            'profileable_id' => $regularUser->id,
+            'profileable_type' => RegularUser::class
         ]);
 
         return ['user' => $user, 'regular_user' => $regularUser];
@@ -61,9 +64,28 @@ class UserFactory implements Factory
             'email' => $data['email'],
             'password' => $data['password'],
             'role_id' => $data['role_id'],
-            'company_id' => $company->id,
+            'profileable_id' => $company->id,
+            'profileable_type' => Company::class
         ]);
 
         return ['user' => $user, 'company' => $company];
+    }
+
+    protected function createAdminUser(array $data) : array
+    {
+        $admin = Admin::create([
+            'name' => $data['name'],
+            'permissions' => $data['permissions'],
+        ]);
+
+        $user = User::create([
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'role_id' => $data['role_id'],
+            'profileable_id' => $admin->id,
+            'profileable_type' => Admin::class,
+        ]);
+
+        return ['user' => $user, 'admin' => $admin];
     }
 }

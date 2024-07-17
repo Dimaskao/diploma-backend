@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\CompanyProfileService;
+use App\Services\Profile\CompanyProfileService;
 use Illuminate\Support\ServiceProvider;
 
 class CompanyProfileServiceProvider extends ServiceProvider

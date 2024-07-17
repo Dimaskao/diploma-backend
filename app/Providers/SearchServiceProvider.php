@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\SearchService;
+use App\Services\SocialNetwork\SearchService;
 use Illuminate\Support\ServiceProvider;
 
 class SearchServiceProvider extends ServiceProvider

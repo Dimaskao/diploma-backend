@@ -1,19 +1,22 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Profile;
 
-use App\Models\Company;
+use App\Enums\ResponseKeys;
+use App\Enums\UpdateType;
+use App\Interfaces\SpecificProfileService;
 use App\Models\JobOffer;
 use App\Models\JobOfferSkill;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\User;
+use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class CompanyProfileService
+class CompanyProfileService implements SpecificProfileService
 {
     protected ValidationService $validator;
 
@@ -22,45 +25,46 @@ class CompanyProfileService
         $this->validator = new ValidationService();
     }
 
-    public function getCompanyProfile(mixed $user): JsonResponse
+    public function getProfile(mixed $user): JsonResponse
     {
-        $company = $user->company;
+        $company = $user->profileable;
 
         return response()->json([
-            'profile' => [
+            ResponseKeys::PROFILE => [
                 'id' => $user->id,
                 'name' => $company->name,
                 'description' => $company->description,
-                'contactEmail' => $company->contact_email,
-                'contactPhone' => $company->contact_phone,
-                'contactUrl' => $company->contact_url,
+                'contact_email' => $company->contact_email,
+                'contact_phone' => $company->contact_phone,
+                'contact_url' => $company->contact_url,
                 'posts' => $this->getUserPosts($user),
-                'jobOffers' => $this->getCompanyJobOffers($company)
+                'job_offers' => $this->getCompanyJobOffers($company)
             ]
         ], 200);
     }
 
-    public function updateCompanyInformation($user, Request $request): JsonResponse
+    public function updateProfile($user, Request $request): JsonResponse
     {
-        if ($request->has('updateType')) {
+        if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
+                $company = $user->profileable;
                 return response()->json([
-                    'message' => 'Company information was updated successfully',
-                    'updatedInformation' => $this->updateByUpdateType($request->input('updateType'), Company::find($user->company_id), $user, [])
+                    ResponseKeys::MESSAGE => 'Company information was updated successfully',
+                    ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user, [])
                 ], 200);
             } catch (Exception $e) {
-                return response()->json(['message' => $e->getMessage()], 500);
+                return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
             }
         }
 
-        return response()->json(['message' => 'Unset update type'], 400);
+        return response()->json([ResponseKeys::MESSAGE => 'Unset update type'], 400);
     }
 
-    public function deleteCompanyProfile($id): JsonResponse
+    public function deleteProfile($id): JsonResponse
     {
         $baseUser = User::find($id);
         if ($baseUser) {
-            $company = $baseUser->company;
+            $company = $baseUser->profileable;
 
             $jobOffers = JobOffer::where('company_id', $company->id)->get();
             foreach ($jobOffers as $jobOffer) {
@@ -77,9 +81,9 @@ class CompanyProfileService
             $company->delete();
             $baseUser->delete();
 
-            return response()->json(['message' => "Company profile was deleted"], 200);
+            return response()->json([ResponseKeys::MESSAGE => "Company profile was deleted"], 200);
         } else {
-            return response()->json(['message' => "User not found"], 404);
+            return response()->json([ResponseKeys::MESSAGE => "User not found"], 404);
         }
     }
 
@@ -120,9 +124,9 @@ class CompanyProfileService
      */
     private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
     {
-        if (isset($updateType['personalInformation'])) {
-            $this->updateCompanyProfile($updateType['personalInformation'], $user, $baseUser);
-            $updatedResults['personalInformation'] = [
+        if (isset($updateType[UpdateType::PERSONAL_INFORMATION])) {
+            $this->updateCompanyProfile($updateType[UpdateType::PERSONAL_INFORMATION], $user, $baseUser);
+            $updatedResults[UpdateType::PERSONAL_INFORMATION] = [
                 'id' => $baseUser->id,
                 'description' => $user->description,
                 'name' => $user->name,
@@ -191,9 +195,9 @@ class CompanyProfileService
                 'position' => $jobOffer->position,
                 'description' => $jobOffer->description,
                 'requirements' => $jobOffer->requirements,
-                'requirementExperience' => $jobOffer->requirement_experience,
-                'datePosted' => $jobOffer->date_posted,
-                'validUntil' => $jobOffer->valid_until,
+                'requirement_experience' => $jobOffer->requirement_experience,
+                'date_posted' => $jobOffer->date_posted,
+                'valid_until' => $jobOffer->valid_until,
                 'skills' => $this->getJobOfferSkills($jobOffer)
             ];
         })->toArray();

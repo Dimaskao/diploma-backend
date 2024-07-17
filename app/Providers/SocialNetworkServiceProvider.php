@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use App\Services\ChatService;
-use App\Services\MessageService;
-use App\Services\SearchService;
-use App\Services\SocialNetworkService;
-use App\Services\SubscriptionService;
+use App\Services\SocialNetwork\ChatService;
+use App\Services\SocialNetwork\MessageService;
+use App\Services\SocialNetwork\SearchService;
+use App\Services\SocialNetwork\SocialNetworkService;
+use App\Services\SocialNetwork\SubscriptionService;
 use Illuminate\Support\ServiceProvider;
 
 class SocialNetworkServiceProvider extends ServiceProvider

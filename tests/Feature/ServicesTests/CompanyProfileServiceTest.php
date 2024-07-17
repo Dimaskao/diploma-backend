@@ -4,7 +4,7 @@ namespace Tests\Feature\ServicesTests;
 
 use App\Models\Company;
 use App\Models\User;
-use App\Services\CompanyProfileService;
+use App\Services\Profile\CompanyProfileService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;

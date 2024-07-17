@@ -3,7 +3,7 @@
 namespace Tests\Feature\ServicesTests;
 
 use App\Events\MessageSent;
-use App\Services\MessageService;
+use App\Services\SocialNetwork\MessageService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;

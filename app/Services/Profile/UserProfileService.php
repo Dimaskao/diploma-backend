@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Profile;
 
+use App\Enums\ResponseKeys;
 use App\Factories\ProfileStrategyFactory;
 use App\Interfaces\Factory;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ProfileService
+class UserProfileService
 {
     protected Factory $factory;
 
@@ -17,21 +18,21 @@ class ProfileService
         $this->factory = $factory;
     }
 
-    public function show($id): JsonResponse
+    public function getProfile($id): JsonResponse
     {
         try {
             return $this->factory->create(['id' => $id])->show($id);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 404);
+            return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 404);
         }
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function updateProfile(Request $request, $id): JsonResponse
     {
         try {
             return $this->factory->create(['id' => $id])->update($request, $id);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 404);
+            return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 404);
         }
     }
 
@@ -40,7 +41,7 @@ class ProfileService
         try {
             return $this->factory->create(['id' => $id])->deleteProfile($id);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
         }
     }
 }

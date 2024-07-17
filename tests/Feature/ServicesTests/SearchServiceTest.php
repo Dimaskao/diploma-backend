@@ -3,7 +3,7 @@
 namespace Tests\Feature\ServicesTests;
 
 use App\Enums\SearchType;
-use App\Services\SearchService;
+use App\Services\SocialNetwork\SearchService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;

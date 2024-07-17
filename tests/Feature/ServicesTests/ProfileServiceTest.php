@@ -8,8 +8,8 @@ use App\Interfaces\Factory;
 use App\Models\Company;
 use App\Models\RegularUser;
 use App\Models\User;
-use App\Services\CompanyProfileService;
-use App\Services\ProfileService;
+use App\Services\Profile\CompanyProfileService;
+use App\Services\Profile\UserProfileService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,7 @@ class ProfileServiceTest extends TestCase
     use RefreshDatabase;
     use UserProfileHelper;
 
-    protected ProfileService $service;
+    protected UserProfileService $service;
     protected Factory $factory;
 
     protected function setUp(): void
@@ -31,14 +31,14 @@ class ProfileServiceTest extends TestCase
         $this->setUpAuthService();
         $this->profileService = new CompanyProfileService();
         $this->factory = new ProfileStrategyFactory();
-        $this->service = new ProfileService($this->factory);
+        $this->service = new UserProfileService($this->factory);
         $this->seed(DatabaseSeeder::class);
     }
 
     public function testShowRegularUserSuccess()
     {
         $user = $this->getRegularTestUser();
-        $response = $this->service->show($user->id);
+        $response = $this->service->getProfile($user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -48,7 +48,7 @@ class ProfileServiceTest extends TestCase
     public function testShowCompanySuccess()
     {
         $user = $this->getCompanyTestUser();
-        $response = $this->service->show($user->id);
+        $response = $this->service->getProfile($user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -57,7 +57,7 @@ class ProfileServiceTest extends TestCase
 
     public function testShowFails()
     {
-        $response = $this->service->show('test_id');
+        $response = $this->service->getProfile('test_id');
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(404, $response->getStatusCode());
@@ -105,7 +105,7 @@ class ProfileServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->service->update($request, $user->id);
+        $response = $this->service->updateProfile($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -122,7 +122,7 @@ class ProfileServiceTest extends TestCase
         $data = [];
         $request = new Request($data);
 
-        $response = $this->service->update($request, $user->id);
+        $response = $this->service->updateProfile($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
@@ -146,7 +146,7 @@ class ProfileServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->service->update($request, $user->id);
+        $response = $this->service->updateProfile($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -168,7 +168,7 @@ class ProfileServiceTest extends TestCase
         $data = [];
         $request = new Request($data);
 
-        $response = $this->service->update($request, $user->id);
+        $response = $this->service->updateProfile($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());

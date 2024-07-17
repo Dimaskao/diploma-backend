@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\SubscriptionService;
+use App\Services\SocialNetwork\SubscriptionService;
 use Illuminate\Support\ServiceProvider;
 
 class SubscriptionServiceProvider extends ServiceProvider

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\SocialNetwork;
 
+use App\Enums\ResponseKeys;
 use App\Models\Chat;
 use App\Models\User;
 use Exception;
@@ -26,9 +27,9 @@ class ChatService
                     return response()->json($chat, 201);
                 }
             }
-            return response()->json('Bad request', 400);
+            return response()->json([ResponseKeys::ERROR => 'Bad request'], 400);
         } catch (Exception $e) {
-            return response()->json("Error during creating a chat, {$e->getMessage()}", 500);
+            return response()->json([ResponseKeys::ERROR => "Error during creating a chat, {$e->getMessage()}"], 500);
         }
     }
 
@@ -39,6 +40,6 @@ class ChatService
 
         $chat->users()->attach($user->id);
 
-        return response()->json(['message' => 'User added to chat'], 200);
+        return response()->json([ResponseKeys::MESSAGE => 'User added to chat'], 200);
     }
 }

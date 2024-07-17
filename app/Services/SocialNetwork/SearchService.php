@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\SocialNetwork;
 
+use App\Enums\ResponseKeys;
 use App\Enums\SearchType;
 use App\Models\Company;
 use App\Models\RegularUser;
@@ -12,11 +13,11 @@ class SearchService
 {
     public function search(Request $request): JsonResponse
     {
-        if (!$request->has('searchType') || !$request->has('query')) {
-            return response()->json(['message' => 'Bad request'], 400);
+        if (!$request->has(SearchType::SEARCH_TYPE) || !$request->has('query')) {
+            return response()->json([ResponseKeys::ERROR => 'Bad request'], 400);
         }
 
-        $searchType = $request->input('searchType');
+        $searchType = $request->input(SearchType::SEARCH_TYPE);
         $query = $request->input('query');
 
         $results = [
@@ -24,7 +25,7 @@ class SearchService
             'companies' => $searchType === SearchType::COMPANIES || $searchType === SearchType::ALL ? $this->getCompaniesSearchResults($query) : [],
         ];
 
-        return response()->json(['results' => $results]);
+        return response()->json([ResponseKeys::RESULT => $results]);
     }
 
     /**
@@ -36,14 +37,16 @@ class SearchService
         return RegularUser::where('first_name', 'LIKE', "%{$query}%")
             ->orWhere('last_name', 'LIKE', "%{$query}%")
             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$query}%"])
-            ->with('user')
+            ->with(['user' => function ($query) {
+                $query->select('id', 'avatar_url', 'profileable_id', 'profileable_type');
+            }])
             ->get()
             ->unique('id')
-            ->map(function ($user) {
+            ->map(function ($regularUser) {
                 return [
-                    'id' => $user->user->id,
-                    'name' => "{$user->first_name} {$user->last_name}",
-                    'avatar_url' => $user->user->avatar_url ?? null
+                    'id' => $regularUser->user->id,
+                    'name' => "{$regularUser->first_name} {$regularUser->last_name}",
+                    'avatar_url' => $regularUser->user->avatar_url ?? null
                 ];
             })
             ->toArray();
@@ -56,7 +59,9 @@ class SearchService
     protected function getCompaniesSearchResults($query): array
     {
         return Company::where('name', 'LIKE', "%{$query}%")
-            ->with('user')
+            ->with(['user' => function ($query) {
+                $query->select('id', 'avatar_url', 'profileable_id', 'profileable_type');
+            }])
             ->get()
             ->unique('id')
             ->map(function ($company) {

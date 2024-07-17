@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Profile;
 
 use App\Enums\EditInfoType;
 use App\Enums\Period;
+use App\Enums\ResponseKeys;
+use App\Enums\UpdateType;
+use App\Interfaces\SpecificProfileService;
 use App\Models\Post;
 use App\Models\PostImage;
-use App\Models\RegularUser;
 use App\Models\User;
 use App\Models\UserContact;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
+use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class RegularUserProfileService
+class RegularUserProfileService implements SpecificProfileService
 {
     protected ValidationService $validator;
 
@@ -28,47 +30,47 @@ class RegularUserProfileService
         $this->validator = new ValidationService();
     }
 
-    public function getRegularUserProfile($user): JsonResponse
+    public function getProfile($user): JsonResponse
     {
         $regularUserRecord = $user->regularUser;
-
         return response()->json([
-            'profile' => [
-                'user' => [
+            ResponseKeys::PROFILE => [
+                ResponseKeys::USER => [
                     'id' => $user->id,
-                    'firstName' => $regularUserRecord->first_name,
-                    'lastName' => $regularUserRecord->last_name,
-                    'skillsDesc' => $regularUserRecord->skills_desc,
+                    'first_name' => $regularUserRecord->first_name,
+                    'last_name' => $regularUserRecord->last_name,
+                    'skills_desc' => $regularUserRecord->skills_desc,
                     'experience' => $regularUserRecord->experience,
                 ],
-                'education' => $this->getRegularUserEducation($regularUserRecord),
-                'workExperience' => $this->getRegularUserWorkExperience($regularUserRecord),
-                'skills' => $this->getRegularUserSkills($regularUserRecord)
+                ResponseKeys::EDUCATION => $this->getRegularUserEducation($regularUserRecord),
+                ResponseKeys::WORK_EXPERIENCE => $this->getRegularUserWorkExperience($regularUserRecord),
+                ResponseKeys::SKILLS => $this->getRegularUserSkills($regularUserRecord)
             ]
         ], 200);
     }
 
-    public function updateUserInformation($user, Request $request): JsonResponse
+    public function updateProfile($user, Request $request): JsonResponse
     {
-        if ($request->has('updateType')) {
+        if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
+                $regularUser = $user->profileable;
                 return response()->json([
-                    'message' => 'User information was updated successfully',
-                    'updatedInformation' => $this->updateRegularUserByUpdateType($request->input('updateType'), RegularUser::find($user->user_id), $user, [])
+                    ResponseKeys::MESSAGE => 'User information was updated successfully',
+                    ResponseKeys::UPDATED_INFORMATION => $this->updateRegularUserByUpdateType($request->input(UpdateType::UPDATE_TYPE), $regularUser, $user, [])
                 ], 200);
             } catch (Exception $e) {
-                return response()->json(['message' => $e->getMessage()], 500);
+                return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
             }
         }
 
-        return response()->json(['message' => 'Unset update type'], 400);
+        return response()->json([ResponseKeys::MESSAGE => 'Unset update type'], 400);
     }
 
-    public function deleteRegularUserProfile($id): JsonResponse
+    public function deleteProfile($id): JsonResponse
     {
         $baseUser = User::find($id);
         if ($baseUser) {
-            $regularUser = $baseUser->regularUser;
+            $regularUser = $baseUser->profileable;
 
             UserEducation::where('user_id', $regularUser->id)->delete();
             UserSkill::where('user_id', $regularUser->id)->delete();
@@ -84,9 +86,9 @@ class RegularUserProfileService
             $regularUser->delete();
             $baseUser->delete();
 
-            return response()->json(['message' => "Regular user profile was deleted"], 200);
+            return response()->json([ResponseKeys::MESSAGE => "Regular user profile was deleted"], 200);
         } else {
-            return response()->json(['message' => "User not found"], 404);
+            return response()->json([ResponseKeys::MESSAGE => "User not found"], 404);
         }
     }
 
@@ -242,8 +244,8 @@ class RegularUserProfileService
             return [
                 'position' => $workExperienceRecord->position,
                 'description' => $workExperienceRecord->description,
-                'dateStart' => $workExperienceRecord->date_start,
-                'dateEnd' => $workExperienceRecord->date_end
+                'date_start' => $workExperienceRecord->date_start,
+                'date_end' => $workExperienceRecord->date_end
             ];
         })->toArray();
     }
@@ -258,10 +260,10 @@ class RegularUserProfileService
             return [
                 'institution' => $educationRecord->institution,
                 'degree' => $educationRecord->degree,
-                'fieldOfStudy' => $educationRecord->field_of_study,
-                'startDate' => $educationRecord->start_date,
-                'endDate' => $educationRecord->end_date,
-                'contactUrl' => $educationRecord->contact_url
+                'field_of_study' => $educationRecord->field_of_study,
+                'start_date' => $educationRecord->start_date,
+                'end_date' => $educationRecord->end_date,
+                'contact_url' => $educationRecord->contact_url
             ];
         })->toArray();
     }
@@ -271,8 +273,8 @@ class RegularUserProfileService
      */
     private function updateRegularUserByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
     {
-        if (isset($updateType['personalInformation'])) {
-            $this->updateRegularUserProfile($updateType['personalInformation'], $user, $baseUser);
+        if (isset($updateType[UpdateType::PERSONAL_INFORMATION])) {
+            $this->updateRegularUserProfile($updateType[UpdateType::PERSONAL_INFORMATION], $user, $baseUser);
             $updatedResults['personalInformation'] = [
                 'id' => $baseUser->id,
                 'first_name' => $user->first_name,
@@ -284,16 +286,16 @@ class RegularUserProfileService
             ];
         }
 
-        if (isset($updateType['education'])) {
-            $updatedResults['education'] = $this->updateUserEducation($updateType['education'], $user);
+        if (isset($updateType[UpdateType::EDUCATION])) {
+            $updatedResults[UpdateType::EDUCATION] = $this->updateUserEducation($updateType[UpdateType::EDUCATION], $user);
         }
 
-        if (isset($updateType['workExperience'])) {
-            $updatedResults['workExperience'] = $this->updateWorkExperience($updateType['workExperience'], $user);
+        if (isset($updateType[UpdateType::WORK_EXPERIENCE])) {
+            $updatedResults[UpdateType::WORK_EXPERIENCE] = $this->updateWorkExperience($updateType[UpdateType::WORK_EXPERIENCE], $user);
         }
 
-        if (isset($updateType['skills'])) {
-            $updatedResults['skills'] = $this->updateUserSkills($updateType['skills'], $user);
+        if (isset($updateType[UpdateType::SKILLS])) {
+            $updatedResults[UpdateType::SKILLS] = $this->updateUserSkills($updateType[UpdateType::SKILLS], $user);
         }
 
         return $updatedResults;
@@ -437,13 +439,11 @@ class RegularUserProfileService
      */
     private function updateUserSkills($skills, $user)
     {
-        Log::error('$skills: ' . var_export($skills, 1));
-
         $result = [];
         foreach ($skills as $skill) {
-            if (isset($skill['id']) && isset($skill['editInfo'])) {
+            if (isset($skill['id']) && isset($skill[EditInfoType::EDIT_INFO])) {
                 $skillId = $skill['id'];
-                $editInfo = $skill['editInfo'];
+                $editInfo = $skill[EditInfoType::EDIT_INFO];
 
                 $result[] = match ($editInfo) {
                     EditInfoType::ADD => $this->addSkill($skillId, $user),
@@ -469,8 +469,8 @@ class RegularUserProfileService
         );
         return [
             'id' => $userSkillRecordId,
-            'editInfo' => EditInfoType::ADD,
-            'result' => 'success'
+            EditInfoType::EDIT_INFO => EditInfoType::ADD,
+            ResponseKeys::RESULT => 'success'
         ];
     }
 
@@ -480,14 +480,14 @@ class RegularUserProfileService
         if ($record) {
             $record->delete();
             return [
-                'editInfo' => EditInfoType::REMOVE,
-                'result' => 'success'
+                EditInfoType::EDIT_INFO => EditInfoType::REMOVE,
+                ResponseKeys::RESULT => 'success'
             ];
         }
         return [
             'id' => $record->id,
-            'editInfo' => EditInfoType::REMOVE,
-            'result' => 'error'
+            EditInfoType::EDIT_INFO => EditInfoType::REMOVE,
+            ResponseKeys::RESULT => 'error'
         ];
     }
 
@@ -507,7 +507,7 @@ class RegularUserProfileService
             $baseUserUpdateData['password'] = bcrypt($data['password']);
         }
 
-        if (isset($data['email'])) {
+        if (isset($data['avatar_url'])) {
             $baseUserUpdateData['avatar_url'] = $data['avatar_url'];
         }
         return $baseUserUpdateData;

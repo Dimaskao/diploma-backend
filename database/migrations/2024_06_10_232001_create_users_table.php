@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,22 +13,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('company_id')->nullable();
-            $table->uuid('user_id')->nullable();
             $table->string('email')->unique();
             $table->string('password');
             $table->text('avatar_url')->nullable();
             $table->uuid('role_id');
+            $table->uuid('profileable_id')->nullable();
+            $table->string('profileable_type')->nullable();
             $table->timestamps();
 
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('regular_users')->onDelete('cascade');
             $table->foreign('role_id')->references('id')->on('roles');
-            $table->unique(['company_id', 'user_id']);
+            $table->unique(['profileable_id', 'profileable_type']);
         });
 
-        // Add the check constraint using raw SQL
-        DB::statement('ALTER TABLE users ADD CONSTRAINT check_company_or_user CHECK (company_id IS NOT NULL OR user_id IS NOT NULL)');
+        DB::statement('ALTER TABLE users ADD CONSTRAINT check_profileable CHECK (profileable_id IS NOT NULL AND profileable_type IS NOT NULL)');
     }
 
     /**
@@ -38,8 +34,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Drop the check constraint using raw SQL
-            DB::statement('ALTER TABLE users DROP CONSTRAINT check_company_or_user');
+            DB::statement('ALTER TABLE users DROP CONSTRAINT check_profileable');
+            $table->dropForeign(['role_id']);
+            $table->dropColumn(['role_id', 'profileable_id', 'profileable_type']);
         });
 
         Schema::dropIfExists('users');

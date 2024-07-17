@@ -5,13 +5,13 @@ namespace Tests\Feature\ServicesTests;
 use App\Enums\EditInfoType;
 use App\Enums\Period;
 use App\Models\RegularUser;
-use App\Services\RegularUserProfileService;
+use App\Services\Profile\RegularUserProfileService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tests\TestCase;
 use Tests\Feature\TestsHelpers\UserProfileHelper;
+use Tests\TestCase;
 
 class RegularUserProfileServiceTest extends TestCase
 {

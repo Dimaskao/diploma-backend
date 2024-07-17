@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Strategies\RegularUserProfileStrategy;
-use App\Services\RegularUserProfileService;
+use App\Services\Profile\RegularUserProfileService;
+use App\Strategies\Profile\RegularUserProfileStrategy;
 use Illuminate\Support\ServiceProvider;
 
 class RegularUserProfileStrategyServiceProvider extends ServiceProvider

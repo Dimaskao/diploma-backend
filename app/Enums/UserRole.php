@@ -6,4 +6,5 @@ class UserRole extends BaseEnum
 {
     const REGULAR_USER = 'user';
     const COMPANY = 'company';
+    const ADMIN = 'admin';
 }

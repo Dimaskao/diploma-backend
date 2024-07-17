@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Services\AuthService;
-use App\Services\ValidationService;
 use App\Factories\UserFactory;
+use App\Services\Auth\AuthService;
+use App\Services\ValidationService;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider

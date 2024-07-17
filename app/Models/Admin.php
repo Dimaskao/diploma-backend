@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Company extends Model
+class Admin extends Model
 {
     use HasFactory, HasUuids;
 
@@ -18,24 +17,15 @@ class Company extends Model
 
     protected $fillable = [
         'name',
-        'description',
-        'contact_email',
-        'contact_phone',
-        'contact_url'
+        'permissions'
+    ];
+
+    protected $casts = [
+        'permissions' => 'array',
     ];
 
     public function user(): MorphOne
     {
         return $this->morphOne(User::class, 'profileable');
-    }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
-    }
-
-    public function jobOffers(): HasMany
-    {
-        return $this->hasMany(JobOffer::class);
     }
 }

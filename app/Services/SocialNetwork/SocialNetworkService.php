@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\SocialNetwork;
 
+use App\Enums\ResponseKeys;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->subscribe($request);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 404);
+            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
         }
     }
 
@@ -40,7 +41,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->unsubscribe($request);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 404);
+            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
         }
     }
 
@@ -56,7 +57,7 @@ class SocialNetworkService
             $userId = $request->get('user_id');
             return $this->chatService->addUserToChat($chatId, $userId);
         }
-        return response()->json(['message' => 'User was not added to chat'], 500);
+        return response()->json([ResponseKeys::ERROR => 'User was not added to chat'], 500);
     }
 
     public function sendMessage(Request $request): JsonResponse

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -22,8 +23,6 @@ class User extends Authenticatable
         'role_id',
         'email',
         'password',
-        'user_id',
-        'company_id',
         'avatar_url'
     ];
 
@@ -37,19 +36,14 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function role() : BelongsTo
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
     }
 
-    public function company(): BelongsTo
+    public function profileable(): MorphTo
     {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    public function regularUser(): BelongsTo
-    {
-        return $this->belongsTo(RegularUser::class, 'user_id');
+        return $this->morphTo();
     }
 
     public function jobOffers(): BelongsToMany

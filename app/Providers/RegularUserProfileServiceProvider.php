@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\RegularUserProfileService;
+use App\Services\Profile\RegularUserProfileService;
 use Illuminate\Support\ServiceProvider;
 
 class RegularUserProfileServiceProvider extends ServiceProvider

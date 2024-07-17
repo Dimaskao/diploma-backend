@@ -4,11 +4,11 @@ namespace Tests\Feature\ServicesTests;
 
 use App\Enums\SearchType;
 use App\Models\RegularUser;
-use App\Services\ChatService;
-use App\Services\MessageService;
-use App\Services\SearchService;
-use App\Services\SocialNetworkService;
-use App\Services\SubscriptionService;
+use App\Services\SocialNetwork\ChatService;
+use App\Services\SocialNetwork\MessageService;
+use App\Services\SocialNetwork\SearchService;
+use App\Services\SocialNetwork\SocialNetworkService;
+use App\Services\SocialNetwork\SubscriptionService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;

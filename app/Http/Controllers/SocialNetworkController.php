@@ -2,51 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\SocialNetworkService;
+use App\Services\SocialNetwork\SocialNetworkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SocialNetworkController
 {
-    protected SocialNetworkService $socialNetworkService;
+    protected SocialNetworkService $service;
 
-    public function __construct(SocialNetworkService $socialNetworkService)
+    public function __construct(SocialNetworkService $service)
     {
-        $this->socialNetworkService = $socialNetworkService;
+        $this->service = $service;
     }
 
     public function subscribe(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->subscribe($request);
+        return $this->service->subscribe($request);
     }
 
     public function unsubscribe(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->unsubscribe($request);
+        return $this->service->unsubscribe($request);
     }
 
     public function search(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->search($request);
+        return $this->service->search($request);
     }
 
     public function createChat(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->createChat($request);
+        return $this->service->createChat($request);
     }
 
     public function addUserToChat(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->addUserToChat($request);
+        return $this->service->addUserToChat($request);
     }
 
     public function sendMessage(Request $request): JsonResponse
     {
-        return $this->socialNetworkService->sendMessage($request);
+        return $this->service->sendMessage($request);
     }
 
     public function getMessages(int $chatId): JsonResponse
     {
-        return $this->socialNetworkService->getMessages($chatId);
+        return $this->service->getMessages($chatId);
     }
 }

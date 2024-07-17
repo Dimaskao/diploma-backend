@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\SocialNetwork;
 
+use App\Events\MessageSent;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
-use App\Events\MessageSent;
 use Illuminate\Support\Str;
 
 class MessageService
