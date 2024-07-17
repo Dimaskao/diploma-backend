@@ -7,26 +7,32 @@ use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
+use App\Services\ResponseService;
 use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
+use RuntimeException;
 
 class AuthService
 {
     protected Factory $factory;
     protected ValidationService $validationService;
+    protected ResponseService $responseService;
 
-    public function __construct(ValidationService $validationService, UserFactory $factory)
+    public function __construct(ValidationService $validationService, UserFactory $factory, ResponseService $responseService)
     {
         $this->validationService = $validationService;
         $this->factory = $factory;
+        $this->responseService = $responseService;
     }
 
     /**
      * Register a new user or company.
+     * @throws ValidationException
      */
     public function register(Request $request): JsonResponse
     {
@@ -34,9 +40,9 @@ class AuthService
 
         try {
             $result = $this->factory->create($data);
-            return response()->json($result, 201);
-        } catch (\Exception $e) {
-            return response()->json([ResponseKeys::ERROR => 'Failed to create user or company'], 500);
+            return $this->responseService->response(ResponseKeys::RESULT, $result, 201);
+        } catch (Exception $e) {
+            return $this->responseService->response(ResponseKeys::ERROR, "Failed to create user or company, {$e->getMessage()}", 500);
         }
     }
 
@@ -45,19 +51,21 @@ class AuthService
      */
     public function login(Request $request): JsonResponse
     {
+        $this->validationService->validate($request->all(), $this->loginRules());
+        $credentials = $request->only('email', 'password');
+        $role = $request->input('role');
+
         try {
-            $this->validationService->validate($request->all(), $this->loginRules());
-            $credentials = $request->only('email', 'password');
-            $role = $request->input('role');
             $token = $this->userLogin($credentials, $role);
             if ($token) {
-                return response()->json([ResponseKeys::TOKEN => $token], 200);
+                return $this->responseService->response(ResponseKeys::TOKEN, $token, 200);
             }
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => "Unauthenticated, {$e->getMessage()}"], 401);
+            return $this->responseService->response(ResponseKeys::ERROR, "Unauthenticated, {$e->getMessage()}", 401);
         }
 
-        return response()->json([ResponseKeys::ERROR => 'Unauthenticated'], 401);
+        return $this->responseService->response(ResponseKeys::ERROR, "Unauthenticated", 401);
+
     }
 
     /**
@@ -67,9 +75,9 @@ class AuthService
     {
         try {
             $this->userLogout($request->user());
-            return response()->json([ResponseKeys::MESSAGE => 'Successfully logged out'], 200);
+            return $this->responseService->response(ResponseKeys::MESSAGE, "Successfully logged out", 200);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => 'Failed to log out user'], 500);
+            return $this->responseService->response(ResponseKeys::ERROR, "Failed to log out user, {$e->getMessage()}", 500);
         }
     }
 
@@ -102,7 +110,7 @@ class AuthService
             $personalAccessClient = (new ClientRepository())->personalAccessClient();
 
             if (!$personalAccessClient) {
-                throw new \RuntimeException('Personal access client not found. Please create one.');
+                throw new RuntimeException('Personal access client not found. Please create one.');
             }
 
             return $user->createToken('Personal Access Token', ['*'])->accessToken;
