@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ServicesTests;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Enums\Period;
 use App\Models\RegularUser;
 use App\Services\Profile\RegularUserProfileService;
@@ -68,11 +68,11 @@ class RegularUserProfileServiceTest extends TestCase
                 "skills" => [
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::ADD,
+                        "editInfo" => Edit::ADD,
                     ],
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::REMOVE
+                        "editInfo" => Edit::REMOVE
                     ]
                 ]
             ]

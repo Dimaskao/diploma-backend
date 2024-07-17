@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\StrategiesTests;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Models\RegularUser;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -65,11 +65,11 @@ class RegularUserProfileStrategyTest extends TestCase
                 "skills" => [
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::ADD,
+                        "editInfo" => Edit::ADD,
                     ],
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::REMOVE
+                        "editInfo" => Edit::REMOVE
                     ]
                 ]
             ]

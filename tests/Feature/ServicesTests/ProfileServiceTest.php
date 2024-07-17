@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ServicesTests;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Factories\ProfileStrategyFactory;
 use App\Interfaces\Factory;
 use App\Models\Company;
@@ -94,11 +94,11 @@ class ProfileServiceTest extends TestCase
                 "skills" => [
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::ADD,
+                        "editInfo" => Edit::ADD,
                     ],
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::REMOVE
+                        "editInfo" => Edit::REMOVE
                     ]
                 ]
             ]

@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-class EditInfoType extends BaseEnum
+class Edit extends BaseEnum
 {
     const ADD = 'add';
     const REMOVE = 'remove';

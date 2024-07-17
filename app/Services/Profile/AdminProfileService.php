@@ -2,7 +2,7 @@
 
 namespace App\Services\Profile;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Enums\Permission;
 use App\Enums\ResponseKeys;
 use App\Enums\UpdateType;
@@ -68,18 +68,18 @@ class AdminProfileService extends BaseSpecificProfileService
      */
     private function updateByEditInfoType(Request $request, Admin $admin, User $user): array
     {
-        if ($request->has(EditInfoType::EDIT_INFO)) {
-            $editRequest = $request->get(EditInfoType::EDIT_INFO);
+        if ($request->has(Edit::EDIT_INFO)) {
+            $editRequest = $request->get(Edit::EDIT_INFO);
             return match ($editRequest) {
-                EditInfoType::SELF => $this->updateSelfByUpdateType($editRequest, $admin, $user, []),
-                EditInfoType::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin, $user, []),
-                EditInfoType::REGULAR_USER => $this->updateRegularUser($editRequest, $admin, $user),
-                EditInfoType::COMPANY => $this->updateCompany($editRequest, $admin, $user),
-                EditInfoType::BAN_USER => $this->banUser($editRequest, $admin, $user),
-                EditInfoType::BAN_POST => $this->banPost($editRequest, $admin, $user),
-                EditInfoType::UNBAN_USER => $this->banPost($editRequest, $admin, $user),
-                EditInfoType::UNBAN_POST => $this->banPost($editRequest, $admin, $user),
-                EditInfoType::ADD_NEW_SKILL => $this->addNewSkill($editRequest, $admin, $user),
+                Edit::SELF => $this->updateSelfByUpdateType($editRequest, $admin, $user, []),
+                Edit::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin, $user, []),
+                Edit::REGULAR_USER => $this->updateRegularUser($editRequest, $admin, $user),
+                Edit::COMPANY => $this->updateCompany($editRequest, $admin, $user),
+                Edit::BAN_USER => $this->banUser($editRequest, $admin, $user),
+                Edit::BAN_POST => $this->banPost($editRequest, $admin, $user),
+                Edit::UNBAN_USER => $this->unbanPost($editRequest, $admin, $user),
+                Edit::ADD_NEW_SKILL => $this->addNewSkill($editRequest, $admin, $user),
+                Edit::UNBAN_POST => $this->unbanUser($editRequest, $admin, $user),
                 default => throw new Exception('Update type does not exist')
             };
         }
@@ -207,6 +207,16 @@ class AdminProfileService extends BaseSpecificProfileService
     }
 
     private function addNewSkill(mixed $editRequest, Admin $admin, User $user): array
+    {
+        return [];
+    }
+
+    private function unbanPost(mixed $editRequest, Admin $admin, User $user): array
+    {
+        return [];
+    }
+
+    private function unbanUser(mixed $editRequest, Admin $admin, User $user): array
     {
         return [];
     }

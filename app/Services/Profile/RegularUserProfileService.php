@@ -2,7 +2,7 @@
 
 namespace App\Services\Profile;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Enums\Period;
 use App\Enums\ResponseKeys;
 use App\Enums\UpdateType;
@@ -391,13 +391,13 @@ class RegularUserProfileService extends BaseSpecificProfileService
     {
         $result = [];
         foreach ($skills as $skill) {
-            if (isset($skill['id']) && isset($skill[EditInfoType::EDIT_INFO])) {
+            if (isset($skill['id']) && isset($skill[Edit::EDIT_INFO])) {
                 $skillId = $skill['id'];
-                $editInfo = $skill[EditInfoType::EDIT_INFO];
+                $editInfo = $skill[Edit::EDIT_INFO];
 
                 $result[] = match ($editInfo) {
-                    EditInfoType::ADD => $this->addSkill($skillId, $user),
-                    EditInfoType::REMOVE => $this->removeSkill($skillId, $user),
+                    Edit::ADD => $this->addSkill($skillId, $user),
+                    Edit::REMOVE => $this->removeSkill($skillId, $user),
                     default => throw new Exception('Update type does not exist')
                 };
 
@@ -419,7 +419,7 @@ class RegularUserProfileService extends BaseSpecificProfileService
         );
         return [
             'id' => $userSkillRecordId,
-            EditInfoType::EDIT_INFO => EditInfoType::ADD,
+            Edit::EDIT_INFO => Edit::ADD,
             ResponseKeys::RESULT => 'success'
         ];
     }
@@ -430,13 +430,13 @@ class RegularUserProfileService extends BaseSpecificProfileService
         if ($record) {
             $record->delete();
             return [
-                EditInfoType::EDIT_INFO => EditInfoType::REMOVE,
+                Edit::EDIT_INFO => Edit::REMOVE,
                 ResponseKeys::RESULT => 'success'
             ];
         }
         return [
             'id' => $record->id,
-            EditInfoType::EDIT_INFO => EditInfoType::REMOVE,
+            Edit::EDIT_INFO => Edit::REMOVE,
             ResponseKeys::RESULT => 'error'
         ];
     }

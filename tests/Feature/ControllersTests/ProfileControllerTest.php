@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ControllersTests;
 
-use App\Enums\EditInfoType;
+use App\Enums\Edit;
 use App\Factories\ProfileStrategyFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProfileController;
@@ -98,11 +98,11 @@ class ProfileControllerTest extends TestCase
                 "skills" => [
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::ADD,
+                        "editInfo" => Edit::ADD,
                     ],
                     [
                         "id" => "1",
-                        "editInfo" => EditInfoType::REMOVE
+                        "editInfo" => Edit::REMOVE
                     ]
                 ]
             ]
