@@ -6,6 +6,7 @@ use App\Enums\Edit;
 use App\Enums\Permission;
 use App\Enums\ResponseKeys;
 use App\Enums\UpdateType;
+use App\Events\UserBanned;
 use App\Models\Admin;
 use App\Models\BannedPost;
 use App\Models\BannedUser;
@@ -199,7 +200,6 @@ class AdminProfileService extends BaseSpecificProfileService
         return $updatedResults;
     }
 
-
     /**
      * @throws Exception
      */
@@ -221,6 +221,9 @@ class AdminProfileService extends BaseSpecificProfileService
                 }
 
                 BannedUser::insert($data);
+
+                event(new UserBanned($user));
+
                 return [ResponseKeys::MESSAGE => 'success'];
             } else {
                 throw new Exception('User to ban does not exist or the reason was not set');

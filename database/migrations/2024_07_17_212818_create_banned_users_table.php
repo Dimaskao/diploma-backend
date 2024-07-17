@@ -16,7 +16,6 @@ return new class extends Migration
             $table->uuid('user_id')->nullable();
             $table->uuid('banned_by_admin_id')->nullable();
             $table->string('reason');
-            $table->timestamp('date_banned');
             $table->timestamp('valid_until')->nullable();
             $table->timestamps();
 

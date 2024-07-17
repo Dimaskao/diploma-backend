@@ -15,7 +15,6 @@ class BannedUser extends Model
     protected $fillable = [
         'user_id',
         'reason',
-        'date_banned',
         'valid_until',
         'banned_by_admin_id'
     ];
