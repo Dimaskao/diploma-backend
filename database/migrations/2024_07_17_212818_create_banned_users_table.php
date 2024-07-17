@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('banned_users', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
+            $table->uuid('banned_by_admin_id')->nullable();
             $table->string('reason');
             $table->timestamp('date_banned');
             $table->timestamp('valid_until')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('banned_by_admin_id')->references('id')->on('admins')->onDelete('cascade');
         });
     }
 

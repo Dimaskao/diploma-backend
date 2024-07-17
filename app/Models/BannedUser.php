@@ -16,11 +16,17 @@ class BannedUser extends Model
         'user_id',
         'reason',
         'date_banned',
-        'valid_until'
+        'valid_until',
+        'banned_by_admin_id'
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class);
     }
 }
