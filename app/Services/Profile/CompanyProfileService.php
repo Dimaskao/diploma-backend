@@ -4,27 +4,18 @@ namespace App\Services\Profile;
 
 use App\Enums\ResponseKeys;
 use App\Enums\UpdateType;
-use App\Interfaces\SpecificProfileService;
 use App\Models\JobOffer;
 use App\Models\JobOfferSkill;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\User;
-use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-class CompanyProfileService implements SpecificProfileService
+class CompanyProfileService extends BaseSpecificProfileService
 {
-    protected ValidationService $validator;
-
-    public function __construct()
-    {
-        $this->validator = new ValidationService();
-    }
-
     public function getProfile(mixed $user): JsonResponse
     {
         $company = $user->profileable;
@@ -139,20 +130,6 @@ class CompanyProfileService implements SpecificProfileService
         }
 
         return $updatedResults;
-    }
-
-    private function getUserUpdateData(array $data): array
-    {
-        $baseUserUpdateData = [];
-
-        if (isset($data['password'])) {
-            $baseUserUpdateData['password'] = bcrypt($data['password']);
-        }
-
-        if (isset($data['avatar_url'])) {
-            $baseUserUpdateData['avatar_url'] = $data['avatar_url'];
-        }
-        return $baseUserUpdateData;
     }
 
     /**

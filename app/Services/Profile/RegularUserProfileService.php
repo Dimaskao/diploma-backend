@@ -6,7 +6,6 @@ use App\Enums\EditInfoType;
 use App\Enums\Period;
 use App\Enums\ResponseKeys;
 use App\Enums\UpdateType;
-use App\Interfaces\SpecificProfileService;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\User;
@@ -14,22 +13,14 @@ use App\Models\UserContact;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
-use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class RegularUserProfileService implements SpecificProfileService
+class RegularUserProfileService extends BaseSpecificProfileService
 {
-    protected ValidationService $validator;
-
-    public function __construct()
-    {
-        $this->validator = new ValidationService();
-    }
-
     public function getProfile($user): JsonResponse
     {
         $regularUserRecord = $user->regularUser;
@@ -92,47 +83,6 @@ class RegularUserProfileService implements SpecificProfileService
         }
     }
 
-    /**
-     * @param array $data
-     * @param array $dataToUpdate
-     * @return array
-     */
-    private function getUserEducationDataToProceed(array $data, array $dataToUpdate): array
-    {
-        if (isset($data['start_date'])) {
-            $dataToUpdate['start_date'] = $data['start_date'];
-        }
-
-        if (isset($data['end_date'])) {
-            $dataToUpdate['end_date'] = $data['end_date'];
-        }
-
-        if (isset($data['contact_url'])) {
-            $dataToUpdate['contact_url'] = $data['contact_url'];
-        }
-        return $dataToUpdate;
-    }
-
-    /**
-     * @param array $data
-     * @param array $newData
-     * @return array
-     */
-    private function getWorkExperienceDataToProceed(array $data, array $newData): array
-    {
-        if (isset($data['description'])) {
-            $newData['description'] = $data['description'];
-        }
-
-        if (isset($data['date_start'])) {
-            $newData['date_start'] = $data['date_start'];
-        }
-
-        if (isset($data['date_end'])) {
-            $newData['date_end'] = $data['date_end'];
-        }
-        return $newData;
-    }
 
     /**
      * @param $user
@@ -319,7 +269,7 @@ class RegularUserProfileService implements SpecificProfileService
 
         if ($user && $baseUser) {
             $userUpdateData = $this->getRegularUserUpdateData($data);
-            $baseUserUpdateData = $this->getBaseUserUpdateData($data);
+            $baseUserUpdateData = $this->getUserUpdateData($data);
 
             if (!empty($userUpdateData)) {
                 $user->update($userUpdateData);
@@ -495,28 +445,6 @@ class RegularUserProfileService implements SpecificProfileService
      * @param array $data
      * @return array
      */
-    private function getBaseUserUpdateData(array $data): array
-    {
-        $baseUserUpdateData = [];
-
-        if (isset($data['email'])) {
-            $baseUserUpdateData['email'] = $data['email'];
-        }
-
-        if (isset($data['password'])) {
-            $baseUserUpdateData['password'] = bcrypt($data['password']);
-        }
-
-        if (isset($data['avatar_url'])) {
-            $baseUserUpdateData['avatar_url'] = $data['avatar_url'];
-        }
-        return $baseUserUpdateData;
-    }
-
-    /**
-     * @param array $data
-     * @return array
-     */
     private function getRegularUserUpdateData(array $data): array
     {
         $userUpdateData = [];
@@ -536,22 +464,7 @@ class RegularUserProfileService implements SpecificProfileService
         if (isset($data['experience'])) {
             $userUpdateData['experience'] = $data['experience'];
         }
-        return $userUpdateData;
-    }
 
-    /**
-     * Convert a date string to a datetime string
-     *
-     * @param string $date
-     * @return string|null
-     */
-    private function convertToDateTimeString($date): ?string
-    {
-        try {
-            $timestamp = strtotime($date);
-            return date('Y-m-d H:i:s', $timestamp);
-        } catch (Exception $e) {
-            return null;
-        }
+        return $userUpdateData;
     }
 }
