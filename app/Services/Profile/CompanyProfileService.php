@@ -41,7 +41,7 @@ class CompanyProfileService extends BaseSpecificProfileService
                 $company = $user->profileable;
                 return response()->json([
                     ResponseKeys::MESSAGE => 'Company information was updated successfully',
-                    ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user, [])
+                    ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user)
                 ], 200);
             } catch (Exception $e) {
                 return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
@@ -113,8 +113,9 @@ class CompanyProfileService extends BaseSpecificProfileService
     /**
      * @throws Exception
      */
-    private function updateByUpdateType($updateType, $user, $baseUser, array $updatedResults): array
+    private function updateByUpdateType($updateType, $user, $baseUser): array
     {
+        $updatedResults = [];
         if (isset($updateType[UpdateType::PERSONAL_INFORMATION])) {
             $this->updateCompanyProfile($updateType[UpdateType::PERSONAL_INFORMATION], $user, $baseUser);
             $updatedResults[UpdateType::PERSONAL_INFORMATION] = [
