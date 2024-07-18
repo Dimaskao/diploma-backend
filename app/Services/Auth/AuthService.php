@@ -7,7 +7,7 @@ use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
-use App\Services\ResponseService;
+use App\Services\Response\ResponseService;
 use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;

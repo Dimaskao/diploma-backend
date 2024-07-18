@@ -19,8 +19,7 @@ class CompanyProfileService extends BaseSpecificProfileService
     public function getProfile(mixed $user): JsonResponse
     {
         $company = $user->profileable;
-
-        return response()->json([
+        return $this->responseService->response(ResponseKeys::PROFILE, [
             ResponseKeys::PROFILE => [
                 'id' => $user->id,
                 'name' => $company->name,
@@ -39,16 +38,15 @@ class CompanyProfileService extends BaseSpecificProfileService
         if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
                 $company = $user->profileable;
-                return response()->json([
+                return $this->responseService->response(ResponseKeys::RESULT, [
                     ResponseKeys::MESSAGE => 'Company information was updated successfully',
                     ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user)
                 ], 200);
             } catch (Exception $e) {
-                return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
+                return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 500);
             }
         }
-
-        return response()->json([ResponseKeys::MESSAGE => 'Unset update type'], 400);
+        return $this->responseService->response(ResponseKeys::ERROR, 'Unset update type', 400);
     }
 
     public function deleteProfile($id): JsonResponse
@@ -72,9 +70,9 @@ class CompanyProfileService extends BaseSpecificProfileService
             $company->delete();
             $baseUser->delete();
 
-            return response()->json([ResponseKeys::MESSAGE => "Company profile was deleted"], 200);
+            return $this->responseService->response(ResponseKeys::MESSAGE, "Company profile was deleted", 200);
         } else {
-            return response()->json([ResponseKeys::MESSAGE => "User not found"], 404);
+            return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
         }
     }
 

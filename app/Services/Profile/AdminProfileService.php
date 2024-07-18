@@ -10,7 +10,10 @@ use App\Events\UserBanned;
 use App\Models\Admin;
 use App\Models\BannedPost;
 use App\Models\BannedUser;
+use App\Models\JobOffer;
+use App\Models\JobOfferSkill;
 use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\Skill;
 use App\Models\User;
 use Exception;
@@ -23,15 +26,12 @@ class AdminProfileService extends BaseSpecificProfileService
     public function getProfile(User $user): JsonResponse
     {
         $admin = $user->profileable;
-
-        return response()->json([
-            ResponseKeys::PROFILE => [
-                'id' => $user->id,
-                'name' => $admin->name,
-                'permissions' => $this->getProfilePermissions($admin),
-                'email' => $user->email,
-                'avatar_url' => $user->avatar_url
-            ]
+        return $this->responseService->response(ResponseKeys::PROFILE, [
+            'id' => $user->id,
+            'name' => $admin->name,
+            'permissions' => $this->getProfilePermissions($admin),
+            'email' => $user->email,
+            'avatar_url' => $user->avatar_url
         ], 200);
     }
 
@@ -40,21 +40,42 @@ class AdminProfileService extends BaseSpecificProfileService
         if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
                 $admin = $user->profilable;
-                return response()->json([
+                return $this->responseService->response(ResponseKeys::RESULT, [
                     ResponseKeys::MESSAGE => 'Company information was updated successfully',
                     ResponseKeys::UPDATED_INFORMATION => $this->updateByEditInfoType($request, $admin, $user)
                 ], 200);
             } catch (Exception $e) {
-                return response()->json([ResponseKeys::MESSAGE => $e->getMessage()], 500);
+                return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 500);
             }
         }
-
-        return response()->json([ResponseKeys::MESSAGE => 'Unset update type'], 400);
+        return $this->responseService->response(ResponseKeys::ERROR, "Unset update type", 400);
     }
 
     public function deleteProfile($id): JsonResponse
     {
-        return response()->json([ResponseKeys::MESSAGE => 'Unset update type'], 400);
+        $baseUser = User::find($id);
+        if ($baseUser) {
+            $company = $baseUser->profileable;
+
+            $jobOffers = JobOffer::where('company_id', $company->id)->get();
+            foreach ($jobOffers as $jobOffer) {
+                JobOfferSkill::where('job_offer_id', $jobOffer->id)->delete();
+                $jobOffer->delete();
+            }
+
+            $posts = Post::where('user_id', $baseUser->id)->get();
+            foreach ($posts as $post) {
+                PostImage::where('post_id', $post->id)->delete();
+                $post->delete();
+            }
+
+            $company->delete();
+            $baseUser->delete();
+
+            return $this->responseService->response(ResponseKeys::MESSAGE, "Company profile was deleted", 200);
+        } else {
+            return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
+        }
     }
 
     private function getProfilePermissions(Admin $admin): array

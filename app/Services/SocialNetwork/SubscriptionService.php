@@ -7,6 +7,7 @@ use App\Enums\SubscriptionAction;
 use App\Models\RegularUser;
 use App\Models\User;
 use App\Models\UserContact;
+use App\Services\Response\ResponseService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,13 @@ use Illuminate\Support\Str;
 
 class SubscriptionService
 {
+    protected ResponseService $responseService;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->responseService = $responseService;
+    }
+
     /**
      * $request = [
      * 'subscriberId' => User->id
@@ -25,7 +33,7 @@ class SubscriptionService
         try {
             return $this->manageSubscription($request, SubscriptionAction::SUBSCRIBE);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
+            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
         }
     }
 
@@ -34,7 +42,7 @@ class SubscriptionService
         try {
             return $this->manageSubscription($request, SubscriptionAction::UNSUBSCRIBE);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
+            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
         }
     }
 
@@ -49,13 +57,12 @@ class SubscriptionService
                 return match ($action) {
                     SubscriptionAction::SUBSCRIBE => $this->subscribeUser($subscriberId, $subscriptionId),
                     SubscriptionAction::UNSUBSCRIBE => $this->unsubscribeUser($subscriberId, $subscriptionId),
-                    default => response()->json([ResponseKeys::ERROR => 'No subscription action found'], 400)
+                    default => $this->responseService->response(ResponseKeys::ERROR, 'No subscription action found', 400)
                 };
             }
-
-            return response()->json([ResponseKeys::ERROR => 'Bad request'], 400);
+            return $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 404);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => "Error during {$action}: " . $e->getMessage()], 500);
+            return $this->responseService->response(ResponseKeys::ERROR, "Error during {$action}: {$e->getMessage()}", 500);
         }
     }
 
@@ -71,7 +78,7 @@ class SubscriptionService
             'subscriber_id' => $subscriberId,
             'subscription_id' => $subscriptionId
         ]);
-        return response()->json([ResponseKeys::ERROR => 'Subscribed successfully'], 200);
+        return $this->responseService->response(ResponseKeys::MESSAGE, "Subscribed successfully", 200);
     }
 
     private function unsubscribeUser($subscriberId, $subscriptionId): JsonResponse
@@ -82,9 +89,8 @@ class SubscriptionService
 
         if ($userContact) {
             $userContact->delete();
-            return response()->json([ResponseKeys::ERROR => 'Unsubscribed successfully'], 200);
+            return $this->responseService->response(ResponseKeys::MESSAGE, "Unsubscribed successfully", 200);
         }
-
-        return response()->json([ResponseKeys::ERROR => 'Subscription not found'], 404);
+        return $this->responseService->response(ResponseKeys::ERROR, "Subscription not found", 404);
     }
 }

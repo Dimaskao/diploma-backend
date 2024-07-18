@@ -3,6 +3,7 @@
 namespace App\Services\SocialNetwork;
 
 use App\Enums\ResponseKeys;
+use App\Services\Response\ResponseService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,13 +14,15 @@ class SocialNetworkService
     protected ChatService $chatService;
     protected MessageService $messageService;
     protected SearchService $searchService;
+    protected ResponseService $responseService;
 
-    public function __construct(SubscriptionService $subscriptionService, ChatService $chatService, MessageService $messageService, SearchService $searchService)
+    public function __construct(SubscriptionService $subscriptionService, ChatService $chatService, MessageService $messageService, SearchService $searchService, ResponseService $responseService)
     {
         $this->subscriptionService = $subscriptionService;
         $this->chatService = $chatService;
         $this->messageService = $messageService;
         $this->searchService = $searchService;
+        $this->responseService = $responseService;
     }
 
     public function search(Request $request): JsonResponse
@@ -32,7 +35,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->subscribe($request);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
+            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
         }
     }
 
@@ -41,7 +44,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->unsubscribe($request);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => $e->getMessage()], 404);
+            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
         }
     }
 
@@ -57,7 +60,7 @@ class SocialNetworkService
             $userId = $request->get('user_id');
             return $this->chatService->addUserToChat($chatId, $userId);
         }
-        return response()->json([ResponseKeys::ERROR => 'User was not added to chat'], 500);
+        return $this->responseService->response(ResponseKeys::ERROR, 'User was not added to chat', 500);
     }
 
     public function sendMessage(Request $request): JsonResponse

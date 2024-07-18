@@ -6,15 +6,23 @@ use App\Enums\ResponseKeys;
 use App\Enums\SearchType;
 use App\Models\Company;
 use App\Models\RegularUser;
+use App\Services\Response\ResponseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SearchService
 {
+    protected ResponseService $responseService;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->responseService = $responseService;
+    }
+
     public function search(Request $request): JsonResponse
     {
         if (!$request->has(SearchType::SEARCH_TYPE) || !$request->has('query')) {
-            return response()->json([ResponseKeys::ERROR => 'Bad request'], 400);
+            $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 400);
         }
 
         $searchType = $request->input(SearchType::SEARCH_TYPE);
@@ -24,8 +32,7 @@ class SearchService
             'users' => $searchType === SearchType::USERS || $searchType === SearchType::ALL ? $this->getRegularUsersSearchResults($query) : [],
             'companies' => $searchType === SearchType::COMPANIES || $searchType === SearchType::ALL ? $this->getCompaniesSearchResults($query) : [],
         ];
-
-        return response()->json([ResponseKeys::RESULT => $results]);
+        return $this->responseService->response(ResponseKeys::RESULT, $results, 200);
     }
 
     /**

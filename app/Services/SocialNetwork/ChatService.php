@@ -5,12 +5,20 @@ namespace App\Services\SocialNetwork;
 use App\Enums\ResponseKeys;
 use App\Models\Chat;
 use App\Models\User;
+use App\Services\Response\ResponseService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
 class ChatService
 {
+    protected ResponseService $responseService;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->responseService = $responseService;
+    }
+
     public function createChat(array $data): JsonResponse
     {
         try {
@@ -24,12 +32,12 @@ class ChatService
                 $user = User::find($data['user_id']);
                 if ($user) {
                     $chat->users()->attach($data['user_id']);
-                    return response()->json($chat, 201);
+                    return $this->responseService->response(ResponseKeys::RESULT, $chat, 201);
                 }
             }
-            return response()->json([ResponseKeys::ERROR => 'Bad request'], 400);
+            return $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 400);
         } catch (Exception $e) {
-            return response()->json([ResponseKeys::ERROR => "Error during creating a chat, {$e->getMessage()}"], 500);
+            return $this->responseService->response(ResponseKeys::ERROR, "Error during creating a chat, {$e->getMessage()}", 500);
         }
     }
 
@@ -39,7 +47,6 @@ class ChatService
         $user = User::findOrFail($userId);
 
         $chat->users()->attach($user->id);
-
-        return response()->json([ResponseKeys::MESSAGE => 'User added to chat'], 200);
+        return $this->responseService->response(ResponseKeys::MESSAGE, 'User added to chat', 200);
     }
 }

@@ -3,16 +3,19 @@
 namespace App\Services\Profile;
 
 use App\Interfaces\SpecificProfileService;
+use App\Services\Response\ResponseService;
 use App\Services\ValidationService;
 use Exception;
 
 abstract class BaseSpecificProfileService implements SpecificProfileService
 {
     protected ValidationService $validator;
+    protected ResponseService $responseService;
 
     public function __construct()
     {
         $this->validator = new ValidationService();
+        $this->responseService = new ResponseService();
     }
 
     protected function getUserUpdateData(array $data): array
