@@ -41,7 +41,7 @@ class AdminProfileService extends BaseSpecificProfileService
             try {
                 $admin = $user->profilable;
                 return $this->responseService->response(ResponseKeys::RESULT, [
-                    ResponseKeys::MESSAGE => 'Company information was updated successfully',
+                    ResponseKeys::MESSAGE => 'Information was updated successfully',
                     ResponseKeys::UPDATED_INFORMATION => $this->updateByEditInfoType($request, $admin, $user)
                 ], 200);
             } catch (Exception $e) {
