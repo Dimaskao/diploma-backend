@@ -53,29 +53,7 @@ class AdminProfileService extends BaseSpecificProfileService
 
     public function deleteProfile($id): JsonResponse
     {
-        $baseUser = User::find($id);
-        if ($baseUser) {
-            $company = $baseUser->profileable;
-
-            $jobOffers = JobOffer::where('company_id', $company->id)->get();
-            foreach ($jobOffers as $jobOffer) {
-                JobOfferSkill::where('job_offer_id', $jobOffer->id)->delete();
-                $jobOffer->delete();
-            }
-
-            $posts = Post::where('user_id', $baseUser->id)->get();
-            foreach ($posts as $post) {
-                PostImage::where('post_id', $post->id)->delete();
-                $post->delete();
-            }
-
-            $company->delete();
-            $baseUser->delete();
-
-            return $this->responseService->response(ResponseKeys::MESSAGE, "Company profile was deleted", 200);
-        } else {
-            return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
-        }
+        return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
     }
 
     private function getProfilePermissions(Admin $admin): array
@@ -97,8 +75,8 @@ class AdminProfileService extends BaseSpecificProfileService
         if ($request->has(Edit::EDIT_INFO)) {
             $editRequest = $request->get(Edit::EDIT_INFO);
             return match ($editRequest) {
-                Edit::SELF => $this->updateSelfByUpdateType($editRequest, $admin, $user, []),
-                Edit::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin, $user, []),
+                Edit::SELF => $this->updateSelfByUpdateType($editRequest, $admin, $user),
+                Edit::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin, $user),
 //                Edit::REGULAR_USER => $this->updateRegularUser($editRequest, $admin, $user),
 //                Edit::COMPANY => $this->updateCompany($editRequest, $admin, $user),
                 Edit::BAN_USER => $this->banUser($editRequest, $admin),
@@ -169,12 +147,12 @@ class AdminProfileService extends BaseSpecificProfileService
      * @param $editRequest
      * @param Admin $admin
      * @param User $user
-     * @param $updatedResults
      * @return array
      * @throws ValidationException
      */
-    private function updateSelfByUpdateType($editRequest, Admin $admin, User $user, $updatedResults): array
+    private function updateSelfByUpdateType($editRequest, Admin $admin, User $user): array
     {
+        $updatedResults = [];
         if (isset($editRequest[UpdateType::PERSONAL_INFORMATION])) {
             $this->updatePersonalInformation($editRequest[UpdateType::PERSONAL_INFORMATION], $admin, $user);
             $updatedResults[UpdateType::PERSONAL_INFORMATION] = [
@@ -189,8 +167,9 @@ class AdminProfileService extends BaseSpecificProfileService
     /**
      * @throws Exception
      */
-    private function updateAnotherAdminPermissions(mixed $editRequest, Admin $admin, User $user, $updatedResults): array
+    private function updateAnotherAdminPermissions(mixed $editRequest, Admin $admin, User $user): array
     {
+        $updatedResults = [];
         if (isset($editRequest['update_admin_id'])) {
             $adminToUpdate = User::where('id', $editRequest['update_admin_id'])->first();
 
