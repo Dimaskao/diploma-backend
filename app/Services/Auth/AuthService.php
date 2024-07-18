@@ -13,7 +13,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
 
@@ -32,13 +31,11 @@ class AuthService
 
     /**
      * Register a new user or company.
-     * @throws ValidationException
      */
     public function register(Request $request): JsonResponse
     {
-        $data = $this->validationService->validate($request->all(), $this->registrationRules());
-
         try {
+            $data = $this->validationService->validate($request->all(), $this->registrationRules());
             $result = $this->factory->create($data);
             return $this->responseService->response(ResponseKeys::RESULT, $result, 201);
         } catch (Exception $e) {
@@ -51,12 +48,12 @@ class AuthService
      */
     public function login(Request $request): JsonResponse
     {
-        $this->validationService->validate($request->all(), $this->loginRules());
-        $credentials = $request->only('email', 'password');
-        $role = $request->input('role');
-
         try {
+            $this->validationService->validate($request->all(), $this->loginRules());
+            $credentials = $request->only('email', 'password');
+            $role = $request->input('role');
             $token = $this->userLogin($credentials, $role);
+
             if ($token) {
                 return $this->responseService->response(ResponseKeys::TOKEN, $token, 200);
             }
@@ -119,12 +116,11 @@ class AuthService
         return false;
     }
 
-    private function userLogout($user)
+    private function userLogout($user): void
     {
         $tokens = $user->tokens;
         foreach ($tokens as $token) {
             $token->revoke();
         }
-        return true;
     }
 }
