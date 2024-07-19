@@ -19,18 +19,20 @@ class CompanyProfileService extends BaseSpecificProfileService
     public function getProfile(mixed $user): JsonResponse
     {
         $company = $user->profileable;
-        return $this->responseService->response(ResponseKeys::PROFILE, [
+        return $this->responseService->success([
             ResponseKeys::PROFILE => [
-                'id' => $user->id,
-                'name' => $company->name,
-                'description' => $company->description,
-                'contact_email' => $company->contact_email,
-                'contact_phone' => $company->contact_phone,
-                'contact_url' => $company->contact_url,
-                'posts' => $this->getUserPosts($user),
-                'job_offers' => $this->getCompanyJobOffers($company)
+                ResponseKeys::COMPANY => [
+                    'id' => $user->id,
+                    'name' => $company->name,
+                    'description' => $company->description,
+                    'contact_email' => $company->contact_email,
+                    'contact_phone' => $company->contact_phone,
+                    'contact_url' => $company->contact_url,
+                ],
+                ResponseKeys::POSTS => $this->getUserPosts($user),
+                ResponseKeys::JOB_OFFERS => $this->getCompanyJobOffers($company)
             ]
-        ], 200);
+        ]);
     }
 
     public function updateProfile($user, Request $request): JsonResponse
@@ -38,15 +40,12 @@ class CompanyProfileService extends BaseSpecificProfileService
         if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
                 $company = $user->profileable;
-                return $this->responseService->response(ResponseKeys::RESULT, [
-                    ResponseKeys::MESSAGE => 'Company information was updated successfully',
-                    ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user)
-                ], 200);
+                return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user)]);
             } catch (Exception $e) {
-                return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 500);
+                return $this->responseService->internalServerError($e->getMessage());
             }
         }
-        return $this->responseService->response(ResponseKeys::ERROR, 'Unset update type', 400);
+        return $this->responseService->badRequest('Unset update type');
     }
 
     public function deleteProfile($id): JsonResponse
@@ -70,9 +69,9 @@ class CompanyProfileService extends BaseSpecificProfileService
             $company->delete();
             $baseUser->delete();
 
-            return $this->responseService->response(ResponseKeys::MESSAGE, "Company profile was deleted", 200);
+            return $this->responseService->success();
         } else {
-            return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
+            return $this->responseService->notFound("User not found");
         }
     }
 

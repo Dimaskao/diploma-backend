@@ -32,12 +32,12 @@ class ChatService
                 $user = User::find($data['user_id']);
                 if ($user) {
                     $chat->users()->attach($data['user_id']);
-                    return $this->responseService->response(ResponseKeys::RESULT, $chat, 201);
+                    return $this->responseService->success($chat, 201);
                 }
             }
-            return $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 400);
+            return $this->responseService->badRequest();
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, "Error during creating a chat, {$e->getMessage()}", 500);
+            return $this->responseService->internalServerError("Error during creating a chat, {$e->getMessage()}");
         }
     }
 
@@ -47,6 +47,6 @@ class ChatService
         $user = User::findOrFail($userId);
 
         $chat->users()->attach($user->id);
-        return $this->responseService->response(ResponseKeys::MESSAGE, 'User added to chat', 200);
+        return $this->responseService->success();
     }
 }

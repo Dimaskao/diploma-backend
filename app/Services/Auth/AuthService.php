@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
 
@@ -37,9 +38,9 @@ class AuthService
         try {
             $data = $this->validationService->validate($request->all(), $this->registrationRules());
             $result = $this->factory->create($data);
-            return $this->responseService->response(ResponseKeys::RESULT, $result, 201);
+            return $this->responseService->created(data: $result);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, "Failed to create user or company, {$e->getMessage()}", 500);
+            return $this->responseService->internalServerError("Failed to create user or company, {$e->getMessage()}");
         }
     }
 
@@ -55,14 +56,14 @@ class AuthService
             $token = $this->userLogin($credentials, $role);
 
             if ($token) {
-                return $this->responseService->response(ResponseKeys::TOKEN, $token, 200);
+                return $this->responseService->success([ResponseKeys::TOKEN => $token]);
             }
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, "Unauthenticated, {$e->getMessage()}", 401);
+            Log::error($e->getMessage());
+            return $this->responseService->unauthenticated();
         }
 
-        return $this->responseService->response(ResponseKeys::ERROR, "Unauthenticated", 401);
-
+        return $this->responseService->internalServerError("Unexpected error occurred during user login");
     }
 
     /**
@@ -72,9 +73,9 @@ class AuthService
     {
         try {
             $this->userLogout($request->user());
-            return $this->responseService->response(ResponseKeys::MESSAGE, "Successfully logged out", 200);
+            return $this->responseService->success();
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, "Failed to log out user, {$e->getMessage()}", 500);
+            return $this->responseService->internalServerError("Failed to log out user, {$e->getMessage()}");
         }
     }
 

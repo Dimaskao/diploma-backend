@@ -24,18 +24,20 @@ class RegularUserProfileService extends BaseSpecificProfileService
     public function getProfile($user): JsonResponse
     {
         $regularUserRecord = $user->regularUser;
-        return $this->responseService->response(ResponseKeys::PROFILE, [
-            ResponseKeys::USER => [
-                'id' => $user->id,
-                'first_name' => $regularUserRecord->first_name,
-                'last_name' => $regularUserRecord->last_name,
-                'skills_desc' => $regularUserRecord->skills_desc,
-                'experience' => $regularUserRecord->experience,
-            ],
-            ResponseKeys::EDUCATION => $this->getRegularUserEducation($regularUserRecord),
-            ResponseKeys::WORK_EXPERIENCE => $this->getRegularUserWorkExperience($regularUserRecord),
-            ResponseKeys::SKILLS => $this->getRegularUserSkills($regularUserRecord)
-        ], 200);
+        return $this->responseService->success([
+            ResponseKeys::PROFILE => [
+                ResponseKeys::USER => [
+                    'id' => $user->id,
+                    'first_name' => $regularUserRecord->first_name,
+                    'last_name' => $regularUserRecord->last_name,
+                    'skills_desc' => $regularUserRecord->skills_desc,
+                    'experience' => $regularUserRecord->experience,
+                ],
+                ResponseKeys::EDUCATION => $this->getRegularUserEducation($regularUserRecord),
+                ResponseKeys::WORK_EXPERIENCE => $this->getRegularUserWorkExperience($regularUserRecord),
+                ResponseKeys::SKILLS => $this->getRegularUserSkills($regularUserRecord)
+            ]
+        ]);
     }
 
     public function updateProfile($user, Request $request): JsonResponse
@@ -43,15 +45,12 @@ class RegularUserProfileService extends BaseSpecificProfileService
         if ($request->has(UpdateType::UPDATE_TYPE)) {
             try {
                 $regularUser = $user->profileable;
-                return $this->responseService->response(ResponseKeys::RESULT, [
-                    ResponseKeys::MESSAGE => 'User information was updated successfully',
-                    ResponseKeys::UPDATED_INFORMATION => $this->updateRegularUserByUpdateType($request->input(UpdateType::UPDATE_TYPE), $regularUser, $user, [])
-                ], 200);
+                return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateRegularUserByUpdateType($request->input(UpdateType::UPDATE_TYPE), $regularUser, $user, [])]);
             } catch (Exception $e) {
-                return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 500);
+                return $this->responseService->internalServerError($e->getMessage());
             }
         }
-        return $this->responseService->response(ResponseKeys::ERROR, 'Unset update type', 400);
+        return $this->responseService->badRequest('Unset update type');
     }
 
     public function deleteProfile($id): JsonResponse
@@ -74,9 +73,9 @@ class RegularUserProfileService extends BaseSpecificProfileService
             $regularUser->delete();
             $baseUser->delete();
 
-            return $this->responseService->response(ResponseKeys::MESSAGE, "Regular user profile was deleted", 200);
+            return $this->responseService->success();
         } else {
-            return $this->responseService->response(ResponseKeys::ERROR, "User not found", 404);
+            return $this->responseService->notFound("User not found");
         }
     }
 

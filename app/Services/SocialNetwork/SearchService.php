@@ -22,7 +22,7 @@ class SearchService
     public function search(Request $request): JsonResponse
     {
         if (!$request->has(SearchType::SEARCH_TYPE) || !$request->has('query')) {
-            $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 400);
+            $this->responseService->badRequest();
         }
 
         $searchType = $request->input(SearchType::SEARCH_TYPE);
@@ -32,7 +32,8 @@ class SearchService
             'users' => $searchType === SearchType::USERS || $searchType === SearchType::ALL ? $this->getRegularUsersSearchResults($query) : [],
             'companies' => $searchType === SearchType::COMPANIES || $searchType === SearchType::ALL ? $this->getCompaniesSearchResults($query) : [],
         ];
-        return $this->responseService->response(ResponseKeys::RESULT, $results, 200);
+
+        return $this->responseService->success($results);
     }
 
     /**

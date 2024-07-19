@@ -29,12 +29,12 @@ class MessageService
 
         broadcast(new MessageSent($message))->toOthers();
 
-        return $this->responseService->response(ResponseKeys::MESSAGE, $message, 201);
+        return $this->responseService->created(data: $message);
     }
 
     public function getMessages($chatId): JsonResponse
     {
         $messages = Message::where('chat_id', $chatId)->get();
-        return $this->responseService->response(ResponseKeys::MESSAGE, $messages, 200);
+        return $this->responseService->success($messages);
     }
 }

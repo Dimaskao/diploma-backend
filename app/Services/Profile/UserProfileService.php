@@ -26,7 +26,7 @@ class UserProfileService
         try {
             return $this->factory->create(['id' => $id])->show($id);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -35,7 +35,7 @@ class UserProfileService
         try {
             return $this->factory->create(['id' => $id])->update($request, $id);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -44,7 +44,7 @@ class UserProfileService
         try {
             return $this->factory->create(['id' => $id])->deleteProfile($id);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 }

@@ -14,4 +14,8 @@ class ResponseKeys extends BaseEnum
     const RESULT = 'success';
     const ERROR = 'error';
     const TOKEN = 'token';
+    const COMPANY = 'company';
+    const POSTS = 'posts';
+    const JOB_OFFERS = 'job_offers';
+    const ADMIN = 'admin';
 }

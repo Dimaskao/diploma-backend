@@ -35,7 +35,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->subscribe($request);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -44,7 +44,7 @@ class SocialNetworkService
         try {
             return $this->subscriptionService->unsubscribe($request);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ class SocialNetworkService
             $userId = $request->get('user_id');
             return $this->chatService->addUserToChat($chatId, $userId);
         }
-        return $this->responseService->response(ResponseKeys::ERROR, 'User was not added to chat', 500);
+        return $this->responseService->internalServerError('User was not added to chat');
     }
 
     public function sendMessage(Request $request): JsonResponse

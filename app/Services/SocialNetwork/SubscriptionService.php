@@ -33,7 +33,7 @@ class SubscriptionService
         try {
             return $this->manageSubscription($request, SubscriptionAction::SUBSCRIBE);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -42,7 +42,7 @@ class SubscriptionService
         try {
             return $this->manageSubscription($request, SubscriptionAction::UNSUBSCRIBE);
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, $e->getMessage(), 404);
+            return $this->responseService->notFound($e->getMessage());
         }
     }
 
@@ -57,12 +57,12 @@ class SubscriptionService
                 return match ($action) {
                     SubscriptionAction::SUBSCRIBE => $this->subscribeUser($subscriberId, $subscriptionId),
                     SubscriptionAction::UNSUBSCRIBE => $this->unsubscribeUser($subscriberId, $subscriptionId),
-                    default => $this->responseService->response(ResponseKeys::ERROR, 'No subscription action found', 400)
+                    default => $this->responseService->badRequest('No subscription action found')
                 };
             }
-            return $this->responseService->response(ResponseKeys::ERROR, 'Bad request', 404);
+            return $this->responseService->badRequest('Subscription ID or Subscriber ID was not set');
         } catch (Exception $e) {
-            return $this->responseService->response(ResponseKeys::ERROR, "Error during {$action}: {$e->getMessage()}", 500);
+            return $this->responseService->internalServerError("Error during {$action}: {$e->getMessage()}");
         }
     }
 
@@ -78,7 +78,8 @@ class SubscriptionService
             'subscriber_id' => $subscriberId,
             'subscription_id' => $subscriptionId
         ]);
-        return $this->responseService->response(ResponseKeys::MESSAGE, "Subscribed successfully", 200);
+
+        return $this->responseService->success();
     }
 
     private function unsubscribeUser($subscriberId, $subscriptionId): JsonResponse
@@ -89,8 +90,9 @@ class SubscriptionService
 
         if ($userContact) {
             $userContact->delete();
-            return $this->responseService->response(ResponseKeys::MESSAGE, "Unsubscribed successfully", 200);
+            return $this->responseService->success();
         }
-        return $this->responseService->response(ResponseKeys::ERROR, "Subscription not found", 404);
+
+        return $this->responseService->notFound("Subscription not found");
     }
 }
