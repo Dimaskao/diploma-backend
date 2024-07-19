@@ -10,10 +10,6 @@ use App\Events\UserBanned;
 use App\Models\Admin;
 use App\Models\BannedPost;
 use App\Models\BannedUser;
-use App\Models\JobOffer;
-use App\Models\JobOfferSkill;
-use App\Models\Post;
-use App\Models\PostImage;
 use App\Models\Skill;
 use App\Models\User;
 use Exception;
@@ -33,9 +29,9 @@ class AdminProfileService extends BaseSpecificProfileService
                     'name' => $admin->name,
                     'permissions' => $this->getProfilePermissions($admin),
                     'email' => $user->email,
-                    'avatar_url' => $user->avatar_url
-                ]
-            ]
+                    'avatar_url' => $user->avatar_url,
+                ],
+            ],
         ]);
     }
 
@@ -46,7 +42,8 @@ class AdminProfileService extends BaseSpecificProfileService
         }
 
         try {
-            return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateByEditInfoType($request, $user->profileable, $user)]);
+            $updatedInfo = $this->updateByEditInfoType($request, $user->profileable, $user);
+            return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $updatedInfo]);
         } catch (ValidationException $e) {
             return $this->responseService->badRequest($e->getMessage());
         } catch (Exception $e) {
@@ -83,24 +80,18 @@ class AdminProfileService extends BaseSpecificProfileService
         $editRequest = $request->get(Edit::EDIT_INFO);
         return match ($editRequest) {
             Edit::SELF => $this->updateSelfByUpdateType($editRequest, $admin, $user),
-            Edit::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin, $user),
+            Edit::ANOTHER_ADMIN_PERMISSIONS => $this->updateAnotherAdminPermissions($editRequest, $admin),
             Edit::BAN_USER => $this->banUser($editRequest, $admin),
             Edit::BAN_POST => $this->banPost($editRequest, $admin),
             Edit::UNBAN_USER => $this->unbanUser($editRequest, $admin),
             Edit::ADD_NEW_SKILLS => $this->addNewSkills($editRequest),
             Edit::REMOVE_SKILLS => $this->removeSkills($editRequest),
             Edit::UNBAN_POST => $this->unbanPost($editRequest, $admin),
-//            Edit::REGULAR_USER => $this->updateRegularUser($editRequest, $admin, $user),
-//            Edit::COMPANY => $this->updateCompany($editRequest, $admin, $user),
-            default => throw new Exception('Update type does not exist')
+            default => throw new Exception('Update type does not exist'),
         };
     }
 
     /**
-     * @param $editRequest
-     * @param Admin $admin
-     * @param User $user
-     * @return array
      * @throws ValidationException
      */
     private function updateSelfByUpdateType($editRequest, Admin $admin, User $user): array
@@ -109,92 +100,32 @@ class AdminProfileService extends BaseSpecificProfileService
         if (isset($editRequest[UpdateType::PERSONAL_INFORMATION])) {
             $this->updatePersonalInformation($editRequest[UpdateType::PERSONAL_INFORMATION], $admin, $user);
             $updatedResults[UpdateType::PERSONAL_INFORMATION] = [
-                'name' => $admin,
-                'avatar_url' => $user->avatar_url
+                'name' => $admin->name,
+                'avatar_url' => $user->avatar_url,
             ];
         }
 
         return $updatedResults;
     }
 
-    private function updateRegularUser($editRequest, Admin $admin, User $user): array
-    {
-        return [];
-    }
-
-    private function updateCompany($editRequest, Admin $admin, User $user): array
-    {
-        return [];
-    }
-
-    /**
-     * @throws ValidationException
-     * @throws Exception
-     */
-    private function updatePersonalInformation($personalInformation, $admin, $user)
-    {
-        $data = $this->validator->validate($personalInformation, $this->updatePersonalInformationValidationRules());
-
-        if (!$admin || !$user) {
-            throw new Exception('Error while updating user profile');
-        }
-
-        $adminUpdateData = $this->getSelfAdminUpdateData($data);
-        $baseUserUpdateData = $this->getUserUpdateData($data);
-
-        if ($adminUpdateData) {
-            $admin->update($adminUpdateData);
-        }
-
-        if ($baseUserUpdateData) {
-            $user->update($baseUserUpdateData);
-        }
-    }
-
-    /**
-     * @param $personalInformation
-     * @return array
-     */
-    private function getSelfAdminUpdateData($personalInformation): array
-    {
-        $adminUpdateData = [];
-
-        if (isset($personalInformation['name'])) {
-            $adminUpdateData['name'] = $personalInformation['name'];
-        }
-
-        return $adminUpdateData;
-    }
-
     /**
      * @throws Exception
      */
-    private function updateAnotherAdminPermissions(mixed $editRequest, Admin $admin, User $user): array
+    private function updateAnotherAdminPermissions($editRequest, Admin $admin): array
     {
-        if (!isset($editRequest['update_admin_id'])) {
-            return [];
-        }
+        $adminToUpdate = User::findOrFail($editRequest['update_admin_id']);
 
-        $adminToUpdate = User::where('id', $editRequest['update_admin_id'])->first();
-
-        if (!$adminToUpdate || $adminToUpdate->profileable_type !== Admin::class) {
+        if ($adminToUpdate->profileable_type !== Admin::class) {
             throw new Exception('Incorrect admin ID was sent');
         }
 
-        if (!$admin->permissions->keys()->contains(Permission::FULL)) {
+        if (!isset($admin->permissions[Permission::FULL])) {
             throw new Exception('Admin does not have full permissions');
         }
 
-        $permissions = [
-            Permission::EDIT,
-            Permission::READ,
-            Permission::WRITE,
-            Permission::FULL
-        ];
-
-        foreach ($permissions as $permission) {
+        foreach ([Permission::EDIT, Permission::READ, Permission::WRITE, Permission::FULL] as $permission) {
             if (isset($editRequest[$permission])) {
-                $adminToUpdate->profileable->permissions[$permission] = (bool)$editRequest[$permission];
+                $adminToUpdate->profileable->permissions[$permission] = (bool) $editRequest[$permission];
             }
         }
 
@@ -225,46 +156,39 @@ class AdminProfileService extends BaseSpecificProfileService
     /**
      * @throws Exception
      */
-    private function addNewSkills(mixed $editRequest): array
+    private function addNewSkills($editRequest): array
     {
-        if (!isset($editRequest['skills'])) {
-            return [ResponseKeys::ERROR => 'Skills were not set'];
-        }
-
         foreach ($editRequest['skills'] as $skill) {
-            if (!isset($skill['name'])) {
-                throw new Exception('Skill name was not set');
-            }
-            Skill::insert(['name' => $skill['name']]);
+            Skill::create(['name' => $skill['name']]);
         }
 
         return [ResponseKeys::MESSAGE => 'success'];
     }
 
+    /**
+     * @throws Exception
+     */
     private function handleBanOrUnban($editRequest, Admin $admin, string $idKey, string $modelClass): array
     {
         if (!isset($editRequest[$idKey]) || !$this->hasFullPermission($admin)) {
             throw new Exception("Admin does not have full permissions or the ID of the entity to ban/unban was not sent");
         }
 
-        $entity = User::find($editRequest[$idKey]);
-
-        if (!$entity || !isset($editRequest['reason'])) {
-            throw new Exception("Entity to ban does not exist or the reason was not set");
-        }
+        $entity = User::findOrFail($editRequest[$idKey]);
 
         $data = [
             'user_id' => $entity->id,
             'banned_by_admin_id' => $admin->id,
             'reason' => $editRequest['reason'],
-            'date_banned' => time()
+            'date_banned' => time(),
+            'valid_until' => $editRequest['valid_until'] ?? null,
         ];
 
-        if (isset($editRequest['valid_until'])) {
-            $data['valid_until'] = $editRequest['valid_until'];
-        }
-
-        $modelClass::insert($data);
+        match ($modelClass) {
+            BannedPost::class => BannedPost::create($data),
+            BannedUser::class => BannedUser::create($data),
+            default => throw new Exception("Unknown model class")
+        };
 
         if ($modelClass === BannedUser::class) {
             event(new UserBanned($entity));
@@ -282,7 +206,12 @@ class AdminProfileService extends BaseSpecificProfileService
             throw new Exception("Admin does not have full permissions or the ID of the entity to unban was not sent");
         }
 
-        $modelClass::where('user_id', $editRequest[$idKey])->first()->delete();
+        match ($modelClass) {
+            BannedPost::class => BannedPost::where('post_id', $editRequest[$idKey])->firstOrFail()->delete(),
+            BannedUser::class => BannedUser::where('user_id', $editRequest[$idKey])->firstOrFail()->delete(),
+            default => throw new Exception("Unknown model class")
+        };
+
         return [ResponseKeys::MESSAGE => 'success'];
     }
 
@@ -296,24 +225,33 @@ class AdminProfileService extends BaseSpecificProfileService
         return [
             'name' => 'sometimes|string',
             'password' => 'sometimes|string|min:8',
-            'avatar_url' => 'sometimes|url'
+            'avatar_url' => 'sometimes|url',
         ];
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function updatePersonalInformation($personalInformation, Admin $admin, User $user)
+    {
+        $data = $this->validator->validate($personalInformation, $this->updatePersonalInformationValidationRules());
+
+        $admin->update($this->getSelfAdminUpdateData($data));
+        $user->update($this->getUserUpdateData($data));
+    }
+
+    private function getSelfAdminUpdateData($personalInformation): array
+    {
+        return array_filter(['name' => $personalInformation['name'] ?? null]);
     }
 
     /**
      * @throws Exception
      */
-    private function removeSkills(mixed $editRequest)
+    private function removeSkills($editRequest)
     {
-        if (!isset($editRequest['skills'])) {
-            return [ResponseKeys::ERROR => 'Skills were not set'];
-        }
-
         foreach ($editRequest['skills'] as $skill) {
-            if (!isset($skill['name'])) {
-                throw new Exception('Skill name was not set');
-            }
-            Skill::where('name', $skill['name'])->first()->delete();
+            Skill::where('name', $skill['name'])->firstOrFail()->delete();
         }
 
         return [ResponseKeys::MESSAGE => 'success'];

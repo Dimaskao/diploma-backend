@@ -20,16 +20,12 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
 
     protected function getUserUpdateData(array $data): array
     {
-        $baseUserUpdateData = [];
-
-        if (isset($data['password'])) {
-            $baseUserUpdateData['password'] = bcrypt($data['password']);
-        }
-
-        if (isset($data['avatar_url'])) {
-            $baseUserUpdateData['avatar_url'] = $data['avatar_url'];
-        }
-        return $baseUserUpdateData;
+        return array_filter([
+            'password' => isset($data['password']) ? bcrypt($data['password']) : null,
+            'avatar_url' => $data['avatar_url'] ?? null,
+        ], function($value) {
+            return !is_null($value);
+        });
     }
 
     protected function convertToDateTimeString($date): ?string
@@ -42,35 +38,25 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         }
     }
 
-    protected function getUserEducationDataToProceed(array $data, array $dataToUpdate): array
+    protected function getUserEducationDataToProceed(array $data): array
     {
-        if (isset($data['start_date'])) {
-            $dataToUpdate['start_date'] = $data['start_date'];
-        }
-
-        if (isset($data['end_date'])) {
-            $dataToUpdate['end_date'] = $data['end_date'];
-        }
-
-        if (isset($data['contact_url'])) {
-            $dataToUpdate['contact_url'] = $data['contact_url'];
-        }
-        return $dataToUpdate;
+        return array_filter([
+            'start_date' => $data['start_date'] ?? null,
+            'end_date' => $data['end_date'] ?? null,
+            'contact_url' => $data['contact_url'] ?? null,
+        ], function($value) {
+            return !is_null($value);
+        });
     }
 
-    protected function getWorkExperienceDataToProceed(array $data, array $newData): array
+    protected function getWorkExperienceDataToProceed(array $data): array
     {
-        if (isset($data['description'])) {
-            $newData['description'] = $data['description'];
-        }
-
-        if (isset($data['date_start'])) {
-            $newData['date_start'] = $data['date_start'];
-        }
-
-        if (isset($data['date_end'])) {
-            $newData['date_end'] = $data['date_end'];
-        }
-        return $newData;
+        return array_filter([
+            'description' => $data['description'] ?? null,
+            'date_start' => $data['date_start'] ?? null,
+            'date_end' => $data['date_end'] ?? null,
+        ], function($value) {
+            return !is_null($value);
+        });
     }
 }
