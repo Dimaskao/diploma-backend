@@ -46,6 +46,8 @@ class RegularUserProfileService extends BaseSpecificProfileService
             try {
                 $regularUser = $user->profileable;
                 return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateRegularUserByUpdateType($request->input(UpdateType::UPDATE_TYPE), $regularUser, $user, [])]);
+            } catch (ValidationException $e) {
+                return $this->responseService->badRequest($e->getMessage());
             } catch (Exception $e) {
                 return $this->responseService->internalServerError($e->getMessage());
             }

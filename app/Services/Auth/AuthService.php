@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
 
@@ -38,7 +39,9 @@ class AuthService
         try {
             $data = $this->validationService->validate($request->all(), $this->registrationRules());
             $result = $this->factory->create($data);
-            return $this->responseService->created(data: $result);
+            return $this->responseService->created($result);
+        } catch (ValidationException $e) {
+            return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
         } catch (Exception $e) {
             return $this->responseService->internalServerError("Failed to create user or company, {$e->getMessage()}");
         }
@@ -57,13 +60,15 @@ class AuthService
 
             if ($token) {
                 return $this->responseService->success([ResponseKeys::TOKEN => $token]);
+            } else {
+                return $this->responseService->unauthorized("Invalid credentials");
             }
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-            return $this->responseService->unauthenticated();
+        } catch (ValidationException $e) {
+            return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
         }
-
-        return $this->responseService->internalServerError("Unexpected error occurred during user login");
+        catch (Exception $e) {
+            return $this->responseService->internalServerError("Unexpected error occurred during user login, error: {$e->getMessage()}");
+        }
     }
 
     /**

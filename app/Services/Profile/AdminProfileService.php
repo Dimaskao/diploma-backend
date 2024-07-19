@@ -47,6 +47,8 @@ class AdminProfileService extends BaseSpecificProfileService
 
         try {
             return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateByEditInfoType($request, $user->profileable, $user)]);
+        } catch (ValidationException $e) {
+            return $this->responseService->badRequest($e->getMessage());
         } catch (Exception $e) {
             return $this->responseService->internalServerError($e->getMessage());
         }

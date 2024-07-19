@@ -9,7 +9,7 @@ class ResponseService
     /**
      * Standardize response data and return a JSON response.
      */
-    public function response($data = [], $statusCode = 200, $message = 'Success'): JsonResponse
+    public function response($data, $message = '', $statusCode = 200): JsonResponse
     {
         return response()->json([
             'data' => $data,
@@ -17,33 +17,38 @@ class ResponseService
         ], $statusCode);
     }
 
-    public function success($data = [], $statusCode = 200, $message = 'Success'): JsonResponse
+    public function success($data = null, $message = 'Success'): JsonResponse
     {
-        return $this->response($data, $statusCode, $message);
+        return $this->response($data, $message);
     }
 
-    public function notFound($message = 'Not Found', $data = []): JsonResponse
+    public function created($data = null, $message = 'Created'): JsonResponse
     {
-        return $this->response($data, 404, $message);
+        return $this->response($data, $message, 201);
     }
 
-    public function unauthenticated($message = 'Unauthenticated', $data = []): JsonResponse
+    public function badRequest($message = 'Bad Request'): JsonResponse
     {
-        return $this->response($data, 401, $message);
+        return $this->response(null, $message, 400);
     }
 
-    public function created($message = 'Created', $data = []): JsonResponse
+    public function unauthorized($message = 'Unauthorized'): JsonResponse
     {
-        return $this->response($data, 201, $message);
+        return $this->response(null, $message, 401);
     }
 
-    public function internalServerError($message = 'Internal Server Error', $data = []): JsonResponse
+    public function forbidden($message = 'Forbidden'): JsonResponse
     {
-        return $this->response($data, 500, $message);
+        return $this->response(null, $message, 403);
     }
 
-    public function badRequest($message = 'Bad request', $data = []): JsonResponse
+    public function notFound($message = 'Not Found'): JsonResponse
     {
-        return $this->response($data, 400, $message);
+        return $this->response(null, $message, 404);
+    }
+
+    public function internalServerError($message = 'Internal Server Error'): JsonResponse
+    {
+        return $this->response(null, $message, 500);
     }
 }

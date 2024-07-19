@@ -41,6 +41,8 @@ class CompanyProfileService extends BaseSpecificProfileService
             try {
                 $company = $user->profileable;
                 return $this->responseService->success([ResponseKeys::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE), $company, $user)]);
+            } catch (ValidationException $e) {
+                return $this->responseService->badRequest($e->getMessage());
             } catch (Exception $e) {
                 return $this->responseService->internalServerError($e->getMessage());
             }

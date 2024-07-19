@@ -29,7 +29,7 @@ class MessageService
 
         broadcast(new MessageSent($message))->toOthers();
 
-        return $this->responseService->created(data: $message);
+        return $this->responseService->created($message);
     }
 
     public function getMessages($chatId): JsonResponse
