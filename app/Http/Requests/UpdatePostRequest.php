@@ -6,7 +6,7 @@ use App\Enums\PostStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StorePostRequest extends FormRequest
+class UpdatePostRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,10 +16,7 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'   => 'required|string',
-            'content' => 'required|string',
-            'user_id' => 'required|exists:users,id|uuid',
-            'status'  => Rule::in(PostStatus::values()),
+            'status' => Rule::in(PostStatus::values()),
         ];
     }
 }
