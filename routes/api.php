@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SocialNetworkController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -15,9 +16,13 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/profile/{id}', [ProfileController::class, 'show']);
     Route::put('/profile/{id}', [ProfileController::class, 'update']);
-    Route::post('/profile/{id}/subscribe', [ProfileController::class, 'subscribe']);
-    Route::post('/profile/{id}/unsubscribe', [ProfileController::class, 'unsubscribe']);
+    Route::delete('/profile/{id}', [ProfileController::class, 'destroy']);
 
-    Route::get('/search', [ProfileController::class, 'search']);
+    Route::post('/social.network/{id}/subscribe', [SocialNetworkController::class, 'subscribe']);
+    Route::post('/social.network/{id}/unsubscribe', [SocialNetworkController::class, 'unsubscribe']);
+    Route::post('/social.network/send.message', [SocialNetworkController::class, 'sendMessage']);
+    Route::get('/social.network/search', [SocialNetworkController::class, 'search']);
+    Route::get('/social.network/get.messages/{chatId}', [SocialNetworkController::class, 'getMessages']);
+
     Route::apiResource('posts', PostController::class);
 });

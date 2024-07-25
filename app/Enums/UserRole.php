@@ -2,12 +2,9 @@
 
 namespace App\Enums;
 
-use App\Enums\Traits\EnumConcern;
-
-enum UserRole: string
+class UserRole extends BaseEnum
 {
-    use EnumConcern;
-
-    case RegularUser = 'user';
-    case Company = 'company';
+    const REGULAR_USER = 'user';
+    const COMPANY = 'company';
+    const ADMIN = 'admin';
 }
