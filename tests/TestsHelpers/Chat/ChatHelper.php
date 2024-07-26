@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Feature\TestsHelpers;
+namespace Tests\TestsHelpers\Chat;
 
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Tests\TestsHelpers\Profile\UsersHelper;
 
 trait ChatHelper
 {
-    use UserProfileHelper;
+    use UsersHelper;
 
     protected function getTestMessage(User $user, Chat $chat, string $content): Message
     {

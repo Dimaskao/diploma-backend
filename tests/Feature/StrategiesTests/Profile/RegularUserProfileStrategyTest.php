@@ -1,42 +1,40 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace StrategiesTests\Profile;
 
 use App\Enums\Edit;
-use App\Enums\Period;
 use App\Models\RegularUser;
-use App\Services\Profile\RegularUserProfileService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\TestsHelpers\UserProfileHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Profile\UsersHelper;
 
-class RegularUserProfileServiceTest extends TestCase
+class RegularUserProfileStrategyTest extends TestCase
 {
     use RefreshDatabase;
-    use UserProfileHelper;
+    use UsersHelper;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->setUpAuthService();
-        $this->profileService = new RegularUserProfileService();
+        $this->setUpRegularUserProfileStrategy();
         $this->seed(DatabaseSeeder::class);
     }
 
-    public function testGetRegularUserProfile()
+    public function testShow()
     {
-        $response = $this->profileService->getRegularUserProfile($this->getRegularTestUser());
+        $user = $this->getRegularTestUser();
+        $response = $this->strategy->show($user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('profile', $response->getData(true));
-
     }
 
-    public function testUpdateUserInformation()
+    public function testUpdate()
     {
         $user = $this->getRegularTestUser();
         $data = [
@@ -61,7 +59,6 @@ class RegularUserProfileServiceTest extends TestCase
                         "position" => "Senior Developer",
                         "company" => "Tech Company",
                         "date_start" => "2022-01-01",
-                        "date_end" => Period::PRESENT,
                         "description" => "Leading development teams"
                     ]
                 ],
@@ -79,7 +76,7 @@ class RegularUserProfileServiceTest extends TestCase
         ];
 
         $request = new Request($data);
-        $response = $this->profileService->updateUserInformation($user, $request);
+        $response = $this->strategy->update($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -90,23 +87,23 @@ class RegularUserProfileServiceTest extends TestCase
         $this->assertEquals('Johnson', $regularUser->last_name);
     }
 
-    public function testUpdateUserInformationUnsetUpdateType()
+    public function testUpdateUnsetUpdateType()
     {
         $user = $this->getRegularTestUser();
         $data = [];
         $request = new Request($data);
 
-        $response = $this->profileService->updateUserInformation($user, $request);
+        $response = $this->strategy->update($request, $user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals('Unset update type', $response->getData(true)['message']);
     }
 
-    public function testDeleteRegularUserProfile()
+    public function testDelete()
     {
         $user = $this->getRegularTestUser();
-        $response = $this->profileService->deleteRegularUserProfile($user->id);
+        $response = $this->strategy->deleteProfile($user->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -116,9 +113,9 @@ class RegularUserProfileServiceTest extends TestCase
         $this->assertDatabaseMissing('regular_users', ['id' => $user->user_id]);
     }
 
-    public function testDeleteRegularUserProfileNotFound()
+    public function testDeleteNotFound()
     {
-        $response = $this->profileService->deleteRegularUserProfile('non_existing_id');
+        $response = $this->strategy->deleteProfile('non_existing_id');
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(404, $response->getStatusCode());

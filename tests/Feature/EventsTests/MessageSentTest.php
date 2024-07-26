@@ -6,8 +6,8 @@ use App\Events\MessageSent;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Chat\ChatHelper;
 
 class MessageSentTest extends TestCase
 {

@@ -14,8 +14,8 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Chat\ChatHelper;
 
 class SocialNetworkControllerTest extends TestCase
 {

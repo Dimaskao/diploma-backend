@@ -4,8 +4,8 @@ namespace Tests\Feature\ControllersTests;
 
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\TestsHelpers\AuthHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Auth\AuthHelper;
 
 class AuthControllerTest extends TestCase
 {

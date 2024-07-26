@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace ServicesTests\SocialNetwork;
 
 use App\Enums\SearchType;
 use App\Services\SocialNetwork\SearchService;
@@ -8,8 +8,8 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Chat\ChatHelper;
 
 class SearchServiceTest extends TestCase
 {

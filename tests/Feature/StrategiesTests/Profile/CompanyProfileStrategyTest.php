@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\StrategiesTests;
+namespace StrategiesTests\Profile;
 
 use App\Models\Company;
 use App\Models\User;
@@ -8,13 +8,13 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\TestsHelpers\UserProfileHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Profile\UsersHelper;
 
 class CompanyProfileStrategyTest extends TestCase
 {
     use RefreshDatabase;
-    use UserProfileHelper;
+    use UsersHelper;
 
     protected function setUp(): void
     {

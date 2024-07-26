@@ -1,18 +1,18 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace ServicesTests\SocialNetwork;
 
 use App\Models\RegularUser;
 use App\Services\SocialNetwork\SubscriptionService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\Feature\TestsHelpers\UserProfileHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Profile\UsersHelper;
 
 class SubscriptionServiceTest extends TestCase
 {
-    use RefreshDatabase, UserProfileHelper;
+    use RefreshDatabase, UsersHelper;
 
     protected SubscriptionService $subscriptionService;
 

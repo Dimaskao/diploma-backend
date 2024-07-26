@@ -18,10 +18,6 @@ return new class extends Migration {
             $table->text('experience')->nullable();
             $table->timestamps();
         });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreign('profileable_id', 'fk_users_regular_users')->references('id')->on('regular_users')->onDelete('cascade');
-        });
     }
 
     /**
@@ -29,10 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign('fk_users_regular_users');
-        });
-
         Schema::dropIfExists('regular_users');
     }
 };

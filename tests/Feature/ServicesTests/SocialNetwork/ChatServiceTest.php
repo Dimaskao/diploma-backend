@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace ServicesTests\SocialNetwork;
 
 use App\Services\SocialNetwork\ChatService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Chat\ChatHelper;
 
 class ChatServiceTest extends TestCase
 {

@@ -16,13 +16,13 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\TestsHelpers\UserProfileHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Profile\UsersHelper;
 
 class ProfileControllerTest extends TestCase
 {
     use RefreshDatabase;
-    use UserProfileHelper;
+    use UsersHelper;
 
     protected UserProfileService $service;
     protected Factory $factory;

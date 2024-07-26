@@ -17,15 +17,12 @@ return new class extends Migration {
             $table->string('password');
             $table->text('avatar_url')->nullable();
             $table->uuid('role_id');
-            $table->uuid('profileable_id')->nullable();
-            $table->string('profileable_type')->nullable();
+            $table->uuid('user_profile_id');
             $table->timestamps();
 
             $table->foreign('role_id')->references('id')->on('roles');
-            $table->unique(['profileable_id', 'profileable_type']);
+            $table->foreign('user_profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
         });
-
-        DB::statement('ALTER TABLE users ADD CONSTRAINT check_profileable CHECK (profileable_id IS NOT NULL AND profileable_type IS NOT NULL)');
     }
 
     /**
@@ -34,9 +31,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            DB::statement('ALTER TABLE users DROP CONSTRAINT check_profileable');
             $table->dropForeign(['role_id']);
-            $table->dropColumn(['role_id', 'profileable_id', 'profileable_type']);
+            $table->dropColumn(['role_id']);
         });
 
         Schema::dropIfExists('users');

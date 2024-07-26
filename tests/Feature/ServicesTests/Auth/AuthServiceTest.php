@@ -1,11 +1,13 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace ServicesTests\Auth;
 
+use App\Enums\UserRole;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\TestsHelpers\AuthHelper;
 use Tests\TestCase;
+use TestsEnums\Entity;
+use TestsHelpers\Auth\AuthHelper;
 
 class AuthServiceTest extends TestCase
 {
@@ -15,7 +17,7 @@ class AuthServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setUpAuthService();
+        $this->setUpRegistry(Entity::SERVICE, UserRole::REGULAR_USER);
         $this->seed(DatabaseSeeder::class);
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\Feature\ServicesTests;
+namespace ServicesTests\SocialNetwork;
 
 use App\Events\MessageSent;
 use App\Services\SocialNetwork\MessageService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Tests\Feature\TestsHelpers\ChatHelper;
 use Tests\TestCase;
+use Tests\TestsHelpers\Chat\ChatHelper;
 
 class MessageServiceTest extends TestCase
 {
