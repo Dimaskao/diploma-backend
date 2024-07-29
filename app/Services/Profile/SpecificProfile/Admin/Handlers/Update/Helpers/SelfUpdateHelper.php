@@ -50,46 +50,4 @@ trait SelfUpdateHelper
     {
         return array_filter(['name' => $personalInformation['name'] ?? null]);
     }
-
-//    /**
-//     * @throws ValidationException
-//     * @throws Exception
-//     */
-//    private function updateAdminProfile(array $personalInformation, $user, $baseUser): array
-//    {
-//        $data = $this->validator->validate($personalInformation, [
-//            'first_name' => 'sometimes|string|max:255',
-//            'last_name' => 'sometimes|string|max:255',
-//            'skills_desc' => 'sometimes|string',
-//            'experience' => 'sometimes|string',
-//            'email' => 'sometimes|string',
-//            'password' => 'sometimes|string|min:8',
-//            'avatar_url' => 'sometimes|url'
-//        ]);
-//
-//        if (!$user || !$baseUser) {
-//            throw new Exception('Error while updating user profile');
-//        }
-//
-//        $userUpdateData = $this->getRegularUserUpdateData($data);
-//        $baseUserUpdateData = $this->getUserUpdateData($data);
-//
-//        if (!empty($userUpdateData)) {
-//            $user->update($userUpdateData);
-//        }
-//
-//        if (!empty($baseUserUpdateData)) {
-//            $baseUser->update($baseUserUpdateData);
-//        }
-//
-//        return [
-//            'id' => $baseUser->id,
-//            'first_name' => $user->first_name,
-//            'last_name' => $user->last_name,
-//            'skills_desc' => $user->skills_desc,
-//            'experience' => $user->experience,
-//            'avatar_url' => $baseUser->avatar_url,
-//            'email' => $baseUser->email,
-//        ];
-//    }
 }

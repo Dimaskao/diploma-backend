@@ -12,7 +12,6 @@ use App\Services\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 abstract class BaseSpecificProfileService implements SpecificProfileService

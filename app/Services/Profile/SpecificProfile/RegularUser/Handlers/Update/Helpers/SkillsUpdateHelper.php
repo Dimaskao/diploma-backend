@@ -13,39 +13,43 @@ trait SkillsUpdateHelper
     /**
      * @throws Exception
      */
-    protected function updateUserSkills($skills, $user): array
+    protected function updateUserSkills($skills, $regularUser): array
     {
         $result = [];
 
         foreach ($skills as $skill) {
-
-            if (isset($skill['id']) && isset($skill[Edit::EDIT_INFO])) {
-                $editInfo = $skill[Edit::EDIT_INFO];
-                $skillId = $skill['id'];
-
-                $result[] = match ($editInfo) {
-                    Edit::ADD => $this->addSkill($skillId, $user),
-                    Edit::REMOVE => $this->removeSkill($skillId, $user),
-                    default => throw new Exception('Update type does not exist')
-                };
-            } else {
+            if (!isset($skill['id'])) {
                 throw new Exception('Skill id was not set');
             }
+
+            if(!isset($skill[Edit::EDIT_INFO])) {
+                throw new Exception('Edit info was not set');
+            }
+
+            $skillId = $skill['id'];
+
+            $result[] = match ($skill[Edit::EDIT_INFO]) {
+                Edit::ADD => $this->addSkill($skillId, $regularUser),
+                Edit::REMOVE => $this->removeSkill($skillId, $regularUser),
+                default => throw new Exception('Edit info does not exist')
+            };
         }
         return $result;
     }
 
     private function addSkill($skillId, $user): array
     {
-        $userSkillRecordId = (string)Str::uuid();
+        $insertId = (string)Str::uuid();
+
         UserSkill::insert([
-                'id' => $userSkillRecordId,
+                'id' => $insertId,
                 'user_id' => $user->id,
                 'skill_id' => $skillId
             ]
         );
+
         return [
-            'id' => $userSkillRecordId,
+            'id' => $insertId,
             Edit::EDIT_INFO => Edit::ADD,
             ResponseKey::RESULT => 'success'
         ];
@@ -54,17 +58,19 @@ trait SkillsUpdateHelper
     private function removeSkill($skillId, $user): array
     {
         $record = UserSkill::where('skill_id', $skillId)->where('user_id', $user->id)->first();
-        if ($record) {
-            $record->delete();
+
+        if (!$record) {
             return [
+                'id' => $record->id,
                 Edit::EDIT_INFO => Edit::REMOVE,
-                ResponseKey::RESULT => 'success'
+                ResponseKey::RESULT => 'error'
             ];
         }
+
+        $record->delete();
         return [
-            'id' => $record->id,
             Edit::EDIT_INFO => Edit::REMOVE,
-            ResponseKey::RESULT => 'error'
+            ResponseKey::RESULT => 'success'
         ];
     }
 }

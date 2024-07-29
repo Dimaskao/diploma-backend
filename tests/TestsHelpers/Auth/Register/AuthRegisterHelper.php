@@ -4,7 +4,6 @@ namespace TestsHelpers\Auth\Register;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 trait AuthRegisterHelper
 {

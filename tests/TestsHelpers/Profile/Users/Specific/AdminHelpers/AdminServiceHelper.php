@@ -2,14 +2,11 @@
 
 namespace TestsHelpers\Profile\Users\Specific\AdminHelpers;
 
-use Illuminate\Http\JsonResponse;
+use TestsHelpers\Profile\Users\Specific\AdminHelpers\Handlers\Delete\DeleteHelper;
+use TestsHelpers\Profile\Users\Specific\AdminHelpers\Handlers\Get\GetHelper;
+use TestsHelpers\Profile\Users\Specific\AdminHelpers\Handlers\Update\UpdateHelper;
 
 trait AdminServiceHelper
 {
-    private function expectedRegularUserGetResult($response): void
-    {
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('profile', $response->getData(true));
-    }
+    use GetHelper, UpdateHelper, DeleteHelper;
 }

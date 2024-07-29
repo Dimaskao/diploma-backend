@@ -6,12 +6,13 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Http\Request;
 use TestsEnums\Method;
+use TestsHelpers\Profile\Users\Specific\AdminHelpers\AdminServiceHelper;
 use TestsHelpers\Profile\Users\Specific\CompanyHelpers\CompanyServiceHelper;
 use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\RegularUserServiceHelper;
 
 trait UsersHelper
 {
-    use RegularUserServiceHelper, CompanyServiceHelper;
+    use RegularUserServiceHelper, CompanyServiceHelper, AdminServiceHelper;
 
     public function getTestUser()
     {
@@ -39,6 +40,7 @@ trait UsersHelper
         match ($this->role) {
             UserRole::REGULAR_USER => $this->expectedRegularUserGetResult($response),
             UserRole::COMPANY => $this->expectedCompanyGetResult($response),
+            UserRole::ADMIN => $this->expectedAdminGetResult($response)
         };
     }
 
@@ -47,6 +49,7 @@ trait UsersHelper
         match ($this->role) {
             UserRole::REGULAR_USER => $this->expectedRegularUserUpdateResult($status, $response),
             UserRole::COMPANY => $this->expectedCompanyUpdateResult($status, $response),
+            UserRole::ADMIN => $this->expectedAdminUpdateResult($status, $response)
         };
     }
 
@@ -55,6 +58,7 @@ trait UsersHelper
         match ($this->role) {
             UserRole::REGULAR_USER => $this->expectedRegularUserDeleteResult($status, $response),
             UserRole::COMPANY => $this->expectedCompanyDeleteResult($status, $response),
+            UserRole::ADMIN => $this->expectedAdminDeleteResult($status, $response)
         };
     }
 
@@ -68,7 +72,7 @@ trait UsersHelper
         return match ($this->role) {
             UserRole::REGULAR_USER => $this->getRegularUserUpdateRequestData(),
             UserRole::COMPANY => $this->getCompanyUpdateRequestData(),
-//            UserRole::ADMIN => $this->getAdminUpdateRequestData(),
+            UserRole::ADMIN => $this->getAdminUpdateRequestData()
         };
     }
 }

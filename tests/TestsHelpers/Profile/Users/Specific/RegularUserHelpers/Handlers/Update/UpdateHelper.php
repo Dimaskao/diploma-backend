@@ -14,7 +14,6 @@ trait UpdateHelper
 {
     public function extractedSkills($skills): void
     {
-//        Log::debug('******************** $skills: : ' . var_export($skills, 1));
         $this->assertArrayHasKey('id', $skills[0]);
         $this->assertArrayHasKey('edit_info', $skills[0]);
         $this->assertEquals(Edit::ADD, $skills[0]['edit_info']);
@@ -38,6 +37,7 @@ trait UpdateHelper
     {
         $response = $this->convertToArray($response);
 
+        // TODO fix bug here with correct keys
 //        Log::debug("******************** extractedKeys response converted: " . var_export($response, 1));
 
         $this->extractedUpdate($response);

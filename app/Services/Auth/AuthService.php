@@ -13,7 +13,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
@@ -38,9 +37,7 @@ class AuthService
     {
         try {
             $data = $this->validationService->validate($request->all(), $this->registrationRules());
-            Log::debug('validated data: ' . var_export($data, 1));
             $result = $this->factory->create($data);
-            Log::debug('$result: ' . var_export($result, 1));
             return $this->responseService->created($result);
         } catch (ValidationException $e) {
             return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
@@ -94,7 +91,8 @@ class AuthService
             'name' => 'required_if:role,company|string|max:255',
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:user,company'
+            'role' => 'required|string|in:user,company,admin',
+            'permissions' => 'required_if:role,admin|array'
         ];
     }
 
@@ -103,7 +101,7 @@ class AuthService
         return [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
-            'role' => 'required|string|in:user,company'
+            'role' => 'required|string|in:user,company,admin'
         ];
     }
 

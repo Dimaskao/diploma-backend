@@ -12,7 +12,6 @@ use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Support\Facades\Hash;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class UserFactory implements Factory
 {
@@ -67,7 +66,7 @@ class UserFactory implements Factory
     {
         $admin = Admin::create([
             'name' => $data['name'],
-            'permissions' => $data['permissions'],
+            'permissions' => json_encode($data['permissions']),
         ]);
         $user = $this->createBaseUser($data, UserFactory::ADMIN_ID, $admin);
 

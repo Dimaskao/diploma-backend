@@ -7,33 +7,52 @@ use App\Enums\ResponseKey;
 use App\Models\Admin;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 trait AnotherAdminPermissionsUpdateHelper
 {
     /**
      * @throws Exception
      */
-    protected function updateAnotherAdminPermissions($editRequest, Admin $admin): array
+    protected function updateAnotherAdminPermissions($requestData, Admin $admin): array
     {
-        $adminToUpdate = User::findOrFail($editRequest['update_admin_id']);
+        $permissions = json_decode($admin->permissions, true);
 
-        if ($adminToUpdate->profileable_type !== Admin::class) {
-            throw new Exception('Incorrect admin ID was sent');
+        if (!$this->isValidRequestData($requestData, $permissions)) {
+            throw new Exception('Incorrect updating admin initial parameters were sent');
         }
 
-        if (!isset($admin->permissions[Permission::FULL])) {
-            throw new Exception('Admin does not have full permissions');
-        }
+        $updatingUser = User::find($requestData['update_admin_id'])->userProfile->admin;
+        $this->updatePermissions($requestData['permissions'], $updatingUser);
+        $updatingUser->save();
 
-        foreach ([Permission::EDIT, Permission::READ, Permission::WRITE, Permission::FULL] as $permission) {
-            if (isset($editRequest[$permission])) {
-                $adminToUpdate->profileable->permissions[$permission] = (bool) $editRequest[$permission];
-            }
-        }
-
-        $adminToUpdate->profileable->save();
         return [ResponseKey::MESSAGE => 'success'];
     }
 
+    private function getAllPermissions(): array
+    {
+        return [
+            Permission::EDIT,
+            Permission::READ,
+            Permission::WRITE,
+            Permission::FULL
+        ];
+    }
 
+    private function isValidRequestData($requestData, $permissions): bool
+    {
+        // is current admin has possibility to update another admin permissions
+        return isset($requestData['update_admin_id']) && isset($permissions[Permission::FULL]);
+    }
+
+    private function updatePermissions($requestData, $updatingUser): void
+    {
+        $permissions = $this->getAllPermissions();
+        foreach ($permissions as $permission) {
+            if (isset($requestData[$permission])) {
+                $permissions[$permission] = (bool)$requestData[$permission];
+            }
+        }
+        $updatingUser->permissions = json_encode($permissions);
+    }
 }
