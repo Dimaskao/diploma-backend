@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -23,6 +24,7 @@ class Company extends Model
         'contact_phone',
         'contact_url'
     ];
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
@@ -31,5 +33,10 @@ class Company extends Model
     public function jobOffers(): HasMany
     {
         return $this->hasMany(JobOffer::class);
+    }
+
+    public function userProfile(): BelongsTo
+    {
+        return $this->belongsTo(UserProfile::class, 'company_id');
     }
 }

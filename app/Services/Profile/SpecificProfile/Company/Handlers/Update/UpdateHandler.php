@@ -12,11 +12,11 @@ trait UpdateHandler
     protected function getUpdateMethods(): array
     {
         return [
-            UpdateType::PERSONAL_INFORMATION => 'updateCompanyProfile'
+            UpdateType::PERSONAL_INFORMATION => 'updateAndGetCompanyProfile'
         ];
     }
 
-    protected function callUpdateMethod(string $method, $updateData, $user, $baseUser = null)
+    protected function callUpdateMethod(string $method, $updateData, $user, $baseUser = null): mixed
     {
         if ($method === 'updateAndGetCompanyProfile') {
             return $this->$method($updateData, $user, $baseUser);

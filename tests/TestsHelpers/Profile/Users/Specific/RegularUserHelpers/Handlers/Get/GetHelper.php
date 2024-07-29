@@ -1,6 +1,6 @@
 <?php
 
-namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers\HttpMethods\Get;
+namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Get;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -9,8 +9,6 @@ trait GetHelper
 {
        private function expectedRegularUserGetResult($response): void
        {
-           Log::debug('$response: ' . var_export($response, 1));
-
            $this->assertInstanceOf(JsonResponse::class, $response);
            $expectedStatusCode = $this->responseService->success()->status();
 

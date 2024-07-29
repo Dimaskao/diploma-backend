@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     public function userProfile(): BelongsTo
     {
-        return $this->belongsTo(UserProfile::class, 'user_profile_id');
+        return $this->belongsTo(UserProfile::class);
     }
 
     public function jobOffers(): BelongsToMany

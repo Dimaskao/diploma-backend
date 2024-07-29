@@ -3,6 +3,7 @@
 namespace App\Services\Profile\SpecificProfile\Company\Handlers\Update\Helpers;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 trait ProfileHelper
@@ -23,31 +24,31 @@ trait ProfileHelper
             'avatar_url' => 'sometimes|url'
         ]);
 
-        if ($user && $base) {
-            $userUpdateData = $this->getCompanyUpdateData($data);
-            $baseUserUpdateData = $this->getUserUpdateData($data);
-
-            if (!empty($userUpdateData)) {
-                $user->update($userUpdateData);
-            }
-
-            if (!empty($baseUserUpdateData)) {
-                $base->update($baseUserUpdateData);
-            }
-
-            return [
-                'id' => $base->id,
-                'description' => $user->description,
-                'name' => $user->name,
-                'contact_email' => $user->contact_email,
-                'contact_phone' => $user->contact_phone,
-                'contact_url' => $user->contact_url,
-                'avatar_url' => $base->avatar_url,
-                'email' => $base->email,
-            ];
-        } else {
+        if (!$user || !$base) {
             throw new Exception('Error while updating user profile');
         }
+
+        $userUpdateData = $this->getCompanyUpdateData($data);
+        $baseUserUpdateData = $this->getUserUpdateData($data);
+
+        if (!empty($userUpdateData)) {
+            $user->update($userUpdateData);
+        }
+
+        if (!empty($baseUserUpdateData)) {
+            $base->update($baseUserUpdateData);
+        }
+
+        return [
+            'id' => $base->id,
+            'description' => $user->description,
+            'name' => $user->name,
+            'contact_email' => $user->contact_email,
+            'contact_phone' => $user->contact_phone,
+            'contact_url' => $user->contact_url,
+            'avatar_url' => $base->avatar_url,
+            'email' => $base->email,
+        ];
     }
 
     /**

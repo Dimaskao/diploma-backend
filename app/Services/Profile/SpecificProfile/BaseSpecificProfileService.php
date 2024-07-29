@@ -72,6 +72,20 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         }
     }
 
+    protected function updateByUpdateType($updateType, $specific, $base): array
+    {
+        $updatedResults = [];
+        $updateMethods = $this->getUpdateMethods();
+
+        foreach ($updateMethods as $type => $method) {
+            if (isset($updateType[$type])) {
+                $updatedResults[$type] = $this->callUpdateMethod($method, $updateType[$type], $specific, $base);
+            }
+        }
+
+        return $updatedResults;
+    }
+
     protected function getResponseProfileData(User $base, $specific): mixed
     {
         return [];
@@ -85,20 +99,6 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
     protected function specificProfileUser($user): mixed
     {
         return [];
-    }
-
-    protected function updateByUpdateType($updateType, $specific, $base): array
-    {
-        $updatedResults = [];
-        $updateMethods = $this->getUpdateMethods();
-
-        foreach ($updateMethods as $type => $method) {
-            if (isset($updateType[$type])) {
-                $updatedResults[$type] = $this->callUpdateMethod($method, $updateType[$type], $specific, $base);
-            }
-        }
-
-        return $updatedResults;
     }
 
     protected function getUpdateMethods(): array

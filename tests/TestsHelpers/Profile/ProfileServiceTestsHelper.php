@@ -27,15 +27,6 @@ trait ProfileServiceTestsHelper
         $this->setUpAuth();
         $this->setUpRequest();
         $this->user = $this->getTestUser();
-
-//        Log::debug('SetUp:  ' . var_export([
-//                'profileRegistry' => $this->profileRegistry,
-//                'role' => $this->role,
-//                'registry' => $this->registry,
-//                'credentials' => $this->credentials,
-//                'user' => $this->user
-//            ], 1)
-//        );
     }
 
     protected function setUpAuth(): void

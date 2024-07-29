@@ -1,6 +1,6 @@
 <?php
 
-namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers\HttpMethods\Delete;
+namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Delete;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;

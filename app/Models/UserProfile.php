@@ -35,4 +35,9 @@ class UserProfile extends Model
     {
         return $this->hasOne(RegularUser::class, 'id', 'regular_user_id');
     }
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'user_profile_id', 'id');
+    }
 }

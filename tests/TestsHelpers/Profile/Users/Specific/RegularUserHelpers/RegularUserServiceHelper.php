@@ -2,9 +2,9 @@
 
 namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers;
 
-use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\HttpMethods\Delete\DeleteHelper;
-use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\HttpMethods\Get\GetHelper;
-use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\HttpMethods\Update\UpdateHelper;
+use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Delete\DeleteHelper;
+use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Get\GetHelper;
+use TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Update\UpdateHelper;
 
 trait RegularUserServiceHelper
 {
