@@ -2,6 +2,7 @@
 
 namespace App\Services\Profile\SpecificProfile\RegularUser\Handlers\Get;
 
+use App\Enums\ResponseKey;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
@@ -52,6 +53,18 @@ trait GetHandler
             'last_name' => $regularUser->last_name,
             'skills_desc' => $regularUser->skills_desc,
             'experience' => $regularUser->experience,
+        ];
+    }
+
+    protected function getResponseProfileData($user, $regularUser) : array
+    {
+        return [
+            ResponseKey::PROFILE => [
+                ResponseKey::USER => $this->getRegularUserProfileData($user, $regularUser),
+                ResponseKey::EDUCATION => $this->getRegularUserEducation($regularUser),
+                ResponseKey::WORK_EXPERIENCE => $this->getRegularUserWorkExperience($regularUser),
+                ResponseKey::SKILLS => $this->getRegularUserSkills($regularUser)
+            ]
         ];
     }
 }

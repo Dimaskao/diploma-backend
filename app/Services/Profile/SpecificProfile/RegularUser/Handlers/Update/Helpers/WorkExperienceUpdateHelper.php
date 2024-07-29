@@ -119,4 +119,30 @@ trait WorkExperienceUpdateHelper
         return $workExperienceRecord;
     }
 
+    protected function getWorkExperienceDataToProceed(array $data): array
+    {
+        $resultData = [];
+
+        if (isset($data['position'])) {
+            $resultData['position'] = $data['position'];
+        }
+
+        if (isset($data['company_name'])) {
+            $resultData['company_name'] = $data['company_name'];
+        }
+
+        if (isset($data['description'])) {
+            $resultData['description'] = $data['description'];
+        }
+
+        if (isset($data['date_start'])) {
+            $resultData['date_start'] = $data['date_start'];
+        }
+
+        if (isset($data['date_end'])) {
+            $resultData['date_end'] = $data['date_end'];
+        }
+
+        return $resultData;
+    }
 }

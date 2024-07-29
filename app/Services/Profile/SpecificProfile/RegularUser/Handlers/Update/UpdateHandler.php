@@ -7,30 +7,12 @@ use App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpers\Pro
 use App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpers\SkillsHelper;
 use App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpers\UserEducationHelper;
 use App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpers\WorkExperienceUpdateHelper;
-use Exception;
 
 trait UpdateHandler
 {
     use ProfileHelper, WorkExperienceUpdateHelper, UserEducationHelper, SkillsHelper;
 
-    /**
-     * @throws Exception
-     */
-    private function updateRegularUserByUpdateType($updateType, $user, $baseUser): array
-    {
-        $updatedResults = [];
-        $updateMethods = $this->getUpdateMethods();
-
-        foreach ($updateMethods as $type => $method) {
-            if (isset($updateType[$type])) {
-                $updatedResults[$type] = $this->callUpdateMethod($method, $updateType[$type], $user, $baseUser);
-            }
-        }
-
-        return $updatedResults;
-    }
-
-    private function getUpdateMethods(): array
+    protected function getUpdateMethods(): array
     {
         return [
             UpdateType::PERSONAL_INFORMATION => 'updateRegularUserProfile',
@@ -40,7 +22,7 @@ trait UpdateHandler
         ];
     }
 
-    private function callUpdateMethod(string $method, $updateData, $user, $baseUser = null)
+    protected function callUpdateMethod(string $method, $updateData, $user, $baseUser = null): mixed
     {
         if ($method === 'updateRegularUserProfile') {
             return $this->$method($updateData, $user, $baseUser);

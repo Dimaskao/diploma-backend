@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 trait DeleteHandler
 {
-    private function delete(User $base): void
+    protected function delete(User $base): void
     {
         $regularUser = $base->userProfile->regularUser;
 

@@ -102,4 +102,23 @@ trait UserEducationHelper
         UserEducation::insert($education_data);
         return UserEducation::find($education_data['id']);
     }
+
+    protected function getUserEducationDataToProceed(array $data): array
+    {
+        $dataToInsert = [];
+
+        if (isset($data['start_date'])) {
+            $dataToInsert['start_date'] = $data['start_date'];
+        }
+
+        if (isset($data['end_date'])) {
+            $dataToInsert['end_date'] = $data['end_date'];
+        }
+
+        if (isset($data['contact_url'])) {
+            $dataToInsert['contact_url'] = $data['contact_url'];
+        }
+
+        return $dataToInsert;
+    }
 }

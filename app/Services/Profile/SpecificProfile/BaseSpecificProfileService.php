@@ -2,10 +2,16 @@
 
 namespace App\Services\Profile\SpecificProfile;
 
+use App\Enums\ResponseKey;
+use App\Enums\UpdateType;
 use App\Interfaces\SpecificProfileService;
+use App\Models\User;
 use App\Services\Response\ResponseService;
 use App\Services\ValidationService;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 abstract class BaseSpecificProfileService implements SpecificProfileService
 {
@@ -16,6 +22,35 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
     {
         $this->validator = new ValidationService();
         $this->responseService = new ResponseService();
+    }
+
+    public function getProfile($user): JsonResponse
+    {
+        return $this->responseService->success($this->getResponseProfileData($user, $this->specificProfileUser($user)));
+    }
+
+    public function updateProfile($user, Request $request): JsonResponse
+    {
+        try {
+            return $this->responseService->success([ResponseKey::UPDATED_INFORMATION => $this->updateByUpdateType($request->input(UpdateType::UPDATE_TYPE),$this->specificProfileUser($user), $user)]);
+        } catch (ValidationException $e) {
+            return $this->responseService->badRequest($e->getMessage());
+        } catch (Exception $e) {
+            return $this->responseService->internalServerError($e->getMessage());
+        }
+    }
+
+    public function deleteProfile($id): JsonResponse
+    {
+        $base = User::find($id);
+
+        if (!$base) {
+            return $this->responseService->notFound("User not found");
+        }
+
+        $this->delete($base);
+
+        return $this->responseService->success();
     }
 
     protected function getUserUpdateData(array $data): array
@@ -37,81 +72,44 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         }
     }
 
-    protected function getUserEducationDataToProceed(array $data): array
+    protected function getResponseProfileData(User $base, $specific): mixed
     {
-        $dataToInsert = [];
-
-        if (isset($data['start_date'])) {
-            $dataToInsert['start_date'] = $data['start_date'];
-        }
-
-        if (isset($data['end_date'])) {
-            $dataToInsert['end_date'] = $data['end_date'];
-        }
-
-        if (isset($data['contact_url'])) {
-            $dataToInsert['contact_url'] = $data['contact_url'];
-        }
-
-        return $dataToInsert;
+        return [];
     }
 
-    protected function getWorkExperienceDataToProceed(array $data): array
+    protected function delete(User $base): void
     {
-        $resultData = [];
-
-        if (isset($data['position'])) {
-            $resultData['position'] = $data['position'];
-        }
-
-        if(isset($data['company_name'])) {
-            $resultData['company_name'] = $data['company_name'];
-        }
-
-        if (isset($data['description'])) {
-            $resultData['description'] = $data['description'];
-        }
-
-        if (isset($data['date_start'])) {
-            $resultData['date_start'] = $data['date_start'];
-        }
-
-        if (isset($data['date_end'])) {
-            $resultData['date_end'] = $data['date_end'];
-        }
-
-        return $resultData;
+        //
     }
 
-//    private function updateRegularUserByUpdateType($updateType, $user, $baseUser): array
-//    {
-//        $updatedResults = [];
-//        $updateMethods = $this->getUpdateMethods();
-//
-//        foreach ($updateMethods as $type => $method) {
-//            if (isset($updateType[$type])) {
-//                $updatedResults[$type] = $this->callUpdateMethod($method, $updateType[$type], $user, $baseUser);
-//            }
-//        }
-//
-//        return $updatedResults;
-//    }
-//
-//    private function getUpdateMethods(): array
-//    {
-//        return [
-//            UpdateType::PERSONAL_INFORMATION => 'updateRegularUserProfile',
-//            UpdateType::EDUCATION => 'updateUserEducation',
-//            UpdateType::WORK_EXPERIENCE => 'updateWorkExperience',
-//            UpdateType::SKILLS => 'updateUserSkills'
-//        ];
-//    }
-//
-//    private function callUpdateMethod(string $method, $updateData, $user, $baseUser = null)
-//    {
-//        if ($method === 'updateRegularUserProfile') {
-//            return $this->$method($updateData, $user, $baseUser);
-//        }
-//        return $this->$method($updateData, $user);
-//    }
+    protected function specificProfileUser($user): mixed
+    {
+        return [];
+    }
+
+    protected function updateByUpdateType($updateType, $specific, $base): array
+    {
+        $updatedResults = [];
+        $updateMethods = $this->getUpdateMethods();
+
+        foreach ($updateMethods as $type => $method) {
+            if (isset($updateType[$type])) {
+                $updatedResults[$type] = $this->callUpdateMethod($method, $updateType[$type], $specific, $base);
+            }
+        }
+
+        return $updatedResults;
+    }
+
+    protected function getUpdateMethods(): array
+    {
+        return [
+            // key => methodName
+        ];
+    }
+
+    protected function callUpdateMethod(string $method, $updateData, $user, $baseUser = null): mixed
+    {
+        return null;
+    }
 }
