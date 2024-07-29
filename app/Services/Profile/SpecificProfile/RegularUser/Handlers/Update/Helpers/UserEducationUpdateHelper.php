@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-trait UserEducationHelper
+trait UserEducationUpdateHelper
 {
     /**
      * @throws ValidationException
      */
-    private function updateUserEducation($education, $user): array
+    protected function updateUserEducation($education, $user): array
     {
         $result = [];
         Log::debug('updateUserEducation init: ' . var_export([

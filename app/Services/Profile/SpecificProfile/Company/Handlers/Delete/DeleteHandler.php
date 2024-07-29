@@ -27,6 +27,7 @@ trait DeleteHandler
         }
 
         $company->delete();
+        $base->userProfile->delete();
         $base->delete();
     }
 }

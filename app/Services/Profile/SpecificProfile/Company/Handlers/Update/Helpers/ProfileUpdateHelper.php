@@ -6,13 +6,13 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-trait ProfileHelper
+trait ProfileUpdateHelper
 {
     /**
      * @throws ValidationException
      * @throws Exception
      */
-    private function updateAndGetCompanyProfile(array $personalInformation, $user, $base): array
+    protected function updateAndGetCompanyProfile(array $personalInformation, $user, $base): array
     {
         $data = $this->validator->validate($personalInformation, [
             'description' => 'sometimes|string|max:255',

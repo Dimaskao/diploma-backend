@@ -9,7 +9,6 @@ use App\Models\UserContact;
 use App\Models\UserEducation;
 use App\Models\UserSkill;
 use App\Models\WorkExperience;
-use Illuminate\Support\Facades\Log;
 
 trait DeleteHandler
 {
@@ -29,6 +28,7 @@ trait DeleteHandler
         }
 
         $regularUser->delete();
+        $base->userProfile->delete();
         $base->delete();
     }
 }

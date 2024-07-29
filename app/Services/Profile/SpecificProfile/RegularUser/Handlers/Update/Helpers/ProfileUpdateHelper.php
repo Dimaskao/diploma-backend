@@ -5,14 +5,13 @@ namespace App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpe
 use Exception;
 use Illuminate\Validation\ValidationException;
 
-trait ProfileHelper
+trait ProfileUpdateHelper
 {
-
     /**
      * @throws ValidationException
      * @throws Exception
      */
-    private function updateRegularUserProfile(array $personalInformation, $user, $baseUser): array
+    protected function updateRegularUserProfile(array $personalInformation, $user, $baseUser): array
     {
         $data = $this->validator->validate($personalInformation, [
             'first_name' => 'sometimes|string|max:255',

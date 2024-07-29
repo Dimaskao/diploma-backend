@@ -3,24 +3,16 @@
 namespace App\Services\Profile\SpecificProfile\Company\Handlers\Update;
 
 use App\Enums\UpdateType;
-use App\Services\Profile\SpecificProfile\Company\Handlers\Update\Helpers\ProfileHelper;
+use App\Services\Profile\SpecificProfile\Company\Handlers\Update\Helpers\ProfileUpdateHelper;
 
 trait UpdateHandler
 {
-    use ProfileHelper;
+    use ProfileUpdateHelper;
 
     protected function getUpdateMethods(): array
     {
         return [
             UpdateType::PERSONAL_INFORMATION => 'updateAndGetCompanyProfile'
         ];
-    }
-
-    protected function callUpdateMethod(string $method, $updateData, $user, $baseUser = null): mixed
-    {
-        if ($method === 'updateAndGetCompanyProfile') {
-            return $this->$method($updateData, $user, $baseUser);
-        }
-        return $this->$method($updateData, $user);
     }
 }

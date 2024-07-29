@@ -12,7 +12,7 @@ trait WorkExperienceUpdateHelper
     /**
      * @throws ValidationException
      */
-    private function updateWorkExperience($workExperience, $user): array
+    protected function updateWorkExperience($workExperience, $user): array
     {
         $result = [];
         foreach ($workExperience as $experience) {

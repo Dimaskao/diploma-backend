@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Admin extends Model
@@ -23,4 +24,9 @@ class Admin extends Model
     protected $casts = [
         'permissions' => 'array',
     ];
+
+    public function userProfile(): BelongsTo
+    {
+        return $this->belongsTo(UserProfile::class, 'company_id');
+    }
 }

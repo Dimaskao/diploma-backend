@@ -4,17 +4,16 @@ namespace App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpe
 
 use App\Enums\Edit;
 use App\Enums\ResponseKey;
-use App\Models\Skill;
 use App\Models\UserSkill;
 use Exception;
 use Illuminate\Support\Str;
 
-trait SkillsHelper
+trait SkillsUpdateHelper
 {
     /**
      * @throws Exception
      */
-    private function updateUserSkills($skills, $user): array
+    protected function updateUserSkills($skills, $user): array
     {
         $result = [];
 

@@ -17,6 +17,9 @@ trait GetHelper
         $responseData = $response->getData(true);
 
         $this->assertArrayHasKey('data', $responseData);
+
+        Log::debug('********** $responseData: ' . var_export($responseData, 1));
+
         $this->assertArrayHasKey('profile', $responseData['data']);
         $this->assertArrayHasKey('company', $responseData['data']['profile']);
         $this->assertArrayHasKey('posts', $responseData['data']['profile']);
