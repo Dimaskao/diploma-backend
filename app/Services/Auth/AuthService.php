@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth;
 
-use App\Enums\ResponseKeys;
+use App\Enums\ResponseKey;
 use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
@@ -37,7 +38,9 @@ class AuthService
     {
         try {
             $data = $this->validationService->validate($request->all(), $this->registrationRules());
+            Log::debug('validated data: ' . var_export($data, 1));
             $result = $this->factory->create($data);
+            Log::debug('$result: ' . var_export($result, 1));
             return $this->responseService->created($result);
         } catch (ValidationException $e) {
             return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
@@ -58,7 +61,7 @@ class AuthService
             $token = $this->userLogin($credentials, $role);
 
             if ($token) {
-                return $this->responseService->success([ResponseKeys::TOKEN => $token]);
+                return $this->responseService->success([ResponseKey::TOKEN => $token]);
             } else {
                 return $this->responseService->unauthorized("Invalid credentials");
             }

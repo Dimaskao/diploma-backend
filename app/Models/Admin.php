@@ -23,9 +23,4 @@ class Admin extends Model
     protected $casts = [
         'permissions' => 'array',
     ];
-
-    public function user(): MorphOne
-    {
-        return $this->morphOne(User::class, 'profileable');
-    }
 }

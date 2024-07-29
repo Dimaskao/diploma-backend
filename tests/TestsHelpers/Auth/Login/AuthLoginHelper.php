@@ -9,11 +9,13 @@ trait AuthLoginHelper
 {
     public function testLoginUserSuccess(): void
     {
+        $this->refreshCredentials();
         $this->loginTest(Status::SUCCESS);
     }
 
     public function testLoginUserFailed(): void
     {
+        $this->refreshCredentials();
         $this->loginTest(Status::FAILED);;
     }
 

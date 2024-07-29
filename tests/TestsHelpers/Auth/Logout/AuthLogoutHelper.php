@@ -10,11 +10,13 @@ trait AuthLogoutHelper
 {
     public function testLogoutSuccess(): void
     {
+        $this->refreshCredentials();
         $this->logoutTest(Status::SUCCESS);
     }
 
     public function testLogoutFailed(): void
     {
+        $this->refreshCredentials();
         $this->logoutTest(Status::FAILED);
     }
 

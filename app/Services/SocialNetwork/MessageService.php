@@ -2,7 +2,7 @@
 
 namespace App\Services\SocialNetwork;
 
-use App\Enums\ResponseKeys;
+use App\Enums\ResponseKey;
 use App\Events\MessageSent;
 use App\Models\Message;
 use App\Services\Response\ResponseService;

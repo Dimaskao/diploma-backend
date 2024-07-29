@@ -23,12 +23,6 @@ class Company extends Model
         'contact_phone',
         'contact_url'
     ];
-
-    public function user(): MorphOne
-    {
-        return $this->morphOne(User::class, 'profileable');
-    }
-
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);

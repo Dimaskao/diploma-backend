@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\Profile\CompanyProfileService;
+use App\Services\Profile\SpecificProfile\Company\CompanyProfileService;
 use App\Strategies\Profile\CompanyProfileStrategy;
 use Illuminate\Support\ServiceProvider;
 

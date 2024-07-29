@@ -4,16 +4,19 @@ namespace TestsHelpers\Auth\Register;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 trait AuthRegisterHelper
 {
     public function testRegisterUser(): void
     {
+        $this->refreshCredentials();
         $this->registerTest();
     }
 
     public function testRegisterValidationFails(): void
     {
+        $this->refreshCredentials();
         $request = Request::create('/register', 'POST', [
             'email' => 'invalid-email',
         ]);
@@ -22,6 +25,11 @@ trait AuthRegisterHelper
         $responseStatusCode = $this->responseService->badRequest()->getStatusCode();
 
         $this->assertEquals($responseStatusCode, $response->getStatusCode());
+    }
+
+    public function registerUser(): JsonResponse
+    {
+        return $this->register();
     }
 
     private function registerTest(): void

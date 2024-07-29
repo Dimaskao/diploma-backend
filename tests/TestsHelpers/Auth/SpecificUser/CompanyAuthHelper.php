@@ -8,7 +8,7 @@ trait CompanyAuthHelper
     {
         return [
             'name' => 'Test Company',
-            'email' => 'test.company@example.com',
+            'email' => EmailAuthHelper::generateRandomEmail(),
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role' => 'company',

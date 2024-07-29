@@ -9,7 +9,7 @@ trait RegularUserAuthHelper
         return [
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'email' => 'john.doe2@example.com',
+            'email' => EmailAuthHelper::generateRandomEmail(),
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role' => 'user',

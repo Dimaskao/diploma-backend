@@ -2,7 +2,7 @@
 
 namespace App\Strategies\Profile;
 
-use App\Services\Profile\RegularUserProfileService;
+use App\Services\Profile\SpecificProfile\RegularUser\RegularUserProfileService;
 
 class RegularUserProfileStrategy extends BaseProfileStrategy
 {

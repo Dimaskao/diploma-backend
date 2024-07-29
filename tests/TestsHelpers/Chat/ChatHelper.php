@@ -6,7 +6,7 @@ use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Str;
-use Tests\TestsHelpers\Profile\UsersHelper;
+use TestsHelpers\Profile\Users\UsersHelper;
 
 trait ChatHelper
 {

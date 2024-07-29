@@ -2,7 +2,7 @@
 
 namespace App\Services\SocialNetwork;
 
-use App\Enums\ResponseKeys;
+use App\Enums\ResponseKey;
 use App\Enums\SubscriptionAction;
 use App\Models\RegularUser;
 use App\Models\User;

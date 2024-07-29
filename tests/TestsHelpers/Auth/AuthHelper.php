@@ -42,6 +42,11 @@ trait AuthHelper
         };
     }
 
+    public function refreshCredentials(): void
+    {
+        $this->setUpCredentials();
+    }
+
     private function getUserRegistrationCredentials($role): array
     {
         return match ($role) {

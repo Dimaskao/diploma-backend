@@ -2,7 +2,7 @@
 
 namespace App\Strategies\Profile;
 
-use App\Services\Profile\AdminProfileService;
+use App\Services\Profile\SpecificProfile\Admin\AdminProfileService;
 
 class AdminProfileStrategy extends BaseProfileStrategy
 {
