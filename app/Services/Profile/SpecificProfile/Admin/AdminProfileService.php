@@ -15,15 +15,4 @@ class AdminProfileService extends BaseSpecificProfileService
     {
         return $user->userProfile->admin;
     }
-
-//    public function updateProfile($user, Request $request): JsonResponse
-//    {
-//        try {
-//            return $this->responseService->success([ResponseKey::UPDATED_INFORMATION => $this->updateByEditInfoType($request, $user->profileable, $user)]);
-//        } catch (ValidationException $e) {
-//            return $this->responseService->badRequest($e->getMessage());
-//        } catch (Exception $e) {
-//            return $this->responseService->internalServerError($e->getMessage());
-//        }
-//    }
 }

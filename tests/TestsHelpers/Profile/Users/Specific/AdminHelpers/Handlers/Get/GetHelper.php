@@ -18,9 +18,11 @@ trait GetHelper
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertArrayHasKey('profile', $responseData['data']);
-        $this->assertArrayHasKey('self', $responseData['data']['profile']);
-        $this->assertArrayHasKey('another_admin_permissions', $responseData['data']['profile']);
-        $this->assertArrayHasKey('ban_unban', $responseData['data']['profile']);
-        $this->assertArrayHasKey('skills', $responseData['data']['profile']);
+        $this->assertArrayHasKey('admin', $responseData['data']['profile']);
+        $this->assertArrayHasKey('id', $responseData['data']['profile']['admin']);
+        $this->assertArrayHasKey('name', $responseData['data']['profile']['admin']);
+        $this->assertArrayHasKey('permissions', $responseData['data']['profile']['admin']);
+        $this->assertArrayHasKey('email', $responseData['data']['profile']['admin']);
+        $this->assertArrayHasKey('avatar_url', $responseData['data']['profile']['admin']);
     }
 }
