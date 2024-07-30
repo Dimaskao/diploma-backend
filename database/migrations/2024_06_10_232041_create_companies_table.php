@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('contact_url')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('profileable_id', 'fk_users_companies')->references('id')->on('companies')->onDelete('cascade');
+        });
     }
 
     /**
@@ -28,6 +32,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign('fk_users_companies');
+        });
+
         Schema::dropIfExists('companies');
     }
 };

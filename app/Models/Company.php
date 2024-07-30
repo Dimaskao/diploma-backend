@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Company extends Model
 {
@@ -25,9 +24,9 @@ class Company extends Model
         'contact_url'
     ];
 
-    public function user(): HasOne
+    public function user(): MorphOne
     {
-        return $this->hasOne(User::class, 'company_id');
+        return $this->morphOne(User::class, 'profileable');
     }
 
     public function posts(): HasMany
@@ -35,7 +34,7 @@ class Company extends Model
         return $this->hasMany(Post::class);
     }
 
-    public function job_offers(): HasMany
+    public function jobOffers(): HasMany
     {
         return $this->hasMany(JobOffer::class);
     }

@@ -2,32 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasUuids, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens, HasUuids;
 
     protected $primaryKey = 'id';
-
     public $incrementing = false;
-
     protected $keyType = 'string';
 
     protected $fillable = [
         'role_id',
         'email',
         'password',
-        'user_id',
-        'company_id',
         'avatar_url',
+        'profileable_id',
+        'profileable_type'
     ];
 
     protected $hidden = [
@@ -37,7 +35,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'password' => 'hashed',
     ];
 
     public function role(): BelongsTo
@@ -45,28 +43,13 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function company(): BelongsTo
+    public function profileable(): MorphTo
     {
-        return $this->belongsTo(Company::class, 'company_id');
-    }
-
-    public function regularUser(): BelongsTo
-    {
-        return $this->belongsTo(RegularUser::class, 'user_id');
+        return $this->morphTo();
     }
 
     public function jobOffers(): BelongsToMany
     {
         return $this->belongsToMany(JobOffer::class);
-    }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
-    }
-
-    public function subscriptions(): HasMany
-    {
-        return $this->hasMany(UserContact::class, 'subscriber_id');
     }
 }
