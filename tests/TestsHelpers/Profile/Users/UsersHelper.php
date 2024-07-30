@@ -5,6 +5,8 @@ namespace TestsHelpers\Profile\Users;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use TestsEnums\Entity;
 use TestsEnums\Method;
 use TestsHelpers\Profile\Users\Specific\AdminHelpers\AdminServiceHelper;
 use TestsHelpers\Profile\Users\Specific\CompanyHelpers\CompanyServiceHelper;
@@ -24,6 +26,11 @@ trait UsersHelper
     {
         $this->registerUser();
         $this->login($this->credentials);
+    }
+
+    protected function setUpAuth(): void
+    {
+        $this->setUpRegistry(Entity::SERVICE, $this->role);
     }
 
     private function expectedResult($method, $status, $response): void

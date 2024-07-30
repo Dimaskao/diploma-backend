@@ -5,7 +5,6 @@ namespace Tests\TestsHelpers\Profile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use TestsEnums\Entity;
 use TestsEnums\Method;
 use TestsEnums\Status;

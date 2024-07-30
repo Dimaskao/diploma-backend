@@ -9,9 +9,9 @@ use App\Models\User;
 use App\Services\Profile\SpecificProfile\Admin\AdminProfileService;
 use App\Services\Profile\SpecificProfile\Company\CompanyProfileService;
 use App\Services\Profile\SpecificProfile\RegularUser\RegularUserProfileService;
-use App\Strategies\Profile\AdminProfileStrategy;
-use App\Strategies\Profile\CompanyProfileStrategy;
-use App\Strategies\Profile\RegularUserProfileStrategy;
+use App\Strategies\Profile\SpecificProfile\AdminProfileStrategy;
+use App\Strategies\Profile\SpecificProfile\CompanyProfileStrategy;
+use App\Strategies\Profile\SpecificProfile\RegularUserProfileStrategy;
 use Exception;
 
 class ProfileStrategyFactory implements Factory

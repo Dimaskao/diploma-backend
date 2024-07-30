@@ -4,6 +4,7 @@ namespace TestsHelpers\Auth\Register;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 trait AuthRegisterHelper
 {
@@ -43,6 +44,11 @@ trait AuthRegisterHelper
     private function register(): JsonResponse
     {
         $request = Request::create('/register', 'POST', $this->credentials);
-        return $this->registry->register($request);
+        Log::debug('request: ' . var_export($request, 1));
+        Log::debug('$this->registry: ' . var_export($this->registry, 1));
+        $response = $this->registry->register($request);
+        Log::debug('$response: ' . var_export($response, 1));
+
+        return $response;
     }
 }

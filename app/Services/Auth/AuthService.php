@@ -42,7 +42,7 @@ class AuthService
         } catch (ValidationException $e) {
             return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
         } catch (Exception $e) {
-            return $this->responseService->internalServerError("Failed to create user or company, {$e->getMessage()}");
+            return $this->responseService->internalServerError("Failed to create user, {$e->getMessage()}");
         }
     }
 

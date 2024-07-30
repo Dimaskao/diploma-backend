@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Strategies\Profile;
+namespace App\Strategies\Profile\SpecificProfile;
 
 use App\Services\Profile\SpecificProfile\RegularUser\RegularUserProfileService;
+use App\Strategies\Profile\BaseProfileStrategy;
 
 class RegularUserProfileStrategy extends BaseProfileStrategy
 {

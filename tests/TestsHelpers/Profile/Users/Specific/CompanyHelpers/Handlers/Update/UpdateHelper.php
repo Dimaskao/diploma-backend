@@ -42,7 +42,6 @@ trait UpdateHelper
 
     private function expectedCompanyFailedUpdateResult($response): void
     {
-        Log::debug('******** response: ' . var_export($response, 1)) ;
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('Attempt to read property "userProfile" on array', $response->getData(true)['message']);

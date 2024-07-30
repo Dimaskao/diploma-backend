@@ -3,7 +3,6 @@
 namespace TestsHelpers\Profile\Users\Specific\RegularUserHelpers\Handlers\Delete;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use TestsEnums\Status;
 
 trait DeleteHelper
@@ -30,11 +29,9 @@ trait DeleteHelper
     {
         $this->assertInstanceOf(JsonResponse::class, $response);
         $responseData = $response->getData(true);
-        Log::debug('**************************************** response delete data: ' . var_export($responseData, 1));
 
-        $this->assertEquals(404, $response->getStatusCode());
-
-
+        $expectedStatusCode = $this->responseService->notFound()->getStatusCode();
+        $this->assertEquals($expectedStatusCode, $response->getStatusCode());
         $this->assertEquals('User not found', $responseData['message']);
     }
 }
