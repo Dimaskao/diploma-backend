@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Enums\UserRole;
+use App\Enums\Roles;
 use App\Models\RegularUser;
 use App\Models\User;
 use App\Models\Company;
@@ -17,7 +17,7 @@ trait AuthTrait
     {
         $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && ($role == UserRole::RegularUser->value || $role == UserRole::Company->value) && Hash::check($credentials['password'], $user->password)) {
+        if ($user && ($role == Roles::RegularUser->value || $role == Roles::Company->value) && Hash::check($credentials['password'], $user->password)) {
             $personalAccessClient = (new ClientRepository())->personalAccessClient();
 
             if (!$personalAccessClient) {
@@ -50,7 +50,7 @@ trait AuthTrait
 
         $data['role_id'] = $role->id;
 
-        if ($data['role'] == UserRole::Company->value) {
+        if ($data['role'] == Roles::Company->value) {
             $company = Company::create([
                 'name' => $data['name'],
                 'contact_email' => $data['email'],
@@ -62,7 +62,7 @@ trait AuthTrait
                 'company_id' => $company->id,
             ]);
             return ['user' => $user, 'company' => $company];
-        } elseif ($data['role'] === UserRole::RegularUser->value) {
+        } elseif ($data['role'] === Roles::RegularUser->value) {
             $regularUser = RegularUser::create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],

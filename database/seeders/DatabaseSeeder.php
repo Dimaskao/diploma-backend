@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Roles;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -19,18 +20,20 @@ class DatabaseSeeder extends Seeder
     {
         // Create roles
         DB::table('roles')->insert([
-            'id' => (string) Str::uuid(),
-            'name' => 'user',
+            'name' => Roles::RegularUser->value,
+        ]);
+        DB::table('roles')->insert([
+            'name' => Roles::Admin->value,
         ]);
 
         // Create regular user
         $regularUserId = (string) Str::uuid();
         DB::table('regular_users')->insert([
-            'id' => $regularUserId,
-            'first_name' => 'John',
-            'last_name' => 'Doe',
+            'id'          => $regularUserId,
+            'first_name'  => 'John',
+            'last_name'   => 'Doe',
             'skills_desc' => 'Programming',
-            'experience' => '5 years',
+            'experience'  => '5 years',
         ]);
 
         // Get role and regular user
@@ -38,10 +41,10 @@ class DatabaseSeeder extends Seeder
 
         // Create user
         DB::table('users')->insert([
-            'id' => (string) Str::uuid(),
-            'role_id' => $role->id,
-            'user_id' => $regularUserId,
-            'email' => 'user@example.com',
+            'id'       => (string) Str::uuid(),
+            'role_id'  => $role->id,
+            'user_id'  => $regularUserId,
+            'email'    => 'user@example.com',
             'password' => Hash::make('password'),
         ]);
 
@@ -57,7 +60,7 @@ class DatabaseSeeder extends Seeder
         );
 
         DB::table('oauth_personal_access_clients')->insert([
-            'client_id' => $client->id,
+            'client_id'  => $client->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

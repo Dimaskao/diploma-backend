@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ForSearchType;
-use App\Enums\UserRole;
+use App\Enums\Roles;
 use App\Models\UserContact;
 use App\Traits\CompanyProfileTrait;
 use App\Traits\ProfileTrait;
@@ -23,8 +23,8 @@ class ProfileController extends Controller
         list($user, $role) = $this->getUserAndRole($id);
         if ($user && $role) {
             return match ($role) {
-                UserRole::RegularUser->value => $this->getRegularUserProfile($user),
-                UserRole::Company->value => $this->getCompanyProfile($user),
+                Roles::RegularUser->value => $this->getRegularUserProfile($user),
+                Roles::Company->value => $this->getCompanyProfile($user),
                 default => response()->json(['message' => 'Unexpected error occurred during processing profile data'], 500),
             };
         }
@@ -37,8 +37,8 @@ class ProfileController extends Controller
 
         if ($user && $role) {
             return match ($role) {
-                UserRole::RegularUser->value => $this->updateUserInformation($user, $request),
-                UserRole::Company->value  => $this->updateCompanyInformation($user, $request),
+                Roles::RegularUser->value => $this->updateUserInformation($user, $request),
+                Roles::Company->value  => $this->updateCompanyInformation($user, $request),
                 default => response()->json(['message' => 'Unexpected error occurred during updating profile data'], 500),
             };
         }

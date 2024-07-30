@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostsFeedController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,5 +20,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/profile/{id}/unsubscribe', [ProfileController::class, 'unsubscribe']);
 
     Route::get('/search', [ProfileController::class, 'search']);
+
     Route::apiResource('posts', PostController::class);
+    Route::get('/posts-feed/{userId}', PostsFeedController::class);
+    Route::get('/profile/{userId}/posts', [\App\Http\Controllers\User\PostController::class, 'index']);
 });

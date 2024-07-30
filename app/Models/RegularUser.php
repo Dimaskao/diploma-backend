@@ -43,9 +43,4 @@ class RegularUser extends Model
     {
         return $this->belongsToMany(Skill::class);
     }
-
-    public function subscriptions(): HasMany
-    {
-        return $this->hasMany(UserContact::class, 'subscriber_id');
-    }
 }

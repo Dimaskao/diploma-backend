@@ -19,6 +19,7 @@ class PostResource extends JsonResource
             'title'      => $this->title,
             'content'    => $this->content,
             'status'     => $this->status,
+            'visibility' => $this->visibility,
             'user_id'    => $this->user_id,
             'images'     => $this->getMedia('postsImages')->mapWithKeys(function ($image) {
                 return [$image->id => $image->getFullUrl()];

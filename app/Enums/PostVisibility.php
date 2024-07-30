@@ -4,10 +4,10 @@ namespace App\Enums;
 
 use App\Enums\Traits\EnumConcern;
 
-enum UserRole: string
+enum PostVisibility: string
 {
     use EnumConcern;
 
-    case RegularUser = 'user';
-    case Company = 'company';
+    case Public = 'public';
+    case Private = 'private';
 }
