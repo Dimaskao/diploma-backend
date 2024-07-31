@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use Illuminate\Support\ServiceProvider;
 
 class ValidationServiceProvider extends ServiceProvider

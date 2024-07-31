@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
             $table->string('position');
+            $table->string('company_name');
             $table->text('description')->nullable();
             $table->timestamp('date_start')->nullable();
             $table->timestamp('date_end')->nullable();
