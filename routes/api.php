@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostsFeedController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SocialNetworkController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('UUID()'));
+            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
             $table->string('title');
             $table->text('content');
             $table->uuid('user_id')->nullable();

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('job_offers', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('uuid()'));
+            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
             $table->uuid('company_id');
             $table->string('title');
             $table->string('position');

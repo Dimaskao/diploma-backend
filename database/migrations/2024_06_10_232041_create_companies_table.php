@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('UUID()'));
+            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('contact_email')->nullable();

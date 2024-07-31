@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_images', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('UUID()'));
+            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
             $table->uuid('post_id');
             $table->string('url');
             $table->timestamps();
