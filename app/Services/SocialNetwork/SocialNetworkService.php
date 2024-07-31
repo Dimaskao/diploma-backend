@@ -2,7 +2,7 @@
 
 namespace App\Services\SocialNetwork;
 
-use App\Enums\ResponseKeys;
+use App\Enums\ResponseKey;
 use App\Services\Response\ResponseService;
 use Exception;
 use Illuminate\Http\JsonResponse;

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Admin extends Model
@@ -24,8 +25,8 @@ class Admin extends Model
         'permissions' => 'array',
     ];
 
-    public function user(): MorphOne
+    public function userProfile(): BelongsTo
     {
-        return $this->morphOne(User::class, 'profileable');
+        return $this->belongsTo(UserProfile::class, 'id', 'admin_id');
     }
 }
