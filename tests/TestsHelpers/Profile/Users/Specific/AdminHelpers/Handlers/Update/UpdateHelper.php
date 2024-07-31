@@ -167,9 +167,7 @@ trait UpdateHelper
                         'name' => 'team lead'
                     ]
                 ],
-            ],
-            'base_user_test_only' => $base,
-            'init_credentials_data' => $initData
+            ]
         ];
     }
 }

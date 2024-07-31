@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\ServicesTests;
 
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -16,6 +16,9 @@ class ValidationServiceTest extends TestCase
         $this->validationService = new ValidationService();
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function testValidationPasses()
     {
         $data = [

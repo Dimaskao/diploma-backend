@@ -23,12 +23,6 @@ class SubscriptionService
         $this->responseService = $responseService;
     }
 
-    /**
-     * $request = [
-     * 'subscriberId' => User->id
-     * 'subscriptionId' => User->id
-     * ]
-     */
     public function subscribe(Request $request): JsonResponse
     {
         return $this->manageSubscription($request, SubscriptionAction::SUBSCRIBE);

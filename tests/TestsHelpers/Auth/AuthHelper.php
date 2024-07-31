@@ -8,7 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Interfaces\Factory;
 use App\Services\Auth\AuthService;
 use App\Services\Response\ResponseService;
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use TestsEnums\Entity;
 use TestsHelpers\Auth\Login\AuthLoginHelper;
 use TestsHelpers\Auth\Logout\AuthLogoutHelper;

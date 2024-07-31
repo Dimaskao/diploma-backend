@@ -1,15 +1,17 @@
-# WorkWave
+### Project Documentation
+
+---
+
+# Project Name
 
 ## Introduction
 
-This project is a PHP application structured around the Laravel framework, focusing on user profiles, social network interactions, and administrative functionalities.
+This project is a PHP application structured around the Laravel framework, focusing on user profiles, social network interactions, and administrative functionalities. Below, you will find the structure and description of the key components.
 
 ## Table of Contents
 
-1. [Local Development](#local-development)
-2. [About Project](#about-project)
-3. [Project Structure](#project-structure)
-4. [Key Components](#key-components)
+1. [Project Structure](#project-structure)
+2. [Key Components](#key-components)
     - [Console Commands](#console-commands)
     - [Enums](#enums)
     - [Events](#events)
@@ -22,52 +24,10 @@ This project is a PHP application structured around the Laravel framework, focus
     - [Models](#models)
     - [Services](#services)
     - [Strategies](#strategies)
-5. [Installation](#installation)
-6. [Usage](#usage)
-7. [Contributing](#contributing)
-8. [License](#license)
-9. [Stack](#stack)
-10. [Team](#team)
-
-## Local Development
-
-```bash
-cp .env.example .env
-docker compose up -d
-docker compose exec fpm sh
-> composer install
-> php artisan serve
-> php artisan schedule:run
-```
-
-## About Project
-
-1. **Registration and Authorization:**
-    - New user registration capability.
-    - Authorization and login to user accounts.
-2. **User profile:**
-    - Ability to create and edit user profiles, including personal information, photos, education, work experience, and skills.
-    - Adding contact information such as email, phone number, etc.
-3. **Social Network:**
-    - Ability to add and delete contacts.
-    - Search and view profiles of other users.
-4. **Posts and Vacancies:**
-    - Ability to create and publish posts, news, articles.
-    - Search and view vacancies, as well as the ability to post own vacancies.
-    - Interaction with publications, such as commenting, likes, etc.
-5. **Network of Enterprises and Companies:**
-    - Creation of company pages.
-    - Search and view information about companies, including vacancies, news, contact information.
-    - Ability to view user vacancies.
-6. **Education and Training:**
-    - Ability to add educational institutions, courses, certificates to user profiles.
-    - Search and view information about educational institutions, courses, programs.
-7. **Messaging and Chat:**
-    - Ability to exchange messages between users.
-    - Organization of group chats and message broadcasting.
-8. **Analytics and Statistics:**
-    - Providing users with reports on interaction with their profiles and publications.
-    - Collection and analysis of data on user activity on the platform.
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Contributing](#contributing)
+6. [License](#license)
 
 ## Project Structure
 
@@ -298,15 +258,3 @@ app/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Stack
-
-- **Frontend:** React, Redux + Toolkit, RTK-Query, Tailwind, MUI, JWT, *Websocket(Socket.io), *I18n, *Dark Mode
-- **Backend:** PHP, Laravel, PostgreSQL/My - **DevOps:** Docker, Kubernetes, ElasticSearch, Jenkins, JEST
-- **Mobile:** React Native
-
-## Team
-
-- **Frontend:** Kirill, Alexander, Vladimir
-- **Backend:** Dmitry, Victoria, Vladimir
-- **Design:** Margaret, Angela

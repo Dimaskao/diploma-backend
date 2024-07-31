@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Validation;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;

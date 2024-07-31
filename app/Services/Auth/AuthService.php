@@ -8,7 +8,7 @@ use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
 use App\Services\Response\ResponseService;
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

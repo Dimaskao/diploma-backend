@@ -8,7 +8,7 @@ use App\Enums\UpdateType;
 use App\Interfaces\SpecificProfileService;
 use App\Models\User;
 use App\Services\Response\ResponseService;
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
