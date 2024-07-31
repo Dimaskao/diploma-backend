@@ -37,6 +37,6 @@ class Company extends Model
 
     public function userProfile(): BelongsTo
     {
-        return $this->belongsTo(UserProfile::class, 'company_id');
+        return $this->belongsTo(UserProfile::class, 'id', 'company_id');
     }
 }

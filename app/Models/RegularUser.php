@@ -41,6 +41,6 @@ class RegularUser extends Model
 
     public function userProfile(): BelongsTo
     {
-        return $this->belongsTo(UserProfile::class, 'regular_user_id');
+        return $this->belongsTo(UserProfile::class, 'id', 'regular_user_id');
     }
 }

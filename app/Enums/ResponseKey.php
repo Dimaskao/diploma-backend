@@ -6,6 +6,8 @@ class ResponseKey extends BaseEnum
 {
     const PROFILE = 'profile';
     const USER = 'user';
+    const USERS = 'users';
+    const COMPANIES = 'companies';
     const EDUCATION = 'education';
     const WORK_EXPERIENCE = 'work_experience';
     const SKILLS = 'skills';

@@ -44,11 +44,6 @@ trait AuthRegisterHelper
     private function register(): JsonResponse
     {
         $request = Request::create('/register', 'POST', $this->credentials);
-        Log::debug('request: ' . var_export($request, 1));
-        Log::debug('$this->registry: ' . var_export($this->registry, 1));
-        $response = $this->registry->register($request);
-        Log::debug('$response: ' . var_export($response, 1));
-
-        return $response;
+        return $this->registry->register($request);
     }
 }

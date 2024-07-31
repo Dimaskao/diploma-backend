@@ -32,7 +32,7 @@ class ChatService
                 $user = User::find($data['user_id']);
                 if ($user) {
                     $chat->users()->attach($data['user_id']);
-                    return $this->responseService->success($chat, 201);
+                    return $this->responseService->created($chat);
                 }
             }
             return $this->responseService->badRequest();
