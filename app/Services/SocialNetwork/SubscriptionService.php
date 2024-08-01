@@ -37,7 +37,7 @@ class SubscriptionService
     {
         try {
             if ($request->has(['subscription_id', 'subscriber_id'])) {
-                $subscriberId = User::find($request->input('subscriber_id'))->userProfile->regular_user_id;
+                $subscriberId = $request->input('subscriber_id');
                 $subscriptionId = $request->input('subscription_id');
 
                 return match ($action) {

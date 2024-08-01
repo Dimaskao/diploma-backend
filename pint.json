@@ -1,16 +1,16 @@
 {
-    "preset": "laravel",
-    "rules": {
-        "concat_space": {
-            "spacing": "one"
-        },
-        "curly_braces_position": {
-            "anonymous_classes_opening_brace": "same_line"
-        },
-        "binary_operator_spaces": {
-            "operators": {
-                "=>": "align_single_space_minimal_by_scope"
-            }
-        }
+  "preset": "laravel",
+  "rules": {
+    "concat_space": {
+      "spacing": "one"
+    },
+    "curly_braces_position": {
+      "anonymous_classes_opening_brace": "same_line"
+    },
+    "binary_operator_spaces": {
+      "operators": {
+        "=>": "align_single_space_minimal_by_scope"
+      }
     }
+  }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostsFeedController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocialNetworkController;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/social.network/get.messages/{chatId}', [SocialNetworkController::class, 'getMessages']);
 
     Route::apiResource('posts', PostController::class);
+    Route::get('/posts-feed/{userId}', PostsFeedController::class);
+    Route::get('/profile/{userId}/posts', [\App\Http\Controllers\User\PostController::class, 'index']);
 });

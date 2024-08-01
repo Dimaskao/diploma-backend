@@ -22,6 +22,7 @@ class Post extends Model implements HasMedia
         'content',
         'user_id',
         'status',
+        'visibility',
     ];
 
     public function comments(): HasMany

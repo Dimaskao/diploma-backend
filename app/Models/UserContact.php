@@ -13,15 +13,17 @@ class UserContact extends Model
     use HasFactory, HasUuids;
 
     protected $primaryKey = 'id';
+
     protected $table = 'user_contacts';
+
     protected $fillable = [
         'subscriber_id',
-        'subscription_id'
+        'subscription_id',
     ];
 
     public function subscriber(): HasOne
     {
-        return $this->hasOne(RegularUser::class, 'subscriber_id');
+        return $this->hasOne(User::class, 'subscriber_id');
     }
 
     public function subscription(): HasMany
