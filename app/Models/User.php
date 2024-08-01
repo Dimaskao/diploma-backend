@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -49,5 +50,10 @@ class User extends Authenticatable
     public function jobOffers(): BelongsToMany
     {
         return $this->belongsToMany(JobOffer::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->HasMany(UserContact::class, 'id', 'subscriber_id');
     }
 }

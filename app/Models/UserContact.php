@@ -23,7 +23,7 @@ class UserContact extends Model
 
     public function subscriber(): HasOne
     {
-        return $this->hasOne(RegularUser::class, 'subscriber_id');
+        return $this->hasOne(User::class, 'subscriber_id');
     }
 
     public function subscription(): HasMany
