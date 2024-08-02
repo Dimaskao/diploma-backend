@@ -9,7 +9,6 @@ use App\Models\RegularUser;
 use App\Services\Response\ResponseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class SearchService
 {
