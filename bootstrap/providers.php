@@ -5,6 +5,7 @@ return [
     App\Providers\AuthServiceProvider::class,
     App\Providers\CompanyProfileServiceProvider::class,
     App\Providers\CompanyProfileStrategyServiceProvider::class,
+    App\Providers\JobOfferServiceProvider::class,
     App\Providers\MessageServiceProvider::class,
     App\Providers\ProfileServiceProvider::class,
     App\Providers\ProfileStrategyFactoryServiceProvider::class,
