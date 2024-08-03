@@ -39,4 +39,14 @@ class JobOffersController extends Controller
     {
         return $this->service->getJobOffersByCompanyId($id);
     }
+
+    public function subscribe(int $jobOffer_id, int $user_id): JsonResponse
+    {
+        return $this->service->subscribeToJobOffer($jobOffer_id, $user_id);
+    }
+
+    public function unsubscribe(int $jobOffer_id, int $user_id): JsonResponse
+    {
+        return $this->service->unsubscribeFromJobOffer($jobOffer_id, $user_id);
+    }
 }

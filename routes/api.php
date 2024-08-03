@@ -35,5 +35,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/job-offers/{id}', [JobOffersController::class, 'update']);
     Route::delete('/job-offers/{id}', [JobOffersController::class, 'destroy']);
     Route::get('/job-offers/by-company/{id}', [JobOffersController::class, 'getJobOffersByCompanyId']);
+    Route::post('/job-offers/subscribe/{id}/{id}', [JobOffersController::class, 'subscribe']);
+    Route::post('/job-offers/unsubscribe/{id}/{id}', [JobOffersController::class, 'unsubscribe']);
 
 });

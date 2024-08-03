@@ -92,11 +92,37 @@ class JobOfferService
             $jobOffer = JobOffer::find($id);
             if ($jobOffer) {
                 $jobOffer->delete();
+
                 return $this->responseService->success($jobOffer, 'JobOffer has been deleted');
             }
+
             return $this->responseService->notFound();
         } catch (Exception $e) {
             return $this->responseService->internalServerError("Error during deleting a JobOffer, {$e->getMessage()}");
+        }
+    }
+
+    public function subscribeToJobOffer(int $jobOffer_id, int $user_id): JsonResponse
+    {
+        try {
+            $jobOffer = JobOffer::find($jobOffer_id);
+            $jobOffer->users()->syncWithoutDetaching([$user_id]);
+
+            return $this->responseService->success($jobOffer, 'JobOffer has been subscribed');
+        } catch (Exception $e) {
+            return $this->responseService->internalServerError("Error during subscribe to the JobOffer, {$e->getMessage()}");
+        }
+    }
+
+    public function unsubscribeFromJobOffer(int $jobOffer_id, int $user_id): JsonResponse
+    {
+        try {
+            $jobOffer = JobOffer::find($jobOffer_id);
+            $jobOffer->users()->detach([$user_id]);
+
+            return $this->responseService->success($jobOffer, 'JobOffer has been unsubscribed');
+        } catch (Exception $e) {
+            return $this->responseService->internalServerError("Error during unsubscribe from the JobOffer, {$e->getMessage()}");
         }
     }
 }
