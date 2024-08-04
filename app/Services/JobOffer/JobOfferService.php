@@ -5,9 +5,9 @@ namespace App\Services\JobOffer;
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Services\Response\ResponseService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Carbon\Carbon;
 
 class JobOfferService
 {
@@ -58,12 +58,22 @@ class JobOfferService
     {
         $jobOffer = JobOffer::find($id);
 
+        if ($this->isJobOfferExpired($jobOffer)) {
+            return $this->deleteJobOfferById($jobOffer->id);
+        }
+
         return $this->responseService->success($jobOffer);
     }
 
     public function getJobOffersByCompanyId(int $id): JsonResponse
     {
         $jobOffers = JobOffer::where('company_id', $id)->get();
+
+        foreach ($jobOffers as $jobOffer) {
+            if ($this->isJobOfferExpired($jobOffer)) {
+                $this->deleteJobOfferById($jobOffer->id);
+            }
+        }
 
         return $this->responseService->success($jobOffers);
     }
@@ -72,6 +82,10 @@ class JobOfferService
     {
         try {
             $jobOffer = JobOffer::find($id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
 
             if ($jobOffer) {
                 $jobOffer->title = $data['title'];
@@ -112,6 +126,11 @@ class JobOfferService
     {
         try {
             $jobOffer = JobOffer::find($jobOffer_id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
+
             $jobOffer->users()->syncWithoutDetaching([$user_id]);
 
             return $this->responseService->success($jobOffer, 'JobOffer has been subscribed');
@@ -124,6 +143,11 @@ class JobOfferService
     {
         try {
             $jobOffer = JobOffer::find($jobOffer_id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
+
             $jobOffer->users()->detach([$user_id]);
 
             return $this->responseService->success($jobOffer, 'JobOffer has been unsubscribed');
