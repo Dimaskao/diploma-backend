@@ -65,6 +65,12 @@ class JobOfferService
         return $this->responseService->success($jobOffer);
     }
 
+    public function getJobOffers(): JsonResponse
+    {
+        $jobOffers = JobOffer::all();
+        return $this->responseService->success($jobOffers);
+    }
+
     public function getJobOffersByCompanyId(int $id): JsonResponse
     {
         $jobOffers = JobOffer::where('company_id', $id)->get();
