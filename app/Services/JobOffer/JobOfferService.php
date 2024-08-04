@@ -7,6 +7,7 @@ use App\Models\JobOffer;
 use App\Services\Response\ResponseService;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 
 class JobOfferService
 {
@@ -15,6 +16,11 @@ class JobOfferService
     public function __construct(ResponseService $responseService)
     {
         $this->responseService = $responseService;
+    }
+
+    protected function isJobOfferExpired(JobOffer $jobOffer): bool
+    {
+        return $jobOffer->valid_until < carbon::now();
     }
 
     public function createJobOffer(array $data): JsonResponse
