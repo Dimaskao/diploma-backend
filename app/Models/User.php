@@ -49,7 +49,7 @@ class User extends Authenticatable
 
     public function jobOffers(): BelongsToMany
     {
-        return $this->belongsToMany(JobOffer::class);
+        return $this->belongsToMany(JobOffer::class)->withTimestamps();
     }
 
     public function subscriptions(): HasMany

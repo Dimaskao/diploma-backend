@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('requirements')->nullable();
             $table->text('requirement_experience')->nullable();
-            $table->timestamp('date_posted');
+            $table->timestamp('date_posted')->useCurrent();
             $table->timestamp('valid_until');
             $table->timestamps();
 
