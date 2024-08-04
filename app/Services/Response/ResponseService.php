@@ -27,9 +27,9 @@ class ResponseService
         return $this->response($data, $message, 201);
     }
 
-    public function badRequest($message = 'Bad Request'): JsonResponse
+    public function badRequest($data = null, $message = 'Bad Request'): JsonResponse
     {
-        return $this->response(null, $message, 400);
+        return $this->response($data, $message, 400);
     }
 
     public function unauthorized($message = 'Unauthorized'): JsonResponse

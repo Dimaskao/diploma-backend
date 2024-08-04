@@ -20,6 +20,11 @@ class JobOffersController extends Controller
         return $this->service->getJobOfferById($id);
     }
 
+    public function index(): JsonResponse
+    {
+        return $this->service->getJobOffers();
+    }
+
     public function update($id, Request $request): JsonResponse
     {
         return $this->service->updateJobOfferById($id, $request->all());

@@ -5,9 +5,9 @@ namespace App\Services\JobOffer;
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Services\Response\ResponseService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Carbon\Carbon;
 
 class JobOfferService
 {
@@ -18,9 +18,13 @@ class JobOfferService
         $this->responseService = $responseService;
     }
 
-    protected function isJobOfferExpired(JobOffer $jobOffer): bool
+    protected function isJobOfferExpired(?JobOffer $jobOffer): bool
     {
-        return $jobOffer->valid_until < carbon::now();
+        if ($jobOffer) {
+            return $jobOffer->valid_until < carbon::now();
+        } else {
+            return false;
+        }
     }
 
     public function createJobOffer(array $data): JsonResponse
@@ -30,6 +34,8 @@ class JobOfferService
                 && isset($data['position']) && isset($data['description'])
                 && isset($data['requirements']) && isset($data['requirement_experience'])
                 && isset($data['valid_until'])) {
+
+                //var_dump($data);
 
                 $company = Company::find($data['company_id']);
 
@@ -45,33 +51,56 @@ class JobOfferService
                     ]);
 
                     return $this->responseService->created($jobOffer, 'JobOffer created.');
+                } else {
+                    return $this->responseService->notFound('Company not found.');
                 }
             }
 
-            return $this->responseService->badRequest();
+            return $this->responseService->badRequest($data);
         } catch (Exception $e) {
             return $this->responseService->internalServerError("Error during creating a JobOffer, {$e->getMessage()}");
         }
     }
 
-    public function getJobOfferById(int $id): JsonResponse
+    public function getJobOfferById(string $id): JsonResponse
     {
         $jobOffer = JobOffer::find($id);
+
+        if ($this->isJobOfferExpired($jobOffer)) {
+            return $this->deleteJobOfferById($jobOffer->id);
+        }
 
         return $this->responseService->success($jobOffer);
     }
 
-    public function getJobOffersByCompanyId(int $id): JsonResponse
+    public function getJobOffers(): JsonResponse
     {
-        $jobOffers = JobOffer::where('company_id', $id)->get();
+        $jobOffers = JobOffer::all();
 
         return $this->responseService->success($jobOffers);
     }
 
-    public function updateJobOfferById(int $id, array $data): JsonResponse
+    public function getJobOffersByCompanyId(string $id): JsonResponse
+    {
+        $jobOffers = JobOffer::where('company_id', $id)->get();
+
+        foreach ($jobOffers as $jobOffer) {
+            if ($this->isJobOfferExpired($jobOffer)) {
+                $this->deleteJobOfferById($jobOffer->id);
+            }
+        }
+
+        return $this->responseService->success($jobOffers);
+    }
+
+    public function updateJobOfferById(string $id, array $data): JsonResponse
     {
         try {
             $jobOffer = JobOffer::find($id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
 
             if ($jobOffer) {
                 $jobOffer->title = $data['title'];
@@ -92,7 +121,7 @@ class JobOfferService
         }
     }
 
-    public function deleteJobOfferById(int $id): JsonResponse
+    public function deleteJobOfferById(string $id): JsonResponse
     {
         try {
             $jobOffer = JobOffer::find($id);
@@ -108,10 +137,15 @@ class JobOfferService
         }
     }
 
-    public function subscribeToJobOffer(int $jobOffer_id, int $user_id): JsonResponse
+    public function subscribeToJobOffer(string $jobOffer_id, string $user_id): JsonResponse
     {
         try {
             $jobOffer = JobOffer::find($jobOffer_id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
+
             $jobOffer->users()->syncWithoutDetaching([$user_id]);
 
             return $this->responseService->success($jobOffer, 'JobOffer has been subscribed');
@@ -120,10 +154,15 @@ class JobOfferService
         }
     }
 
-    public function unsubscribeFromJobOffer(int $jobOffer_id, int $user_id): JsonResponse
+    public function unsubscribeFromJobOffer(string $jobOffer_id, string $user_id): JsonResponse
     {
         try {
             $jobOffer = JobOffer::find($jobOffer_id);
+
+            if ($this->isJobOfferExpired($jobOffer)) {
+                return $this->deleteJobOfferById($jobOffer->id);
+            }
+
             $jobOffer->users()->detach([$user_id]);
 
             return $this->responseService->success($jobOffer, 'JobOffer has been unsubscribed');
