@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+//JobOffers Routes
+Route::post('/job-offers', [JobOffersController::class, 'store']);
+Route::get('/job-offers/{id}', [JobOffersController::class, 'show']);
+Route::get('/job-offers', [JobOffersController::class, 'index']);
+Route::put('/job-offers/{id}', [JobOffersController::class, 'update']);
+Route::delete('/job-offers/{id}', [JobOffersController::class, 'destroy']);
+Route::get('/job-offers/by-company/{id}', [JobOffersController::class, 'getJobOffersByCompanyId']);
+Route::post('/job-offers/subscribe/{id}/{id}', [JobOffersController::class, 'subscribe']);
+Route::post('/job-offers/unsubscribe/{id}/{id}', [JobOffersController::class, 'unsubscribe']);
+
 // Protected Routes
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -30,14 +40,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/posts-feed/{userId}', PostsFeedController::class);
     Route::get('/profile/{userId}/posts', [\App\Http\Controllers\User\PostController::class, 'index']);
 
-    //JobOffers Routes
-    Route::post('/job-offers', [JobOffersController::class, 'store']);
-    Route::get('/job-offers/{id}', [JobOffersController::class, 'show']);
-    Route::get('/job-offers', [JobOffersController::class, 'index']);
-    Route::put('/job-offers/{id}', [JobOffersController::class, 'update']);
-    Route::delete('/job-offers/{id}', [JobOffersController::class, 'destroy']);
-    Route::get('/job-offers/by-company/{id}', [JobOffersController::class, 'getJobOffersByCompanyId']);
-    Route::post('/job-offers/subscribe/{id}/{id}', [JobOffersController::class, 'subscribe']);
-    Route::post('/job-offers/unsubscribe/{id}/{id}', [JobOffersController::class, 'unsubscribe']);
+    //    //JobOffers Routes
+    //    Route::post('/job-offers', [JobOffersController::class, 'store']);
+    //    Route::get('/job-offers/{id}', [JobOffersController::class, 'show']);
+    //    Route::get('/job-offers', [JobOffersController::class, 'index']);
+    //    Route::put('/job-offers/{id}', [JobOffersController::class, 'update']);
+    //    Route::delete('/job-offers/{id}', [JobOffersController::class, 'destroy']);
+    //    Route::get('/job-offers/by-company/{id}', [JobOffersController::class, 'getJobOffersByCompanyId']);
+    //    Route::post('/job-offers/subscribe/{id}/{id}', [JobOffersController::class, 'subscribe']);
+    //    Route::post('/job-offers/unsubscribe/{id}/{id}', [JobOffersController::class, 'unsubscribe']);
 
 });
