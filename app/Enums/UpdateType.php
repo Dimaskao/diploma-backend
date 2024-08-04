@@ -9,4 +9,7 @@ class UpdateType extends BaseEnum
     const EDUCATION = 'education';
     const WORK_EXPERIENCE = 'work_experience';
     const SKILLS = 'skills';
+    const SELF = 'self';
+    const ANOTHER_ADMIN_PERMISSIONS = 'another_admin_permissions';
+    const BAN_UNBAN = 'ban_unban';
 }

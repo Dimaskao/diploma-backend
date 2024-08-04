@@ -17,10 +17,6 @@ return new class extends Migration
             $table->json('permissions');
             $table->timestamps();
         });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreign('profileable_id', 'fk_users_admins')->references('id')->on('admins')->onDelete('cascade');
-        });
     }
 
     /**
@@ -28,10 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign('fk_users_admins');
-        });
-
         Schema::dropIfExists('admins');
     }
 };

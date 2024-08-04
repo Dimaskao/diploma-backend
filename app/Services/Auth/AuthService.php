@@ -2,18 +2,17 @@
 
 namespace App\Services\Auth;
 
-use App\Enums\ResponseKeys;
+use App\Enums\ResponseKey;
 use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
 use App\Services\Response\ResponseService;
-use App\Services\ValidationService;
+use App\Services\Validation\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
@@ -43,7 +42,7 @@ class AuthService
         } catch (ValidationException $e) {
             return $this->responseService->badRequest("Validation error: {$e->getMessage()}");
         } catch (Exception $e) {
-            return $this->responseService->internalServerError("Failed to create user or company, {$e->getMessage()}");
+            return $this->responseService->internalServerError("Failed to create user, {$e->getMessage()}");
         }
     }
 
@@ -59,7 +58,7 @@ class AuthService
             $token = $this->userLogin($credentials, $role);
 
             if ($token) {
-                return $this->responseService->success([ResponseKeys::TOKEN => $token]);
+                return $this->responseService->success([ResponseKey::TOKEN => $token]);
             } else {
                 return $this->responseService->unauthorized("Invalid credentials");
             }
@@ -92,7 +91,8 @@ class AuthService
             'name' => 'required_if:role,company|string|max:255',
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:user,company'
+            'role' => 'required|string|in:user,company,admin',
+            'permissions' => 'required_if:role,admin|array'
         ];
     }
 
@@ -101,7 +101,7 @@ class AuthService
         return [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
-            'role' => 'required|string|in:user,company'
+            'role' => 'required|string|in:user,company,admin'
         ];
     }
 

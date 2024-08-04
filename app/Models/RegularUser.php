@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class RegularUser extends Model
 {
@@ -24,11 +24,6 @@ class RegularUser extends Model
         'experience'
     ];
 
-    public function user(): MorphOne
-    {
-        return $this->morphOne(User::class, 'profileable');
-    }
-
     public function userEducations(): HasMany
     {
         return $this->hasMany(UserEducation::class);
@@ -42,5 +37,10 @@ class RegularUser extends Model
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class);
+    }
+
+    public function userProfile(): BelongsTo
+    {
+        return $this->belongsTo(UserProfile::class, 'id', 'regular_user_id');
     }
 }

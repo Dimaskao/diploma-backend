@@ -30,7 +30,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "TestsHelpers\\": "tests/TestsHelpers/",
+            "TestsEnums\\": "tests/TestsEnums/"
         }
     },
     "scripts": {

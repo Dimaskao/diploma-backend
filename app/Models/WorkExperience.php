@@ -16,7 +16,7 @@ class WorkExperience extends Model
     protected $fillable = [
         'user_id',
         'position',
-        'company',
+        'company_name',
         'date_start',
         'date_end',
         'description'
