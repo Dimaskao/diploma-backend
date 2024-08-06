@@ -10,6 +10,7 @@ use App\Models\RegularUser;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Services\Image\ImageUploadService;
 use Illuminate\Support\Facades\Hash;
 use Exception;
 
@@ -18,6 +19,13 @@ class UserFactory implements Factory
     protected const REGULAR_USER_ID = 'regular_user_id';
     protected const COMPANY_ID = 'company_id';
     protected const ADMIN_ID = 'admin_id';
+
+    protected ImageUploadService $imageUploadService;
+
+    public function __construct(ImageUploadService $imageUploadService)
+    {
+        $this->imageUploadService = $imageUploadService;
+    }
 
     /**
      * @throws Exception
@@ -40,6 +48,9 @@ class UserFactory implements Factory
         };
     }
 
+    /**
+     * @throws Exception
+     */
     protected function createRegularUser(array $data): array
     {
         $regularUser = RegularUser::create([
@@ -51,6 +62,9 @@ class UserFactory implements Factory
         return ['user' => $user, 'regular_user' => $regularUser];
     }
 
+    /**
+     * @throws Exception
+     */
     protected function createCompanyUser(array $data): array
     {
         $company = Company::create([
@@ -62,6 +76,9 @@ class UserFactory implements Factory
         return ['user' => $user, 'company' => $company];
     }
 
+    /**
+     * @throws Exception
+     */
     protected function createAdminUser(array $data): array
     {
         $admin = Admin::create([
@@ -73,21 +90,35 @@ class UserFactory implements Factory
         return ['user' => $user, 'admin' => $admin];
     }
 
-    private function profileData($data, $key, $specificUser)
-    {
-        $profile = UserProfile::create([$key => $specificUser->id]);
-        $data['user_profile_id'] = $profile->id;
-        return $data;
-    }
-
+    /**
+     * @throws Exception
+     */
     private function createBaseUser($data, $key, $specificUser)
     {
-        $data = $this->profileData($data, $key, $specificUser);
-        return User::create([
-            'email' => $data['email'],
-            'password' => $data['password'],
-            'role_id' => $data['role_id'],
-            'user_profile_id' => $data['user_profile_id']
-        ]);
+        $user = new User();
+
+        $user->email = $data['email'];
+        $user->password = $data['password'];
+        $user->role_id = $data['role_id'];
+        $user->user_profile_id = $this->userProfileId($key, $specificUser);
+        $user->avatar_url = $this->avatarUrl($user, $data);
+
+        $user->save();
+
+        return $user;
+    }
+
+    private function userProfileId($key, $specificUser)
+    {
+        $profile = UserProfile::create([$key => $specificUser->id]);
+        return $profile->id;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function avatarUrl($user, $data): ?string
+    {
+        return isset($data['avatar']) ? $this->imageUploadService->upload($user, $data['avatar']) : null;
     }
 }

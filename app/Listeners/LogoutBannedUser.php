@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\UserBanned;
 
-class LogOutBannedUser
+class LogoutBannedUser
 {
     /**
      * Handle the event.

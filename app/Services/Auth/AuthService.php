@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
+use App\Services\Image\ImageProcessingService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use Exception;
@@ -22,12 +23,14 @@ class AuthService
     protected Factory $factory;
     protected ValidationService $validationService;
     protected ResponseService $responseService;
+    protected ImageProcessingService $imageProcessingService;
 
-    public function __construct(ValidationService $validationService, UserFactory $factory, ResponseService $responseService)
+    public function __construct(ValidationService $validationService, UserFactory $factory, ResponseService $responseService, ImageProcessingService $imageProcessingService)
     {
         $this->validationService = $validationService;
         $this->factory = $factory;
         $this->responseService = $responseService;
+        $this->imageProcessingService = $imageProcessingService;
     }
 
     /**
@@ -92,7 +95,8 @@ class AuthService
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|in:user,company,admin',
-            'permissions' => 'required_if:role,admin|array'
+            'permissions' => 'required_if:role,admin|array',
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 

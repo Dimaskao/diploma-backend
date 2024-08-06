@@ -47,6 +47,11 @@ class ResponseService
         return $this->response(null, $message, 404);
     }
 
+    public function unprocessableContent($message = 'Unprocessable Content'): JsonResponse
+    {
+        return $this->response(null, $message, 422);
+    }
+
     public function internalServerError($message = 'Internal Server Error'): JsonResponse
     {
         return $this->response(null, $message, 500);

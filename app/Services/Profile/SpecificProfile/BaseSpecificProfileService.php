@@ -7,6 +7,7 @@ use App\Enums\ResponseKey;
 use App\Enums\UpdateType;
 use App\Interfaces\SpecificProfileService;
 use App\Models\User;
+use App\Services\Image\ImageUploadService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use Exception;
@@ -18,11 +19,13 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
 {
     protected ValidationService $validator;
     protected ResponseService $responseService;
+    protected ImageUploadService $imageUploadService;
 
     public function __construct()
     {
         $this->validator = new ValidationService();
         $this->responseService = new ResponseService();
+        $this->imageUploadService = new ImageUploadService();
     }
 
     public function getProfile($user): JsonResponse
@@ -69,11 +72,11 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         return $this->responseService->success();
     }
 
-    protected function getUserUpdateData(array $data): array
+    protected function getUserUpdateData(array $data, User $user = null): array
     {
         return array_filter([
             'password' => isset($data['password']) ? bcrypt($data['password']) : null,
-            'avatar_url' => $data['avatar_url'] ?? null,
+            'avatar_url' => isset($data['avatar']) && $user ? $this->imageUploadService->upload($user, $data['avatar']) : null,
         ], function ($value) {
             return !is_null($value);
         });
@@ -86,6 +89,49 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    protected function getUpdateDataByFields(array $data, $fields): array
+    {
+        return array_filter($data, function ($key) use ($fields) {
+            return in_array($key, $fields);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * @throws ValidationException
+     * @throws Exception
+     */
+    protected function updateProfileData($data, $specificUser, $baseUser): void
+    {
+        $data = $this->validator->validate($data, $this->validationRules());
+
+        if (!$specificUser || !$baseUser) {
+            throw new Exception('Error while updating user profile');
+        }
+
+        $userUpdateData = $this->getUpdateDataByFields($data, $this->profileUpdateFields());
+        $baseUserUpdateData = $this->getUserUpdateData($data);
+
+        if (!empty($userUpdateData)) {
+            $specificUser->update($userUpdateData);
+        }
+
+        if (!empty($baseUserUpdateData)) {
+            $baseUser->update($baseUserUpdateData);
+        }
+    }
+
+    protected function profileUpdateFields(): array
+    {
+        // Override this method in the child class if needed
+        return [];
+    }
+
+    protected function validationRules(): array
+    {
+        // Override this method in the child class if needed
+        return [];
     }
 
     protected function processByType(string $operation, array $methods, $specific, $typeData = null, $base = null): array
