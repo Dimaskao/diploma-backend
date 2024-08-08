@@ -23,14 +23,12 @@ class AuthService
     protected Factory $factory;
     protected ValidationService $validationService;
     protected ResponseService $responseService;
-    protected ImageProcessingService $imageProcessingService;
 
-    public function __construct(ValidationService $validationService, UserFactory $factory, ResponseService $responseService, ImageProcessingService $imageProcessingService)
+    public function __construct(ValidationService $validationService, UserFactory $factory, ResponseService $responseService)
     {
         $this->validationService = $validationService;
         $this->factory = $factory;
         $this->responseService = $responseService;
-        $this->imageProcessingService = $imageProcessingService;
     }
 
     /**

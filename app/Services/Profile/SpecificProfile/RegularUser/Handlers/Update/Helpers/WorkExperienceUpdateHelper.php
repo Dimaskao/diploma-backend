@@ -3,7 +3,6 @@
 namespace App\Services\Profile\SpecificProfile\RegularUser\Handlers\Update\Helpers;
 
 use App\Enums\Period;
-use App\Models\UserEducation;
 use App\Models\WorkExperience;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,7 +40,8 @@ trait WorkExperienceUpdateHelper
         }
 
         $data = $this->validator->validate($data, $this->createWorkExperienceValidationRules());
-        return $this->createWorkExperienceRecord($data, $user);
+
+        return $this->createWorkExperienceRecord($user, $data);
     }
 
     private function updateWorkExperienceRecord($data, $workExperience)
@@ -75,8 +75,8 @@ trait WorkExperienceUpdateHelper
         return [
             'position' => 'sometimes|string|max:255',
             'company_name' => 'sometimes|string|max:255',
-            'date_start' => 'sometimes|date',
-            'date_end' => 'sometimes|date',
+            'date_start' => 'sometimes|required_with:date_end|nullable|date',
+            'date_end' => 'sometimes|nullable|date',
             'description' => 'sometimes|string|max:255',
         ];
     }
@@ -86,8 +86,8 @@ trait WorkExperienceUpdateHelper
         return [
             'position' => 'required|string|max:255',
             'company_name' => 'required|string|max:255',
-            'date_start' => 'sometimes|date',
-            'date_end' => 'sometimes|date',
+            'date_start' => 'sometimes|required_with:date_end|nullable|date',
+            'date_end' => 'sometimes|nullable|date',
             'description' => 'sometimes|string|max:255',
         ];
     }

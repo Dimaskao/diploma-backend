@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\FactoriesTests;
+namespace Tests\Feature\Factories;
 
 use App\Enums\UserRole;
 use App\Factories\ProfileStrategyFactory;

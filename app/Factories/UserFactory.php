@@ -13,6 +13,7 @@ use App\Models\UserProfile;
 use App\Services\Image\ImageUploadService;
 use Illuminate\Support\Facades\Hash;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class UserFactory implements Factory
 {
@@ -93,7 +94,7 @@ class UserFactory implements Factory
     /**
      * @throws Exception
      */
-    private function createBaseUser($data, $key, $specificUser)
+    private function createBaseUser($data, $key, $specificUser): User
     {
         $user = new User();
 
@@ -102,8 +103,12 @@ class UserFactory implements Factory
         $user->role_id = $data['role_id'];
         $user->user_profile_id = $this->userProfileId($key, $specificUser);
         $user->avatar_url = $this->avatarUrl($user, $data);
+        Log::debug('');
+        Log::debug('createBaseUser   $user->avatar_url: ' . var_export($user->avatar_url, 1));
 
         $user->save();
+
+//        Log::debug('createBaseUser 2 user: ' . var_export($user, 1));
 
         return $user;
     }
@@ -119,6 +124,11 @@ class UserFactory implements Factory
      */
     private function avatarUrl($user, $data): ?string
     {
+        Log::debug('avatarUrl  init data: ' . var_export([
+                'user' => $user,
+                'data' => $data
+            ], 1));
+
         return isset($data['avatar']) ? $this->imageUploadService->upload($user, $data['avatar']) : null;
     }
 }

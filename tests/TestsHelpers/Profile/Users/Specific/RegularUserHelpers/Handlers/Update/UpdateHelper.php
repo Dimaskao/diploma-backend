@@ -108,6 +108,8 @@ trait UpdateHelper
 
     private function expectedRegularUserSuccessUpdateResult($response): void
     {
+        Log::debug('********** expectedRegularUserSuccessUpdateResult response: ' . var_export($response, 1));
+
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Success', $response->getData(true)['message']);
@@ -123,7 +125,7 @@ trait UpdateHelper
 
     private function expectedRegularUserFailedUpdateResult($response): void
     {
-        Log::debug('******** response: ' . var_export($response, 1)) ;
+//        Log::debug('******** response: ' . var_export($response, 1)) ;
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('Attempt to read property "userProfile" on array', $response->getData(true)['message']);

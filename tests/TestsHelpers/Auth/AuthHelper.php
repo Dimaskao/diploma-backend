@@ -7,6 +7,8 @@ use App\Factories\UserFactory;
 use App\Http\Controllers\AuthController;
 use App\Interfaces\Factory;
 use App\Services\Auth\AuthService;
+use App\Services\Image\ImageProcessingService;
+use App\Services\Image\ImageUploadService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use TestsEnums\Entity;
@@ -82,7 +84,7 @@ trait AuthHelper
     private function setUpAuthServiceEntity(): void
     {
         $this->validationService = new ValidationService();
-        $this->userFactory = new UserFactory();
+        $this->userFactory = new UserFactory(new ImageUploadService(new ImageProcessingService()));
         $this->responseService = new ResponseService();
         $this->authService = new AuthService($this->validationService, $this->userFactory, $this->responseService);
     }

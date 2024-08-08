@@ -21,11 +21,11 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
     protected ResponseService $responseService;
     protected ImageUploadService $imageUploadService;
 
-    public function __construct()
+    public function __construct(ValidationService $validationService, ResponseService $responseService, ImageUploadService $imageUploadService)
     {
-        $this->validator = new ValidationService();
-        $this->responseService = new ResponseService();
-        $this->imageUploadService = new ImageUploadService();
+        $this->validator = $validationService;
+        $this->responseService = $responseService;
+        $this->imageUploadService = $imageUploadService;
     }
 
     public function getProfile($user): JsonResponse
@@ -76,10 +76,15 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
     {
         return array_filter([
             'password' => isset($data['password']) ? bcrypt($data['password']) : null,
-            'avatar_url' => isset($data['avatar']) && $user ? $this->imageUploadService->upload($user, $data['avatar']) : null,
+            'avatar_url' => isset($data['avatar']) && $user ? $this->processAvatarUpdate($user, $data['avatar']) : null,
         ], function ($value) {
             return !is_null($value);
         });
+    }
+
+    protected function processAvatarUpdate($user, $avatar): ?string
+    {
+        return $this->imageUploadService->remove($user) ? $this->imageUploadService->upload($user, $avatar) : null;
     }
 
     protected function convertToDateTimeString($date): ?string

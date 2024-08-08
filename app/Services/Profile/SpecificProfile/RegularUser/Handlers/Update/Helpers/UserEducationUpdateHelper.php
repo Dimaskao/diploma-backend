@@ -15,7 +15,7 @@ trait UserEducationUpdateHelper
     {
         return array_map(function ($education) use ($user) {
             $education = $this->prepareEducationDates($education);
-            $educationRecord = $this->findOrCreateEducationRecord($education);
+            $educationRecord = $this->findOrCreateEducationRecord($education, $user);
             return $this->transformEducationRecord($educationRecord);
         }, $educationData);
     }
@@ -36,7 +36,7 @@ trait UserEducationUpdateHelper
     /**
      * @throws ValidationException
      */
-    private function findOrCreateEducationRecord(array $data)
+    private function findOrCreateEducationRecord(array $data, $user)
     {
         $educationRecord = isset($data['id']) ? UserEducation::find($data['id']) : null;
 
@@ -46,7 +46,7 @@ trait UserEducationUpdateHelper
         }
 
         $data = $this->validator->validate($data, $this->createEducationValidationRules());
-        return $this->createEducationRecord($data);
+        return $this->createEducationRecord($data, $user);
     }
 
     private function updateEducationRecord(array $data, $educationRecord): array
@@ -56,12 +56,13 @@ trait UserEducationUpdateHelper
         return $educationRecord;
     }
 
-    private function createEducationRecord(array $data)
+    private function createEducationRecord(array $data, $user)
     {
+        $data = $this->getUpdateDataByFields($data, $this->educationFields());
         $educationData = array_merge(
-            $this->getUpdateDataByFields($data, $this->educationFields()),
+            $data,
             [
-                'user_id' => $data['user_id'],
+                'user_id' => $user->id,
                 'id' => (string)Str::uuid()
             ]
         );
