@@ -57,7 +57,7 @@ trait UpdateHelper
                     "contact_phone" => "+14189481515",
                     "password" => "new password",
                     "contact_url" => "https://contact-url.test.com",
-//                    "avatar_url" => "https://avatar-url.test.com",
+                    'avatar' => $this->uploadedFile(),
                 ]
             ]
         ];
