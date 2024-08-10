@@ -2,12 +2,9 @@
 
 namespace App\Services\Image;
 
-use App\Models\User;
-use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
-class ImageUploadService
+readonly class ImageUploadService
 {
     protected ImageProcessingService $imageProcessingService;
 
@@ -17,25 +14,21 @@ class ImageUploadService
     }
 
     /**
-     * Uploads image to AWS and returns url to saved media file
+     * Upload a file to AWS S3 and return the URL.
      */
-    public function upload(User $user, ?UploadedFile $file): ?string
+    public function uploadToCloud($model, $file, string $collectionName, bool $isMultiple = false): ?string
     {
-        // TODO: setup aws in .env
-        try {
-            $media = $this->imageProcessingService->saveImageToAWS($user, $file, 'avatars');
-            return $this->imageProcessingService->getImageUrl($media);
-        } catch (Exception $e) {
-            return null;
-        }
+        $media = $this->imageProcessingService->saveToCloud($model, $file, $collectionName, $isMultiple);
+        return $this->imageProcessingService->getImageUrl($media);
     }
 
     /**
-     * Removes media file from AWS
+     * Update uploaded to AWS S3 file and return the URL.
      */
-    public function remove(User $user): bool
+    public function updateUploadedFile($oldFileUrl, $model, $newFile, $collectionName, $isMultiple = false): ?string
     {
-        $media = $this->imageProcessingService->getFileByMediaUrl($user->avatar_url);
-        return $this->imageProcessingService->deleteImageFromAws($media);
+        $oldMedia = $this->imageProcessingService->getFileByMediaUrl($oldFileUrl);
+        $this->imageProcessingService->deleteImageFromAws($oldMedia);
+        return $this->uploadToCloud($model, $newFile, $collectionName, $isMultiple);
     }
 }

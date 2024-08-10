@@ -4,7 +4,7 @@ namespace App\Services\Response;
 
 use Illuminate\Http\JsonResponse;
 
-class ResponseService
+readonly class ResponseService
 {
     /**
      * Standardize response data and return a JSON response.

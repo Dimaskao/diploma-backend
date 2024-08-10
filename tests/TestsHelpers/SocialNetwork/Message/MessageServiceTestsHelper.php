@@ -10,7 +10,7 @@ trait MessageServiceTestsHelper
 
     public function testSendMessage(): void
     {
-        $user = $this->getTestUser();
+        $user = $this->userTest();
         $chat = $this->getTestChat();
         $response = $this->sendMessage($chat, $user);
         $this->expectedSendMessageResult($response, $chat, $user);
@@ -21,7 +21,7 @@ trait MessageServiceTestsHelper
         $chat = $this->getTestChat();
 
         for ($i = 0; $i < 5; $i++) {
-            $user = $this->getTestUser();
+            $user = $this->userTest();
             $this->getTestMessage($user, $chat, "{$this->getStandardTestContent()} $i");
         }
 

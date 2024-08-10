@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Passport\ClientRepository;
 use RuntimeException;
 
-class AuthService
+readonly class AuthService
 {
     protected Factory $factory;
     protected ValidationService $validationService;

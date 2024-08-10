@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 
+use App\Enums\CollectionName;
 use App\Enums\UserRole;
 use App\Interfaces\Factory;
 use App\Models\Admin;
@@ -13,7 +14,6 @@ use App\Models\UserProfile;
 use App\Services\Image\ImageUploadService;
 use Illuminate\Support\Facades\Hash;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class UserFactory implements Factory
 {
@@ -21,7 +21,7 @@ class UserFactory implements Factory
     protected const COMPANY_ID = 'company_id';
     protected const ADMIN_ID = 'admin_id';
 
-    protected ImageUploadService $imageUploadService;
+    protected readonly ImageUploadService $imageUploadService;
 
     public function __construct(ImageUploadService $imageUploadService)
     {
@@ -102,21 +102,17 @@ class UserFactory implements Factory
         $user->password = $data['password'];
         $user->role_id = $data['role_id'];
         $user->user_profile_id = $this->userProfileId($key, $specificUser);
-        $user->avatar_url = $this->avatarUrl($user, $data);
-        Log::debug('');
-        Log::debug('createBaseUser   $user->avatar_url: ' . var_export($user->avatar_url, 1));
 
         $user->save();
-
-//        Log::debug('createBaseUser 2 user: ' . var_export($user, 1));
+        $user->avatar_url = $this->avatarUrl($user, $data);
+        $user->save();
 
         return $user;
     }
 
     private function userProfileId($key, $specificUser)
     {
-        $profile = UserProfile::create([$key => $specificUser->id]);
-        return $profile->id;
+        return UserProfile::create([$key => $specificUser->id])->id;
     }
 
     /**
@@ -124,11 +120,6 @@ class UserFactory implements Factory
      */
     private function avatarUrl($user, $data): ?string
     {
-        Log::debug('avatarUrl  init data: ' . var_export([
-                'user' => $user,
-                'data' => $data
-            ], 1));
-
-        return isset($data['avatar']) ? $this->imageUploadService->upload($user, $data['avatar']) : null;
+        return isset($data['avatar']) ? $this->imageUploadService->uploadToCloud($user, $data['avatar'], CollectionName::AVATARS_URLS) : null;
     }
 }

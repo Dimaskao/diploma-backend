@@ -26,7 +26,7 @@ trait ProfileServiceTestsHelper
         $this->role = $role;
         $this->setUpAuth();
         $this->setUpRequest();
-        $this->user = $this->getTestUser();
+        $this->user = $this->userTest();
     }
 
     protected function setUpAuth(): void
@@ -43,7 +43,7 @@ trait ProfileServiceTestsHelper
 
     public function testUpdateProfileSuccess(): void
     {
-        $response = $this->profileRegistry->updateProfile($this->getTestUser(), $this->request);
+        $response = $this->profileRegistry->updateProfile($this->userTest(), $this->request);
         $this->expectedResult(Method::UPDATE, Status::SUCCESS, $response);
     }
 
@@ -55,7 +55,7 @@ trait ProfileServiceTestsHelper
 
     public function testDeleteProfileSuccess(): void
     {
-        $response = $this->profileRegistry->deleteProfile($this->getTestUser()->id);
+        $response = $this->profileRegistry->deleteProfile($this->userTest()->id);
         $this->expectedResult(Method::DELETE, Status::SUCCESS, $response);
     }
 

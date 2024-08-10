@@ -3,19 +3,25 @@
 namespace App\Services\Image;
 
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class ImageProcessingService
+readonly class ImageProcessingService
 {
-    /**
-     * @throws Exception
-     */
-    public function saveImageToAWS($model, ?UploadedFile $file, string $collectionName): ?Media
+    public function saveToCloud($model, $requestData, string $collectionName, bool $isMultiple = false): ?Media
     {
-        $this->validateModel($model, $file);
-        return $model->addMedia($file)->toMediaCollection($collectionName, 's3');
+        try {
+            $this->validateModel($model, $requestData);
+            return $this->addMedia($model, $requestData, $isMultiple)->toMediaCollection($collectionName, 's3');
+        } catch (Exception $e) {
+            Log::error('Error uploading image to AWS S3: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function addMedia($model, $requestData, bool $isMultiple = false)
+    {
+        return $isMultiple ? $model->addMultipleMediaFromRequest($requestData) : $model->addMedia($requestData);
     }
 
     public function deleteImageFromAws(Media $media): bool
@@ -25,7 +31,7 @@ class ImageProcessingService
 
     public function getImageUrl(?Media $media): string
     {
-        return $media->getUrl();
+        return $media->exists ? $media->getUrl() : '';
     }
 
     /**
@@ -63,9 +69,6 @@ class ImageProcessingService
      */
     public function extractMediaIdFromUrl(string $url): ?int
     {
-        if (preg_match('/\/(\d+)\//', $url, $matches)) {
-            return (int) $matches[1];
-        }
-        return null;
+        return preg_match('/\/(\d+)\//', $url, $matches) ? (int)$matches[1]: null;
     }
 }

@@ -12,14 +12,14 @@ trait ChatServiceTestsHelper
 
     public function testCreateOneToOneChat(): void
     {
-        $user = $this->getTestUser();
+        $user = $this->userTest();
         $response = $this->createOneToOneChat($user);
         $this->expectedCreateOneToOneChatResult($response, $user);
     }
 
     public function testCreateGroupChat(): void
     {
-        $user = $this->getTestUser();
+        $user = $this->userTest();
         $response = $this->createGroupChat($user);
         $this->expectedCreateGroupChatResult($response, $user);
     }

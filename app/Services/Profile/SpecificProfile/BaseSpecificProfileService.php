@@ -2,6 +2,7 @@
 
 namespace App\Services\Profile\SpecificProfile;
 
+use App\Enums\CollectionName;
 use App\Enums\Method;
 use App\Enums\ResponseKey;
 use App\Enums\UpdateType;
@@ -13,13 +14,14 @@ use App\Services\Validation\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 abstract class BaseSpecificProfileService implements SpecificProfileService
 {
-    protected ValidationService $validator;
-    protected ResponseService $responseService;
-    protected ImageUploadService $imageUploadService;
+    protected readonly ValidationService $validator;
+    protected readonly ResponseService $responseService;
+    protected readonly ImageUploadService $imageUploadService;
 
     public function __construct(ValidationService $validationService, ResponseService $responseService, ImageUploadService $imageUploadService)
     {
@@ -82,9 +84,11 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         });
     }
 
-    protected function processAvatarUpdate($user, $avatar): ?string
+    protected function processAvatarUpdate($user, $avatar, $collectionName = CollectionName::AVATARS_URLS): ?string
     {
-        return $this->imageUploadService->remove($user) ? $this->imageUploadService->upload($user, $avatar) : null;
+        return $user->avatar_url
+            ? $this->imageUploadService->updateUploadedFile($user->avatar_url, $user, $avatar, $collectionName)
+            : $this->imageUploadService->uploadToCloud($user, $avatar, $collectionName);
     }
 
     protected function convertToDateTimeString($date): ?string
@@ -116,7 +120,12 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         }
 
         $userUpdateData = $this->getUpdateDataByFields($data, $this->profileUpdateFields());
-        $baseUserUpdateData = $this->getUserUpdateData($data);
+
+        $baseUserUpdateData = $this->getUserUpdateData($data, $baseUser);
+
+        Log::debug('$baseUserUpdateData: ' . var_export([
+                '$baseUserUpdateData' => $baseUserUpdateData,
+            ], 1));
 
         if (!empty($userUpdateData)) {
             $specificUser->update($userUpdateData);

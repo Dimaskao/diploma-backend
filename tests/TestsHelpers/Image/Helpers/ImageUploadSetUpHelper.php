@@ -21,7 +21,7 @@ trait ImageUploadSetUpHelper
         $this->role = $role;
         $this->imageService = $imageService;
         $this->setUpRegistry(Entity::SERVICE, $this->role);
-        $this->user = $this->getTestUser();
+        $this->user = $this->userTest();
         $this->baseTestImagesFolderPath = 'tests/Fixtures/';
         $this->createTestAvatar();
 
@@ -34,7 +34,7 @@ trait ImageUploadSetUpHelper
         copy(base_path($this->baseTestImagesFolderPath .'avatar_example.jpg'), $this->baseTestImagesFolderPath .'/avatar.jpg');
     }
 
-    protected function getTestUploadedFile(): UploadedFile
+    protected function uploadedFile(): UploadedFile
     {
         return new UploadedFile(
             base_path('tests/Fixtures/avatar.jpg'),
@@ -48,11 +48,11 @@ trait ImageUploadSetUpHelper
 
     protected function saveToAws(): ?Media
     {
-        return $this->imageService->saveImageToAWS($this->user, $this->getTestUploadedFile(), 'avatars');
+        return $this->imageService->saveToCloud($this->user, $this->uploadedFile(), 'avatars.urls');
     }
 
     protected function upload($isFake = false): ?string
     {
-        return $this->imageService->upload($this->user, !$isFake ? $this->getTestUploadedFile() : null);
+        return $this->imageService->uploadToCloud($this->user, !$isFake ? $this->uploadedFile() : null);
     }
 }
