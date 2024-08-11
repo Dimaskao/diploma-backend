@@ -11,64 +11,39 @@ trait ProfileUpdateHelper
      * @throws ValidationException
      * @throws Exception
      */
-    protected function updateRegularUserProfile(array $personalInformation, $user, $baseUser): array
+    protected function updateRegularUserProfile(array $personalInformation, $user, $base): array
     {
-        $data = $this->validator->validate($personalInformation, [
+        $this->updateProfileData($personalInformation, $user, $base);
+        return $this->transformProfileData($user, $base);
+    }
+
+    protected function validationRules(): array
+    {
+        return [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
             'skills_desc' => 'sometimes|string',
             'experience' => 'sometimes|string',
-            'email' => 'sometimes|string',
             'password' => 'sometimes|string|min:8',
-            'avatar_url' => 'sometimes|url'
-        ]);
-
-        if (!$user || !$baseUser) {
-            throw new Exception('Error while updating user profile');
-        }
-
-        $userUpdateData = $this->getRegularUserUpdateData($data);
-        $baseUserUpdateData = $this->getUserUpdateData($data);
-
-        if (!empty($userUpdateData)) {
-            $user->update($userUpdateData);
-        }
-
-        if (!empty($baseUserUpdateData)) {
-            $baseUser->update($baseUserUpdateData);
-        }
-
-        return [
-            'id' => $baseUser->id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'skills_desc' => $user->skills_desc,
-            'experience' => $user->experience,
-            'avatar_url' => $baseUser->avatar_url,
-            'email' => $baseUser->email,
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 
-    private function getRegularUserUpdateData(array $data): array
+    protected function profileUpdateFields(): array
     {
-        $userUpdateData = [];
+        return ['first_name', 'last_name', 'skills_desc', 'experience'];
+    }
 
-        if (isset($data['first_name'])) {
-            $userUpdateData['first_name'] = $data['first_name'];
-        }
-
-        if (isset($data['last_name'])) {
-            $userUpdateData['last_name'] = $data['last_name'];
-        }
-
-        if (isset($data['skills_desc'])) {
-            $userUpdateData['skills_desc'] = $data['skills_desc'];
-        }
-
-        if (isset($data['experience'])) {
-            $userUpdateData['experience'] = $data['experience'];
-        }
-
-        return $userUpdateData;
+    private function transformProfileData($specific, $base): array
+    {
+        return [
+            'id' => $base->id,
+            'first_name' => $specific->first_name,
+            'last_name' => $specific->last_name,
+            'skills_desc' => $specific->skills_desc,
+            'experience' => $specific->experience,
+            'avatar_url' => $base->avatar_url,
+            'email' => $base->email,
+        ];
     }
 }

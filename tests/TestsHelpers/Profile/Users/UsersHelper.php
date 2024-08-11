@@ -16,7 +16,7 @@ trait UsersHelper
 {
     use RegularUserServiceHelper, CompanyServiceHelper, AdminServiceHelper;
 
-    public function getTestUser()
+    public function userTest()
     {
         $this->authUser();
         return User::where('email', $this->credentials['email'])->first();

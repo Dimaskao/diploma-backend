@@ -2,27 +2,32 @@
 
 namespace App\Services\Profile\SpecificProfile;
 
+use App\Enums\CollectionName;
 use App\Enums\Method;
 use App\Enums\ResponseKey;
 use App\Enums\UpdateType;
 use App\Interfaces\SpecificProfileService;
 use App\Models\User;
+use App\Services\Image\ImageUploadService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 abstract class BaseSpecificProfileService implements SpecificProfileService
 {
-    protected ValidationService $validator;
-    protected ResponseService $responseService;
+    protected readonly ValidationService $validator;
+    protected readonly ResponseService $responseService;
+    protected readonly ImageUploadService $imageUploadService;
 
-    public function __construct()
+    public function __construct(ValidationService $validationService, ResponseService $responseService, ImageUploadService $imageUploadService)
     {
-        $this->validator = new ValidationService();
-        $this->responseService = new ResponseService();
+        $this->validator = $validationService;
+        $this->responseService = $responseService;
+        $this->imageUploadService = $imageUploadService;
     }
 
     public function getProfile($user): JsonResponse
@@ -69,14 +74,21 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         return $this->responseService->success();
     }
 
-    protected function getUserUpdateData(array $data): array
+    protected function getUserUpdateData(array $data, User $user = null): array
     {
         return array_filter([
             'password' => isset($data['password']) ? bcrypt($data['password']) : null,
-            'avatar_url' => $data['avatar_url'] ?? null,
+            'avatar_url' => isset($data['avatar']) && $user ? $this->processAvatarUpdate($user, $data['avatar']) : null,
         ], function ($value) {
             return !is_null($value);
         });
+    }
+
+    protected function processAvatarUpdate($user, $avatar, $collectionName = CollectionName::AVATARS_URLS): ?string
+    {
+        return $user->avatar_url
+            ? $this->imageUploadService->updateUploadedFile($user->avatar_url, $user, $avatar, $collectionName)
+            : $this->imageUploadService->uploadToCloud($user, $avatar, $collectionName);
     }
 
     protected function convertToDateTimeString($date): ?string
@@ -86,6 +98,54 @@ abstract class BaseSpecificProfileService implements SpecificProfileService
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    protected function getUpdateDataByFields(array $data, $fields): array
+    {
+        return array_filter($data, function ($key) use ($fields) {
+            return in_array($key, $fields);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * @throws ValidationException
+     * @throws Exception
+     */
+    protected function updateProfileData($data, $specificUser, $baseUser): void
+    {
+        $data = $this->validator->validate($data, $this->validationRules());
+
+        if (!$specificUser || !$baseUser) {
+            throw new Exception('Error while updating user profile');
+        }
+
+        $userUpdateData = $this->getUpdateDataByFields($data, $this->profileUpdateFields());
+
+        $baseUserUpdateData = $this->getUserUpdateData($data, $baseUser);
+
+        Log::debug('$baseUserUpdateData: ' . var_export([
+                '$baseUserUpdateData' => $baseUserUpdateData,
+            ], 1));
+
+        if (!empty($userUpdateData)) {
+            $specificUser->update($userUpdateData);
+        }
+
+        if (!empty($baseUserUpdateData)) {
+            $baseUser->update($baseUserUpdateData);
+        }
+    }
+
+    protected function profileUpdateFields(): array
+    {
+        // Override this method in the child class if needed
+        return [];
+    }
+
+    protected function validationRules(): array
+    {
+        // Override this method in the child class if needed
+        return [];
     }
 
     protected function processByType(string $operation, array $methods, $specific, $typeData = null, $base = null): array

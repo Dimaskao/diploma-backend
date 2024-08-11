@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Factories\UserFactory;
 use App\Services\Auth\AuthService;
+use App\Services\Image\ImageProcessingService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use Illuminate\Support\ServiceProvider;

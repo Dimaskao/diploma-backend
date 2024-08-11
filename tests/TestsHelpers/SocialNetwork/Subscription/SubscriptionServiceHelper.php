@@ -46,10 +46,10 @@ trait SubscriptionServiceHelper
     private function getSubscriptionTestData(): array
     {
         $this->role = UserRole::REGULAR_USER;
-        $subscriber = $this->getTestUser();
+        $subscriber = $this->userTest();
 
         $this->role = UserRole::COMPANY;
-        $subscription = $this->getTestUser();
+        $subscription = $this->userTest();
 
         return [
             'subscriber_id' => $subscriber->id,

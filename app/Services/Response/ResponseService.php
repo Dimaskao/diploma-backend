@@ -4,7 +4,7 @@ namespace App\Services\Response;
 
 use Illuminate\Http\JsonResponse;
 
-class ResponseService
+readonly class ResponseService
 {
     /**
      * Standardize response data and return a JSON response.
@@ -45,6 +45,11 @@ class ResponseService
     public function notFound($message = 'Not Found'): JsonResponse
     {
         return $this->response(null, $message, 404);
+    }
+
+    public function unprocessableContent($message = 'Unprocessable Content'): JsonResponse
+    {
+        return $this->response(null, $message, 422);
     }
 
     public function internalServerError($message = 'Internal Server Error'): JsonResponse

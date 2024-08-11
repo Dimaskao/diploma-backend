@@ -89,7 +89,7 @@ trait ChatServiceHelper
     protected function addUserToChat(): JsonResponse
     {
         $chat = $this->getTestChat();
-        $user = $this->getTestUser();
+        $user = $this->userTest();
         $newUser = $this->getNewTestUser();
 
         // Ensure the original user is in the chat
@@ -100,6 +100,6 @@ trait ChatServiceHelper
     protected function getNewTestUser()
     {
         $this->refreshCredentials();
-        return $this->getTestUser();
+        return $this->userTest();
     }
 }

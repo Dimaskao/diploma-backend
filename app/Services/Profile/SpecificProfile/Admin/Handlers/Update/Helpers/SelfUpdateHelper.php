@@ -42,7 +42,7 @@ trait SelfUpdateHelper
         return [
             'name' => 'sometimes|string',
             'password' => 'sometimes|string|min:8',
-            'avatar_url' => 'sometimes|url',
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 

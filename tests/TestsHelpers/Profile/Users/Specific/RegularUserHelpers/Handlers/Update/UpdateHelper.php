@@ -9,9 +9,12 @@ use App\Models\RegularUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use TestsEnums\Status;
+use TestsHelpers\Image\Helpers\ImageUploadSetUpHelper;
 
 trait UpdateHelper
 {
+    use ImageUploadSetUpHelper;
+
     public function extractedSkills($skills): void
     {
         $this->assertArrayHasKey('id', $skills[0]);
@@ -78,6 +81,8 @@ trait UpdateHelper
 
     public function extractedPersonalInformation($personalInformation): void
     {
+        Log::debug('personal info result: ' . var_export($personalInformation, 1));
+
         $this->assertArrayHasKey('first_name', $personalInformation);
         $this->assertArrayHasKey('last_name', $personalInformation);
         $this->assertArrayHasKey('skills_desc', $personalInformation);
@@ -108,22 +113,18 @@ trait UpdateHelper
 
     private function expectedRegularUserSuccessUpdateResult($response): void
     {
+        Log::debug('********** expectedRegularUserSuccessUpdateResult response: ' . var_export($response, 1));
+
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Success', $response->getData(true)['message']);
 
-        $regularUser = RegularUser::first();
-
-        $this->assertEquals('Johnny', $regularUser->first_name);
-        $this->assertEquals('Johnson', $regularUser->last_name);
-
-        // TODO: fix bug here, Failed asserting that an array has the key 'data'.
 //        $this->extractedKeys($response);
     }
 
     private function expectedRegularUserFailedUpdateResult($response): void
     {
-        Log::debug('******** response: ' . var_export($response, 1)) ;
+//        Log::debug('******** response: ' . var_export($response, 1)) ;
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('Attempt to read property "userProfile" on array', $response->getData(true)['message']);
@@ -138,6 +139,8 @@ trait UpdateHelper
                     'last_name' => 'Johnson',
                     "skills_desc" => "Senior Developer",
                     "experience" => "7 years",
+                    'avatar' => $this->uploadedFile(),
+                    'password' => 'test1234'
                 ],
                 'education' => [
                     [

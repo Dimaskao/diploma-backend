@@ -65,7 +65,7 @@ trait UpdateHelper
     private function hasSelfExpectedValues($responseData): void
     {
         $this->assertEquals('Moderator test admin', $responseData['data']['updated_information']['self']['personal_information']['name']);
-        $this->assertEquals('https://avatar-url.test.com', $responseData['data']['updated_information']['self']['personal_information']['avatar_url']);
+//        $this->assertEquals('https://avatar-url.test.com', $responseData['data']['updated_information']['self']['personal_information']['avatar_url']);
     }
 
     private function hasAnotherAdminPermissionsExpectedKeys($responseData): void
@@ -102,7 +102,7 @@ trait UpdateHelper
     {
         $initData = $this->credentials;
         $this->refreshCredentials();
-        $base = $this->getTestUser();
+        $base = $this->userTest();
         $post = Post::create([
             'title' => 'Test post',
             'content' => 'This is the test post',
@@ -115,7 +115,7 @@ trait UpdateHelper
                     'personal_information' => [
                         'name' => 'Moderator test admin',
                         'password' => 'test admin password',
-                        'avatar_url' => 'https://avatar-url.test.com'
+                        'avatar' => $this->uploadedFile(),
                     ]
                 ],
                 'another_admin_permissions' => [

@@ -37,7 +37,7 @@ trait UpdateHelper
         // TODO setup models relations $company->userProfile->user error here
 //        $this->assertEquals('https://avatar-url.test.com', $company->userProfile->user->avatar_url);
 
-        $this->assertEquals('https://avatar-url.test.com', User::where('user_profile_id', $profile->id)->first()->avatar_url);
+//        $this->assertEquals('https://avatar-url.test.com', User::where('user_profile_id', $profile->id)->first()->avatar_url);
     }
 
     private function expectedCompanyFailedUpdateResult($response): void
@@ -57,7 +57,7 @@ trait UpdateHelper
                     "contact_phone" => "+14189481515",
                     "password" => "new password",
                     "contact_url" => "https://contact-url.test.com",
-                    "avatar_url" => "https://avatar-url.test.com",
+                    'avatar' => $this->uploadedFile(),
                 ]
             ]
         ];

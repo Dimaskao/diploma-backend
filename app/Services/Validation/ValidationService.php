@@ -5,7 +5,7 @@ namespace App\Services\Validation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class ValidationService
+readonly class ValidationService
 {
     /**
      * @throws ValidationException

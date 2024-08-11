@@ -13,29 +13,33 @@ trait SkillsUpdateHelper
     /**
      * @throws Exception
      */
-    protected function updateUserSkills($skills, $regularUser): array
+    protected function updateUserSkills(array $skills, $regularUser): array
     {
-        $result = [];
+        return array_map(function ($skill) use ($regularUser) {
+            $this->validateSkill($skill);
 
-        foreach ($skills as $skill) {
-            if (!isset($skill['id'])) {
-                throw new Exception('Skill id was not set');
-            }
-
-            if(!isset($skill[Edit::EDIT_INFO])) {
-                throw new Exception('Edit info was not set');
-            }
-
-            $skillId = $skill['id'];
-
-            $result[] = match ($skill[Edit::EDIT_INFO]) {
-                Edit::ADD => $this->addSkill($skillId, $regularUser),
-                Edit::REMOVE => $this->removeSkill($skillId, $regularUser),
-                default => throw new Exception('Edit info does not exist')
+            return match ($skill[Edit::EDIT_INFO]) {
+                Edit::ADD => $this->addSkill($skill['id'], $regularUser),
+                Edit::REMOVE => $this->removeSkill($skill['id'], $regularUser),
+                default => throw new Exception('Invalid edit info')
             };
-        }
-        return $result;
+        }, $skills);
     }
+
+    /**
+     * @throws Exception
+     */
+    private function validateSkill(array $skill): void
+    {
+        if (!isset($skill['id'])) {
+            throw new Exception('Skill id is required');
+        }
+
+        if (!isset($skill[Edit::EDIT_INFO])) {
+            throw new Exception('Edit info is required');
+        }
+    }
+
 
     private function addSkill($skillId, $user): array
     {
@@ -57,20 +61,25 @@ trait SkillsUpdateHelper
 
     private function removeSkill($skillId, $user): array
     {
-        $record = UserSkill::where('skill_id', $skillId)->where('user_id', $user->id)->first();
+        $skill = UserSkill::where('skill_id', $skillId)->where('user_id', $user->id)->first();
+        return $skill ? $this->removeSkillSuccess($skill) : $this->removeSkillError($skill);
+    }
 
-        if (!$record) {
-            return [
-                'id' => $record->id,
-                Edit::EDIT_INFO => Edit::REMOVE,
-                ResponseKey::RESULT => 'error'
-            ];
-        }
-
-        $record->delete();
+    private function removeSkillSuccess($skill): array
+    {
+        $skill->delete();
         return [
             Edit::EDIT_INFO => Edit::REMOVE,
             ResponseKey::RESULT => 'success'
+        ];
+    }
+
+    private function removeSkillError($skill): array
+    {
+        return [
+            'id' => $skill->id,
+            Edit::EDIT_INFO => Edit::REMOVE,
+            ResponseKey::RESULT => 'error'
         ];
     }
 }

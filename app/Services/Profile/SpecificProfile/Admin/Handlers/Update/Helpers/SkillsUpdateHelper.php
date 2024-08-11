@@ -59,20 +59,25 @@ trait SkillsUpdateHelper
      */
     protected function removeSkill($skill): array
     {
-        $record = Skill::where('name', $skill['name'])->first();
+        $skill = Skill::where('name', $skill['name'])->first();
+        return $skill ? $this->removeSkillSuccess($skill) : $this->removeSkillError($skill);
+    }
 
-        if (!$record) {
-            return [
-                'id' => $record->id,
-                Edit::EDIT_INFO => Edit::REMOVE,
-                ResponseKey::RESULT => 'error'
-            ];
-        }
-
-        $record->delete();
+    private function removeSkillSuccess($skill): array
+    {
+        $skill->delete();
         return [
             Edit::EDIT_INFO => Edit::REMOVE,
             ResponseKey::RESULT => 'success'
+        ];
+    }
+
+    private function removeSkillError($skill): array
+    {
+        return [
+            'id' => $skill->id,
+            Edit::EDIT_INFO => Edit::REMOVE,
+            ResponseKey::RESULT => 'error'
         ];
     }
 }

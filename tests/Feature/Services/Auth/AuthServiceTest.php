@@ -8,11 +8,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use TestsEnums\Entity;
 use TestsHelpers\Auth\AuthHelper;
+use TestsHelpers\Auth\AuthTests;
+use TestsHelpers\Auth\Login\AuthLoginTestsHelper;
+use TestsHelpers\Auth\Logout\AuthLogoutTestsHelper;
 
 class AuthServiceTest extends TestCase
 {
     use RefreshDatabase;
     use AuthHelper;
+    use AuthTests;
 
     protected function setUp(): void
     {

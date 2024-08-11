@@ -38,7 +38,7 @@ trait SearchServiceHelper
     {
         $this->role = UserRole::REGULAR_USER;
         $this->refreshCredentials();
-        $this->getTestUser();
+        $this->userTest();
 
         return [
             'query' => 'John',
@@ -50,7 +50,7 @@ trait SearchServiceHelper
     {
         $this->role = UserRole::COMPANY;
         $this->refreshCredentials();
-        $this->getTestUser();
+        $this->userTest();
 
         return [
             'query' => 'Test Company',

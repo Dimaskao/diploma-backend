@@ -42,7 +42,7 @@ trait UserProfileServiceTestsHelper
         $this->role = $role;
         $this->setUpAuth();
         $this->setUpRequest();
-        $this->user = $this->getTestUser();
+        $this->user = $this->userTest();
     }
 
     protected function setUpAuth(): void

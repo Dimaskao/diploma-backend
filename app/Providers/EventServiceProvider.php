@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Events\MessageSent;
 use App\Events\UserBanned;
-use App\Listeners\LogOutBannedUser;
+use App\Listeners\LogoutBannedUser;
 use App\Listeners\MessageSentListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -20,7 +20,7 @@ class EventServiceProvider extends ServiceProvider
             MessageSentListener::class,
         ],
         UserBanned::class => [
-            LogOutBannedUser::class
+            LogoutBannedUser::class
         ]
     ];
 
