@@ -7,7 +7,6 @@ use App\Enums\UserRole;
 use App\Factories\UserFactory;
 use App\Interfaces\Factory;
 use App\Models\User;
-use App\Services\Image\ImageProcessingService;
 use App\Services\Response\ResponseService;
 use App\Services\Validation\ValidationService;
 use Exception;
@@ -56,10 +55,10 @@ readonly class AuthService
             $this->validationService->validate($request->all(), $this->loginRules());
             $credentials = $request->only('email', 'password');
             $role = $request->input('role');
-            $token = $this->userLogin($credentials, $role);
+            $loginResult = $this->userLogin($credentials, $role);
 
-            if ($token) {
-                return $this->responseService->success([ResponseKey::TOKEN => $token]);
+            if ($loginResult[ResponseKey::TOKEN]) {
+                return $this->responseService->success($loginResult);
             } else {
                 return $this->responseService->unauthorized("Invalid credentials");
             }
@@ -118,7 +117,10 @@ readonly class AuthService
                 throw new RuntimeException('Personal access client not found. Please create one.');
             }
 
-            return $user->createToken('Personal Access Token', ['*'])->accessToken;
+            return [
+                ResponseKey::TOKEN => $user->createToken('Personal Access Token', ['*'])->accessToken,
+                ResponseKey::USER => $user->id
+            ];
         }
 
         return false;
