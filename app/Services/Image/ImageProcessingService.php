@@ -31,7 +31,7 @@ readonly class ImageProcessingService
 
     public function getImageUrl(?Media $media): string
     {
-        return $media->exists ? $media->getUrl() : '';
+        return $media?->exists ? $media->getUrl() : '';
     }
 
     /**

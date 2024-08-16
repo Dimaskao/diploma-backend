@@ -43,7 +43,7 @@ class PostController extends Controller
             }
         } catch (\Exception $e) {
             throw new HttpResponseException(response()->json([
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage() . PHP_EOL . $e->getFile() . PHP_EOL . $e->getLine(),
             ], 400));
         }
 
