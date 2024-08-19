@@ -4,7 +4,7 @@ namespace App\Services\Profile\SpecificProfile\RegularUser\Handlers\Get\Helpers;
 
 trait ProfileGetHelper
 {
-    protected function getRegularUserProfileData($user, $regularUser): array
+    protected function getRegularUserProfileData($regularUser, $user): array
     {
         return [
             'id' => $user->id,
