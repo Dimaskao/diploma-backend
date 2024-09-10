@@ -29,9 +29,9 @@ class ProfileStrategyFactory implements Factory
             }
 
             return match ($user->role->name) {
-                UserRole::REGULAR_USER => new RegularUserProfileStrategy(new RegularUserProfileService()),
-                UserRole::COMPANY => new CompanyProfileStrategy(new CompanyProfileService()),
-                UserRole::ADMIN => new AdminProfileStrategy(new AdminProfileService()),
+                UserRole::REGULAR_USER => new RegularUserProfileStrategy(resolve(RegularUserProfileService::class)),
+                UserRole::COMPANY => new CompanyProfileStrategy(resolve(CompanyProfileService::class)),
+                UserRole::ADMIN => new AdminProfileStrategy(resolve(AdminProfileService::class)),
                 default => throw new Exception('Invalid user role'),
             };
         }
