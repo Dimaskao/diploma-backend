@@ -45,6 +45,7 @@ services:
       - diploma-network
     env_file:
       - ".env"
+    restart: always
 networks:
   diploma-network:
 
