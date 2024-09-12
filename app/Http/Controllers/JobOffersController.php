@@ -20,9 +20,9 @@ class JobOffersController extends Controller
         return $this->service->getJobOfferById($id);
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->service->getJobOffers();
+        return $this->service->getJobOffers($request->get('limit'));
     }
 
     public function update($id, Request $request): JsonResponse
@@ -40,17 +40,17 @@ class JobOffersController extends Controller
         return $this->service->deleteJobOfferById($id);
     }
 
-    public function getJobOffersByCompanyId(int $id): JsonResponse
+    public function getJobOffersByCompanyId($id): JsonResponse
     {
         return $this->service->getJobOffersByCompanyId($id);
     }
 
-    public function subscribe(int $jobOffer_id, int $user_id): JsonResponse
+    public function subscribe($jobOffer_id, $user_id): JsonResponse
     {
         return $this->service->subscribeToJobOffer($jobOffer_id, $user_id);
     }
 
-    public function unsubscribe(int $jobOffer_id, int $user_id): JsonResponse
+    public function unsubscribe($jobOffer_id, $user_id): JsonResponse
     {
         return $this->service->unsubscribeFromJobOffer($jobOffer_id, $user_id);
     }

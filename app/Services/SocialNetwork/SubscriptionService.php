@@ -54,8 +54,7 @@ class SubscriptionService
 
     private function subscribeUser($subscriberId, $subscriptionId): JsonResponse
     {
-        UserContact::create([
-            'id' => (string)Str::uuid(),
+        UserContact::updateOrCreate([
             'subscriber_id' => $subscriberId,
             'subscription_id' => $subscriptionId
         ]);

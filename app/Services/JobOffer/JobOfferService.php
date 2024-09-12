@@ -73,9 +73,9 @@ class JobOfferService
         return $this->responseService->success($jobOffer);
     }
 
-    public function getJobOffers(): JsonResponse
+    public function getJobOffers(int $limit): JsonResponse
     {
-        $jobOffers = JobOffer::all();
+        $jobOffers = JobOffer::paginate($limit);
 
         return $this->responseService->success($jobOffers);
     }
@@ -163,7 +163,11 @@ class JobOfferService
                 return $this->deleteJobOfferById($jobOffer->id);
             }
 
-            $jobOffer->users()->detach([$user_id]);
+            $result = $jobOffer->users()->detach([$user_id]);
+
+            if ($result == 0) {
+                throw new Exception('User with id="' . $user_id . '" not found in subscribers.');
+            }
 
             return $this->responseService->success($jobOffer, 'JobOffer has been unsubscribed');
         } catch (Exception $e) {
