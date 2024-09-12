@@ -2,25 +2,22 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
-            $table->string('title');
-            $table->text('content');
-            $table->uuid('user_id')->nullable();
-            $table->uuid('company_id')->nullable();
+        Schema::create('users_job_offers', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->uuid('job_offer_id');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('job_offer_id')->references('id')->on('job_offers')->onDelete('cascade');
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('job_offers');
     }
 };

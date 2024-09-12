@@ -11,7 +11,7 @@ trait SkillsGetHelper
         return UserSkill::where('user_id', $regularUserRecord->id)->get()->map(function ($userSkill) {
             return [
                 'id' => $userSkill->id,
-                'name' => $userSkill->name
+                'name' => $userSkill->skill->name
             ];
         })->toArray();
     }

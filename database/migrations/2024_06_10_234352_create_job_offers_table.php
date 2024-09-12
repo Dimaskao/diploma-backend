@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,14 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('job_offers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
             $table->uuid('company_id');
             $table->string('title');
             $table->string('position');
             $table->text('description')->nullable();
             $table->text('requirements')->nullable();
             $table->text('requirement_experience')->nullable();
-            $table->timestamp('date_posted');
+            $table->timestamp('date_posted')->useCurrent();
             $table->timestamp('valid_until');
             $table->timestamps();
 

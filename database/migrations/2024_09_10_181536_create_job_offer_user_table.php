@@ -2,18 +2,19 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('skills', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(uuid())'));
-            $table->string('name');
+        Schema::create('job_offer_user', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('job_offer_id')->index();
+            $table->uuid('user_id')->index();
             $table->timestamps();
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('skills');
+        Schema::dropIfExists('job_offer_user');
     }
 };

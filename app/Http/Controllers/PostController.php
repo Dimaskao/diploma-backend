@@ -2,28 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostStatus;
+use App\Enums\PostVisibility;
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
     public function index(Request $request)
     {
-        return PostResource::collection(Post::paginate($request->get('limit') ?? 15));
+        return PostResource::collection(
+            Post::where('status', PostStatus::Published->value)
+                ->where('visibility', PostVisibility::Public->value)
+                ->paginate($request->get('limit') ?? 15)
+        );
     }
 
     public function store(StorePostRequest $request)
     {
-        $postData = $request->only(['title', 'content', 'user_id']);
+        $postData = $request->only(['title', 'content', 'user_id', 'status', 'visibility']);
 
         try {
             $post = Post::create([
-                'title' => $postData['title'],
-                'content' => $postData['content'],
-                'user_id' => $postData['user_id']
+                'title'      => $postData['title'],
+                'content'    => $postData['content'],
+                'user_id'    => $postData['user_id'],
+                'status'     => $postData['status'],
+                'visibility' => $postData['visibility'],
             ]);
 
             if ($request->has('images')) {
@@ -33,29 +43,36 @@ class PostController extends Controller
             }
         } catch (\Exception $e) {
             throw new HttpResponseException(response()->json([
-                'message'      => $e->getMessage()
+                'message' => $e->getMessage() . PHP_EOL . $e->getFile() . PHP_EOL . $e->getLine(),
             ], 400));
         }
 
-        return response()->json(new PostResource($post),201);
+        return response()->json(new PostResource($post), 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Post $post)
     {
-        return new PostResource(Post::findOrFail($id));
+        if (! Gate::allows('view', $post)) {
+            abort(403);
+        }
+
+        return new PostResource($post);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        $postData = $request->only(['title', 'content']);
+        if (! Gate::allows('update', $post)) {
+            abort(403);
+        }
 
-        $post = Post::findOrFail($id);
+        $postData = $request->only(['title', 'content', 'status', 'visibility']);
+
         $post->update($postData);
 
         if ($request->has('images')) {
@@ -74,9 +91,13 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        Post::findOrFail($id)->delete();
+        if (! Gate::allows('delete', $post)) {
+            abort(403);
+        }
+
+        $post->delete();
 
         return response()->json(['message' => 'Successfully deleted post']);
     }

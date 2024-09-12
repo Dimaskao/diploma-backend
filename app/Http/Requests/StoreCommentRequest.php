@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\PostStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class StorePostRequest extends FormRequest
+class StoreCommentRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,10 +14,9 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'   => 'required|string',
-            'content' => 'required|string',
+            'text'    => 'required|string',
+            'post_id' => 'required|exists:posts,id|uuid',
             'user_id' => 'required|exists:users,id|uuid',
-            'status'  => Rule::in(PostStatus::values()),
         ];
     }
 }

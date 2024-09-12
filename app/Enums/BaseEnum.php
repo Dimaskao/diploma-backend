@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use Illuminate\Support\Facades\Log;
 use ReflectionClass;
 
 abstract class BaseEnum
@@ -19,6 +18,7 @@ abstract class BaseEnum
         foreach ($cases as $name => $value) {
             $array[$value] = $name;
         }
+
         return $array;
     }
 
