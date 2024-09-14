@@ -7,6 +7,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostsFeedController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocialNetworkController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -41,5 +43,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/job-offers/by-company/{id}', [JobOffersController::class, 'getJobOffersByCompanyId']);
     Route::post('/job-offers/subscribe/{id}/{id_}', [JobOffersController::class, 'subscribe']);
     Route::post('/job-offers/unsubscribe/{id}/{id_}', [JobOffersController::class, 'unsubscribe']);
+
+    Route::get('/user', function() {
+        return Auth::user();
+    });
 
 });
