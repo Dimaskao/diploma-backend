@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\JobOffersController;
@@ -45,7 +46,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/job-offers/unsubscribe/{id}/{id_}', [JobOffersController::class, 'unsubscribe']);
 
     Route::get('/user', function() {
-        return Auth::user();
+        $name = match (Auth::user()->role->name) {
+            UserRole::REGULAR_USER => ['first_name' => Auth::user()->userProfile->regularUser->first_name, 'last_name' => Auth::user()->userProfile->regularUser->last_name],
+            UserRole::COMPANY      => ['first_name' => Auth::user()->userProfile->company->name, 'last_name' => null],
+            UserRole::ADMIN        => ['first_name' => Auth::user()->userProfile->admin->name, 'last_name' => null  ]
+        };
+
+        return [...Auth::user()->only('id', 'email'), 'role_name' => Auth::user()->role->name, ...$name];
     });
 
 });
