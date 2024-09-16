@@ -2,6 +2,7 @@
 
 namespace App\Services\JobOffer;
 
+use App\Http\Resources\JobOfferResource;
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Services\Response\ResponseService;
@@ -48,9 +49,10 @@ class JobOfferService
                         'requirements'           => $data['requirements'],
                         'requirement_experience' => $data['requirement_experience'],
                         'valid_until'            => $data['valid_until'],
+                        'date_posted'            => Carbon::now(),
                     ]);
 
-                    return $this->responseService->created($jobOffer, 'JobOffer created.');
+                    return $this->responseService->created(new JobOfferResource($jobOffer), 'JobOffer created.');
                 } else {
                     return $this->responseService->notFound('Company not found.');
                 }
@@ -70,14 +72,12 @@ class JobOfferService
             return $this->deleteJobOfferById($jobOffer->id);
         }
 
-        return $this->responseService->success($jobOffer);
+        return $this->responseService->success(new JobOfferResource($jobOffer));
     }
 
-    public function getJobOffers(int $limit): JsonResponse
+    public function getJobOffers(int $limit)
     {
-        $jobOffers = JobOffer::paginate($limit);
-
-        return $this->responseService->success($jobOffers);
+        return JobOfferResource::collection(JobOffer::paginate($limit));
     }
 
     public function getJobOffersByCompanyId(string $id): JsonResponse
