@@ -20,7 +20,7 @@ class JobOffersController extends Controller
         return $this->service->getJobOfferById($id);
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         return $this->service->getJobOffers($request->get('limit'));
     }
