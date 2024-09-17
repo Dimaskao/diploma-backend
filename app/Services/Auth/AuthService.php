@@ -119,7 +119,7 @@ readonly class AuthService
 
             return [
                 ResponseKey::TOKEN => $user->createToken('Personal Access Token', ['*'])->accessToken,
-                ResponseKey::USER => $user->id
+                ResponseKey::USER => $user
             ];
         }
 
